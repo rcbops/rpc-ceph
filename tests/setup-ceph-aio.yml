@@ -1,0 +1,7 @@
+---
+
+- include: setup-containers.yml
+
+- include: setup-ceph-storage.yml
+
+- include: ../playbooks/deploy-ceph.yml

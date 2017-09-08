@@ -1,0 +1,4 @@
+---
+- include: setup-containers.yml
+- include: test-setup-ceph.yml
+

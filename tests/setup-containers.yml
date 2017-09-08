@@ -1,0 +1,164 @@
+---
+- name: Playbook for configuring the LXC host
+  hosts: localhost
+  become: true
+  roles:
+    - role: "lxc_hosts"
+      lxc_net_address: 10.100.100.1
+      lxc_net_dhcp_range: 10.100.100.8,10.100.100.253
+      lxc_net_bridge: lxcbr0
+  post_tasks:
+    - name: Ensure that /etc/network/interfaces.d/ exists (Debian)
+      file:
+        path: /etc/network/interfaces.d/
+        state: directory
+      tags:
+        - networking-dir-create
+      when:
+        - ansible_pkg_mgr == 'apt'
+
+    - name: Copy network configuration (Debian)
+      template:
+        src: "network_interfaces/debian_interface_{{ item.type | default('default') }}.cfg.j2"
+        dest: "/etc/network/interfaces.d/{{ item.name | default('br-mgmt') }}.cfg"
+      with_items: "{{ bridges }}"
+      register: network_interfaces_deb
+      when:
+        - ansible_pkg_mgr == 'apt'
+
+    - name: Copy network configuration (RedHat)
+      template:
+        src: "network_interfaces/redhat_interface_{{ item.type | default('default') }}.cfg.j2"
+        dest: "/etc/sysconfig/network-scripts/ifcfg-{{ item.name | default('br-mgmt') }}"
+      with_items: "{{ bridges }}"
+      register: network_interfaces_rhel
+      when:
+        - ansible_pkg_mgr in ['yum', 'dnf']
+
+    - name: Copy network configuration (SUSE)
+      template:
+        src: "network_interfaces/suse_interface_{{ item.type | default('default') }}.cfg.j2"
+        dest: "/etc/sysconfig/network/ifcfg-{{ item.name | default('br-mgmt') }}"
+      with_items: "{{ bridges }}"
+      register: network_interfaces_suse
+      when:
+        - ansible_pkg_mgr == 'zypper'
+
+    - name: Create alias file when required
+      template:
+        src: "network_interfaces/redhat_interface_alias.cfg.j2"
+        dest: "/etc/sysconfig/network-scripts/ifcfg-{{ item.name | default('br-mgmt')}}:0"
+      with_items: "{{ bridges }}"
+      when:
+        - ansible_pkg_mgr in ['yum', 'dnf']
+        - item.alias is defined
+
+    - name: Put down post-up script for veth-peer interfaces (RedHat)
+      template:
+        src: "network_interfaces/rpm_interface_{{ item[0] }}.cfg.j2"
+        dest: "/etc/sysconfig/network-scripts/{{ item[0] }}-veth-{{ item[1].name | default('br-mgmt') }}-2-{{ item[1].veth_peer | default('eth1') }}"
+        mode: "0755"
+      with_nested:
+        - [ "ifup-post", "ifdown-post" ]
+        - "{{ bridges }}"
+      when:
+        - item[1].veth_peer is defined
+        - ansible_pkg_mgr in ['yum', 'dnf']
+
+    # NOTE(hworang): Nested loops do not work on blocks. See
+    # https://github.com/ansible/ansible/issues/13262
+    # As such we need to do that on a per-task basis.
+    - block:
+      - name: Put down post-up script for veth-peer interfaces (SUSE)
+        template:
+          src: "network_interfaces/rpm_interface_{{ item[0] }}.cfg.j2"
+          dest: "/etc/sysconfig/network/scripts/{{ item[0] }}-veth-{{ item[1].name | default('br-mgmt') }}-2-{{ item[1].veth_peer | default('eth1') }}"
+          mode: "0755"
+        with_nested:
+          - [ "ifup-post", "ifdown-post" ]
+          - "{{ bridges }}"
+      - name: Configure ifcfg files to use the post-up script (SUSE)
+        lineinfile:
+          dest: "/etc/sysconfig/network/ifcfg-{{ item[1].name | default('br-mgmt') }}"
+          line: "POST_UP_SCRIPT=\"compat:suse:{{ item[0] }}-veth-{{ item[1].name | default('br-mgmt') }}-2-{{ item[1].veth_peer | default('eth1') }}\""
+        with_nested:
+          - ['ifup-post']
+          - "{{ bridges }}"
+      - name: Configure ifcfg files to use the post-down script (SUSE)
+        lineinfile:
+          dest: "/etc/sysconfig/network/ifcfg-{{ item[1].name | default('br-mgmt') }}"
+          line: "POST_DOWN_SCRIPTS=\"compat:suse:{{ item[0] }}-veth-{{ item[1].name | default('br-mgmt') }}-2-{{ item[1].veth_peer | default('eth1') }}\""
+        with_nested:
+          - ['ifdown-post']
+          - "{{ bridges }}"
+      when:
+        - item[1].veth_peer is defined
+        - ansible_pkg_mgr == 'zypper'
+
+    - name: Ensure our interfaces.d configuration files are loaded automatically
+      lineinfile:
+        dest: /etc/network/interfaces
+        line: "source /etc/network/interfaces.d/*.cfg"
+      when:
+        - ansible_pkg_mgr == 'apt'
+      tags:
+        - networking-interfaces-load
+
+    - name: Ensure the postup/postdown scripts are loaded (RedHat)
+      lineinfile:
+        dest: "/etc/sysconfig/network-scripts/{{ item[0] }}"
+        line: ". /etc/sysconfig/network-scripts/{{ item[0] }}-veth-{{ item[1].name | default('br-mgmt') }}-2-{{ item[1].veth_peer | default('eth1') }}"
+        insertbefore: "^exit 0"
+      with_nested:
+        - [ "ifup-post", "ifdown-post" ]
+        - "{{ bridges }}"
+      when:
+        - item[1].veth_peer is defined
+        - ansible_pkg_mgr in ['yum', 'dnf']
+
+    - name: Shut down the network interfaces
+      command: "ifdown {{ item.name | default('br-mgmt') }}"
+      when:
+        - (network_interfaces_rhel | changed) or (network_interfaces_deb | changed) or
+          (network_interfaces_suse | changed)
+      with_items: "{{ bridges }}"
+
+    - name: Shut down the alias interface (RedHat)
+      command: "ifdown {{ item.name | default('br-mgmt') }}:0"
+      when:
+        - ansible_pkg_mgr in ['yum', 'dnf']
+        - network_interfaces_rhel | changed
+        - item.alias is defined
+      with_items: "{{ bridges }}"
+
+    - name: Start the network interfaces
+      command: "ifup {{ item.name | default('br-mgmt') }}"
+      when:
+        - (network_interfaces_rhel | changed) or (network_interfaces_deb | changed) or
+          (network_interfaces_suse | changed)
+      with_items: "{{ bridges }}"
+
+    - name: Start the alias interface (RedHat)
+      command: "ifup {{ item.name | default('br-mgmt') }}:0"
+      when:
+        - ansible_pkg_mgr in ['yum', 'dnf']
+        - network_interfaces_rhel | changed
+        - item.alias is defined
+      with_items: "{{ bridges }}"
+
+    - name: Determine iptables path
+      shell: which iptables
+      register: _iptables_path
+
+    - name: Add iptables rule to ensure traffic checksum is correct
+      command: "{{ _iptables_path.stdout }} -A POSTROUTING -t mangle -p tcp -j CHECKSUM --checksum-fill"
+
+    - name: Add iptables rule to provide internet connectivity to instances
+      command: "{{ _iptables_path.stdout }} -t nat -A POSTROUTING -o eth0 -j MASQUERADE"
+
+    - name: Add iptables rules for lxc natting
+      command: /usr/local/bin/lxc-system-manage iptables-create
+  vars_files:
+    - test-vars.yml
+
+- include: build-containers.yml

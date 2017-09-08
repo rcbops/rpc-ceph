@@ -1,0 +1,141 @@
+---
+- name: Setup some localhost bits for MaaS testing
+  hosts: localhost
+  become: true
+  tasks:
+  - name: Setup directories
+    file:
+      state: directory
+      path: "/etc/ceph"
+
+- name: Playbook for configuring fake storage on Ceph hosts
+  hosts: osds
+  become: true
+  tasks:
+  - name: Ensure xfsprogs is installed on localhost
+    package:
+      name: xfsprogs
+      state: present
+      use: "{{ ansible_pkg_mgr }}"
+    delegate_to: "{{ physical_host }}"
+    run_once: True
+  - name: Ensure xfsprogs is installed on containers
+    package:
+      name: xfsprogs
+      state: present
+  - name: Ensure Ceph fstab entriies are clear and file systems unmounted
+    mount:
+      name: "/srv/{{ container_name }}_{{ item }}"
+      src: "/opt/{{ container_name }}_{{ item }}.img"
+      fstype: xfs
+      opts: 'loop,noatime,nodiratime,nobarrier,logbufs=8'
+      passno: 0
+      dump: 0
+      state: absent
+    with_items:
+      - 'drive1'
+      - 'drive2'
+      - 'drive3'
+      - 'journ1'
+    register: mount_status
+    until: mount_status | success
+    retries: 5
+    delay: 2
+    delegate_to: "{{ physical_host }}"
+  - name: Clean up files if present
+    file:
+      state: absent
+      path: "/opt/{{ container_name }}_{{ item }}.img"
+    with_items:
+      - drive1
+      - drive2
+      - drive3
+      - journ1
+    delegate_to: "{{ physical_host }}"
+  - name: Clean up losetup devices
+    shell: "losetup -D"
+    run_once: True
+    delegate_to: "{{ physical_host }}"
+  - name: Create sparse Ceph files
+    shell: "fallocate -l 10G /opt/{{ container_name }}_{{ item }}.img"
+    args:
+      creates: "/opt/{{ container_name }}_{{ item }}.img"
+    with_items:
+      - drive1
+      - drive2
+      - drive3
+      - journ1
+    register: ceph_create
+    delegate_to: "{{ physical_host }}"
+  - name: Run losetup
+    shell: "losetup --find --show -P /opt/{{ container_name }}_{{ item }}.img"
+    with_items:
+      - drive1
+      - drive2
+      - drive3
+      - journ1
+    register: ceph_losetup
+    delegate_to: "{{ physical_host }}"
+  - name: Partition loopbacks
+    shell: parted --script {{ item.stdout }} 'mklabel gpt' && parted --script {{ item.stdout }} 'mkpart primary ext4 1 -1'
+    with_items: "{{ ceph_losetup.results }}"
+    delegate_to: "{{ physical_host }}"
+  - name: Get block devices
+    shell: "lsblk | grep {{ item.stdout|regex_replace('/dev/') }}p1 | awk '{print $2}'"
+    with_items: "{{ ceph_losetup.results }}"
+    register: block_devs
+    delegate_to: "{{ physical_host }}"
+  - name: Ceph extra lxc config
+    lxc_container:
+      name: "{{ container_name }}"
+      container_config:
+        - "lxc.aa_profile = unconfined"
+        - "lxc.cgroup.devices.allow = b {{ block_devs.results[0].stdout }} rwm"
+        - "lxc.cgroup.devices.allow = b {{ block_devs.results[1].stdout }} rwm"
+        - "lxc.cgroup.devices.allow = b {{ block_devs.results[2].stdout }} rwm"
+        - "lxc.cgroup.devices.allow = b {{ block_devs.results[3].stdout }} rwm"
+    delegate_to: "{{ physical_host }}"
+  - name: Wait for container connectivity
+    wait_for_connection:
+      connect_timeout: "{{ lxc_container_wait_params.connect_timeout | default(omit) }}"
+      delay: "{{ lxc_container_wait_params.delay | default(omit) }}"
+      sleep: "{{ lxc_container_wait_params.sleep | default(omit) }}"
+      timeout: "{{ lxc_container_wait_params.timeout | default(omit) }}"
+  - name: Mknod on loopback devices
+    #shell: "mknod -m 666 {{ device_mapping[item.0] }} b {{ item.1.stdout.split(':')[0] }} {{ item.1.stdout.split(':')[1] }}"
+    shell: "mknod -m 666 {{ device_mapping[item.0] }}1 b {{ item.1.stdout.split(':')[0] }} {{ item.1.stdout.split(':')[1] }}"
+    with_indexed_items: "{{ block_devs.results }}"
+    failed_when: false
+  vars_files:
+    - test-vars.yml
+
+- name: Setup systemd settings for PrivateDevices on containers
+  hosts: osds:mons:rgws
+  tasks:
+   - name: Create systemd service directory
+     file:
+       path: "/etc/systemd/system/ceph-{{ item }}@.service.d/"
+       state: directory
+       group: "root"
+       owner: "root"
+       mode: "0755"
+     when:
+       - ansible_service_mgr == 'systemd'
+     with_items:
+       - "mon"
+       - "radosgw"
+       - "osd"
+   - name: Add systemd override for PrivateDevices
+     copy:
+       dest: "/etc/systemd/system/ceph-{{ item }}@.service.d/ceph-{{ item }}-systemd-overrides.conf"
+       content: |
+         [Service]
+         PrivateDevices=false
+     with_items:
+       - "mon"
+       - "radosgw"
+       - "osd"
+     when:
+       - ansible_service_mgr == 'systemd'
+  vars_files:
+    - test-vars.yml
