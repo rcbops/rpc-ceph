@@ -1,0 +1,25 @@
+---
+- name: Clone ansible-role-reqs
+  hosts: localhost
+  connection: local
+  user: root
+  tasks:
+
+  - name: Clone git repos
+    git:
+      repo: "{{ item.src }}"
+      dest: "/etc/ansible/roles/{{ item.name }}"
+      version: "{{ item.version }}"
+      refspec: "{{ item.refspec | default(omit) }}"
+      update: true
+      force: true
+    when:
+      - item.scm == "git" or item.scm is undefined
+    with_items: "{{ roles }}"
+    register: _git_clone
+    until: _git_clone | success
+    retries: 2
+    delay: 5
+
+  vars:
+    roles: "{{ lookup('file', role_file)  | from_yaml }}"

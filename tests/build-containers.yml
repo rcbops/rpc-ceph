@@ -1,0 +1,24 @@
+- name: Gather facts for the LXC hosts
+  hosts: localhost
+  become: true
+  gather_facts: true
+
+- include: destroy_containers.yml
+  when: destroy_first | default(True) | bool
+
+- name: Playbook for creating containers
+  hosts: all_containers
+  become: True
+  gather_facts: False
+  any_errors_fatal: true
+  roles:
+    - role: "lxc_container_create"
+  post_tasks:
+    - name: Wait for container connectivity
+      wait_for_connection:
+        connect_timeout: "{{ lxc_container_wait_params.connect_timeout | default(omit) }}"
+        delay: "{{ lxc_container_wait_params.delay | default(omit) }}"
+        sleep: "{{ lxc_container_wait_params.sleep | default(omit) }}"
+        timeout: "{{ lxc_container_wait_params.timeout | default(omit) }}"
+  vars_files:
+    - test-vars.yml
