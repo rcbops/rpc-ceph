@@ -56,9 +56,9 @@ if [ "${FUNCTIONAL_TEST}" = true ]; then
   export ANSIBLE_OVERRIDES="${CLONE_DIR}/tests/test-vars.yml"
   export ANSIBLE_BINARY="ansible-playbook"
   # Use the rpc-maas deploy to test MaaS
-#  pushd ${RPC_MAAS_DIR}
-#    bash tests/test-ansible-functional.sh
-#  popd
+  pushd ${RPC_MAAS_DIR}
+    bash tests/test-ansible-functional.sh
+  popd
 else
   echo "Implement tox bits if necessary"
 fi
