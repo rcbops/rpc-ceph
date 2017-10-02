@@ -6,3 +6,4 @@
 
 - include: ../playbooks/deploy-ceph.yml
 
+- include: test-rgw.yml

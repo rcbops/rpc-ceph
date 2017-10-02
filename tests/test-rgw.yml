@@ -13,3 +13,6 @@
      register: out
 
    - debug: var=out.stdout_lines
+
+  vars_files:
+    - test-vars.yml
