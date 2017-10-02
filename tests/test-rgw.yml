@@ -1,15 +1,15 @@
 ---
-- hosts: localhost
+- hosts: mons[0]
   tasks:
    - name: Delete scbench pool if it exits
-     command: lxc-attach -n osdmonrgw -- ceph osd pool delete scbench scbench --yes-i-really-really-mean-it
+     command: ceph osd pool delete scbench scbench --yes-i-really-really-mean-it
      ignore_errors: True
 
    - name: Create the scbench pool used in the test
-     shell: lxc-attach -n osdmonrgw -- ceph osd pool create scbench 100 100
+     shell: ceph osd pool create scbench 100 100
 
    - name: Execute a standard rados bench test and save the output to stdout
-     shell: lxc-attach -n osdmonrgw -- rados bench -p scbench 10 write 
+     shell: rados bench -p scbench 10 write 
      register: out
 
    - debug: var=out.stdout_lines
