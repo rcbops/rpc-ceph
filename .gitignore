@@ -68,6 +68,7 @@ tests/*.retry
 
 # Retries on playbooks
 playbooks/*.retry
+playbooks/fetch/
 
 # Vagrant artifacts
 .vagrant
