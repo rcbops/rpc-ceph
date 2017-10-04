@@ -40,9 +40,9 @@
   scm: git
   version: master
 - name: rpc-maas
-  src: https://github.com/rcbops/rpc-maas
+  src: https://github.com/letterj/rpc-maas
   scm: git
-  version: master
+  version: addrgwmon
 - name: rpc-maas/tests/common
   src: https://git.openstack.org/openstack/openstack-ansible-tests
   scm: git
