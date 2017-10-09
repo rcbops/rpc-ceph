@@ -22,6 +22,7 @@ echo "+-------------------- START ENV VARS --------------------+"
 
 export FUNCTIONAL_TEST=${FUNCTIONAL_TEST:-true}
 export RPC_MAAS_DIR=${RPC_MAAS_DIR:-/etc/ansible/roles/rpc-maas}
+export IRR_CONTENXT=${IRR_CONTEXT:-"undefined"}
 
 # Install python2 for Ubuntu 16.04 and CentOS 7
 if which apt-get; then
@@ -56,9 +57,11 @@ if [ "${FUNCTIONAL_TEST}" = true ]; then
   export ANSIBLE_OVERRIDES="${CLONE_DIR}/tests/test-vars.yml"
   export ANSIBLE_BINARY="ansible-playbook"
   # Use the rpc-maas deploy to test MaaS
-  pushd ${RPC_MAAS_DIR}
-    bash tests/test-ansible-functional.sh
-  popd
+  if [ "${IRR_CONTEXT}" != "ceph" ]; then
+    pushd ${RPC_MAAS_DIR}
+      bash tests/test-ansible-functional.sh
+    popd
+  fi
 else
   echo "Implement tox bits if necessary"
 fi
