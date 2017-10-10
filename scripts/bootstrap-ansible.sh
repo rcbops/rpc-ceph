@@ -79,7 +79,11 @@ virtualenv --python=${PYTHON_EXEC_PATH} \
 get_pip /opt/ansible-runtime/bin/python
 
 # The vars used to prepare the Ansible runtime venv
-PIP_COMMAND="/opt/ansible-runtime/bin/pip"
+if [ -f "/opt/ansible-runtime/bin/pip" ]; then
+  PIP_COMMAND="/opt/ansible-runtime/bin/pip"
+else
+  PIP_COMMAND="$(which pip)"
+fi
 PIP_OPTS+=" --constraint global-requirement-pins.txt"
 
 # Install ansible and the other required packages
