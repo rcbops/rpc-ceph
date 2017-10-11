@@ -1,25 +1,8 @@
-- name: ceph.ceph-rgw
+- name: ceph-ansible
+  src: https://github.com/ceph/ceph-ansible
   scm: git
-  src: https://github.com/ceph/ansible-ceph-rgw
   version: v2.2.11
-- name: ceph.ceph-common
-  scm: git
-  src: https://github.com/ceph/ansible-ceph-common
-  version: v2.2.11
-- name: ceph.ceph-mon
-  scm: git
-  src: https://github.com/ceph/ansible-ceph-mon
-  version: v2.2.11
-- name: ceph.ceph-osd
-  scm: git
-  src: https://github.com/ceph/ansible-ceph-osd
-  version: v2.2.11
-# Dependency for ceph roles
-- name: ceph.ceph-docker-common
-  src: https://github.com/ceph/ansible-ceph-docker-common
-  scm: git
-  version: master
 - name: ../plugins
   src: https://git.openstack.org/openstack/openstack-ansible-plugins
   scm: git
-  version: master
+  version: stable/pike

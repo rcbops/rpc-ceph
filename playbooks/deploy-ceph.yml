@@ -37,7 +37,7 @@
   gather_facts: false
   become: True
   roles:
-  - ceph.ceph-mon
+  - ceph-mon
   vars_files:
     - ../tests/test-vars.yml
 
@@ -45,7 +45,7 @@
   gather_facts: false
   become: True
   roles:
-  - ceph.ceph-osd
+  - ceph-osd
   vars_files:
     - ../tests/test-vars.yml
 
@@ -53,6 +53,6 @@
   gather_facts: false
   become: True
   roles:
-  - ceph.ceph-rgw
+  - ceph-rgw
   vars_files:
     - ../tests/test-vars.yml
