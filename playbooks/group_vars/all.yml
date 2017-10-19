@@ -36,9 +36,9 @@ dummy:
 #bootstrap_dirs_owner: "64045"
 #bootstrap_dirs_group: "64045"
 
-#mon_group_name: mons
-#osd_group_name: osds
-#rgw_group_name: rgws
+mon_group_name: mons
+osd_group_name: osds
+rgw_group_name: rgws
 #mds_group_name: mdss
 #nfs_group_name: nfss
 #restapi_group_name: restapis
@@ -112,9 +112,9 @@ ceph_stable: true # use ceph stable branch
 #ceph_mirror: http://download.ceph.com
 #ceph_stable_key: https://download.ceph.com/keys/release.asc
 ceph_stable_release: jewel
-monitor_interface: eth1
-public_network: 10.1.1.0/24
-cluster_network: 10.2.1.0/24
+#monitor_interface: eth1
+#public_network: 10.1.1.0/24
+#cluster_network: 10.2.1.0/24
 radosgw_civetweb_num_threads: 1024
 
 ceph_conf_overrides:
@@ -374,7 +374,7 @@ ceph_conf_overrides:
 # OS TUNING #
 #############
 
-#disable_transparent_hugepage: true
+disable_transparent_hugepage: false
 #os_tuning_params:
 #  - { name: kernel.pid_max, value: 4194303 }
 #  - { name: fs.file-max, value: 26234859 }

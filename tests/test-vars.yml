@@ -4,6 +4,17 @@ force_containers_data_destroy: False
 ansible_addr_prefix: "10.1.1"
 storage_addr_prefix: "10.2.1"
 maas_rpc_legacy_ceph: True
+container_name: "{{ inventory_hostname }}"
+physical_host: localhost
+properties:
+  service_name: "{{ inventory_hostname }}"
+ansible_become: True
+ansible_user: root
+bridges:
+  - name: "br-mgmt"
+    ip_addr: "{{ ansible_addr_prefix }}.1"
+  - name: "br-storage"
+    ip_addr: "{{ storage_addr_prefix }}.1"
 
 
 ## LXC container default bind mounts
@@ -27,8 +38,39 @@ lxc_net_bridge: lxcbr0
 lxc_kernel_options:
   - { key: 'fs.inotify.max_user_instances', value: 1024 }
 
+ansible_ssh_extra_args: >
+  -o UserKnownHostsFile=/dev/null
+  -o StrictHostKeyChecking=no
+  -o UserKnownHostsFile=/dev/null
+  -o StrictHostKeyChecking=no
+  -o ServerAliveInterval=64
+  -o ServerAliveCountMax=1024
+  -o Compression=no
+  -o TCPKeepAlive=yes
+  -o VerifyHostKeyDNS=no
+  -o ForwardX11=no
+  -o ForwardAgent=yes
+  -T
+
+# Used to create the device mappings into the containers - not Ceph specific
 device_mapping:
   - /dev/sda
   - /dev/sdb
   - /dev/sdc
   - /dev/sdd
+
+## Testing specific Ceph vars
+monitor_interface: eth1
+public_network: 10.1.1.0/24
+cluster_network: 10.2.1.0/24
+journal_collocation: False
+raw_multi_journal: True
+devices:
+  - /dev/sda1
+  - /dev/sdb1
+  - /dev/sdc1
+
+raw_journal_devices:
+  - /dev/sdd1
+  - /dev/sdd1
+  - /dev/sdd1
