@@ -1,3 +1,0 @@
----
-radosgw_address_block: "{{ ansible_addr_prefix }}.0/24"
-radosgw_civetweb_bind_ip: "{{ hostvars[inventory_hostname]['ansible_all_ipv4_addresses'] | ipaddr(radosgw_address_block) | first }}"

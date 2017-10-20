@@ -66,16 +66,6 @@ dummy:
 # Declare devices to be used as OSDs
 # All scenario(except 3rd) inherit from the following device declaration
 
-devices:
-  - /dev/drive1
-  - /dev/drive2
-  - /dev/drive3
-
-raw_journal_devices:
-  - /dev/journ1
-  - /dev/journ1
-  - /dev/journ1
-
 #devices: []
 
 
