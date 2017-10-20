@@ -65,18 +65,28 @@ pip_install_rdo_repos: []
 pip_install_repo_priorities: []
 openstack_host_repo_priorities: []
 
+## Container specific Ceph vars for running services in containers
+ceph_rgw_systemd_overrides:
+  Service:
+    PrivateDevices: False
+ceph_mon_systemd_overrides:
+  Service:
+    PrivateDevices: False
+ceph_osd_systemd_overrides:
+  Service:
+    PrivateDevices: False
+
 ## Testing specific Ceph vars
 monitor_interface: eth1
 public_network: 10.1.1.0/24
 cluster_network: 10.2.1.0/24
-journal_collocation: False
-raw_multi_journal: True
+osd_scenario: non-collocated
 devices:
   - /dev/sda1
   - /dev/sdb1
   - /dev/sdc1
 
-raw_journal_devices:
+dedicated_devices:
   - /dev/sdd1
   - /dev/sdd1
   - /dev/sdd1
