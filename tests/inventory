@@ -5,8 +5,8 @@ mon2
 osd1
 osd2
 osdmonrgw
-#rgw1
-#rgw2
+rgw1
+rgw2
 
 [hosts]
 localhost
@@ -16,13 +16,13 @@ mon1
 mon2
 osd1
 osd2
-#rgw1
-#rgw2
+rgw1
+rgw2
 osdmonrgw
 
 [rgws]
-#rgw1
-#rgw2
+rgw1
+rgw2
 osdmonrgw
 
 [mons]
