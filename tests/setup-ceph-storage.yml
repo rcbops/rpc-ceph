@@ -137,5 +137,11 @@
        - "osd"
      when:
        - ansible_service_mgr == 'systemd'
-  vars_files:
-    - test-vars.yml
+
+# In order to change sysctl settings for CentOS7
+- name: Fix /proc/sys perms for CentOS7 containers
+  hosts: rgws:mons:osds
+  tasks:
+    - name: Remount /proc/sys rw
+      command: "mount -o remount rw /proc/sys"
+      when: ansible_os_family | lower == "redhat"
