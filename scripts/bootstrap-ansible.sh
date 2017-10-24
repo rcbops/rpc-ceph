@@ -2,16 +2,12 @@ set -e -u -x
 
 export ANSIBLE_PACKAGE=${ANSIBLE_PACKAGE:-"ansible==2.3.2.0"}
 export SSH_DIR=${SSH_DIR:-"/root/.ssh"}
-export ANSIBLE_ROLE_FILE=${ANSIBLE_ROLE_FILE:-"ansible-role-requirements-xenial.yml"}
+export ANSIBLE_ROLE_FILE=${ANSIBLE_ROLE_FILE:-"ansible-role-requirements.yml"}
 # Set the role fetch mode to any option [galaxy, git-clone]
 export ANSIBLE_ROLE_FETCH_MODE=${ANSIBLE_ROLE_FETCH_MODE:-git-clone}
 
 # Prefer dnf over yum for CentOS.
 which dnf &>/dev/null && RHT_PKG_MGR='dnf' || RHT_PKG_MGR='yum'
-
-if grep -q "Ubuntu 14.04" /etc/lsb-release; then
-  ANSIBLE_ROLE_FILE="ansible-role-requirements-trusty.yml"
-fi
 
 # This script should be executed from the root directory of the cloned repo
 cd "$(dirname "${0}")/.."
@@ -33,12 +29,11 @@ determine_distro
 # Install the base packages
 case ${DISTRO_ID} in
     centos|rhel)
-        yum -y install git python2 curl autoconf gcc-c++ \
-          python2-devel gcc libffi-devel nc openssl-devel \
-          python-pyasn1 pyOpenSSL python-ndg_httpsclient \
-          python-netaddr python-prettytable python-crypto PyYAML \
-          python-virtualenv
-          VIRTUALENV_OPTIONS=""
+        yum -y install \
+          git curl autoconf gcc gcc-c++ nc \
+          python2 python2-devel \
+          openssl-devel libffi-devel \
+          libselinux-python
         ;;
     ubuntu)
         apt-get update
@@ -52,13 +47,28 @@ esac
 
 PYTHON_EXEC_PATH="${PYTHON_EXEC_PATH:-$(which python2 || which python)}"
 PYTHON_VERSION="$($PYTHON_EXEC_PATH -c 'import sys; print(".".join(map(str, sys.version_info[:3])))')"
-# Install pip on the host if it is not already installed,
-# but also make sure that it is at least version 9.x or above.
-PIP_VERSION=$(pip --version 2>/dev/null | awk '{print $2}' | cut -d. -f1)
-if [[ "${PIP_VERSION}" -lt "9" ]]; then
-  get_pip ${PYTHON_EXEC_PATH}
+
+VIRTUALENV_VERSION=$(virtualenv --version 2>/dev/null | cut -d. -f1)
+if [[ "${VIRTUALENV_VERSION}" -lt "13" ]]; then
+
+  # Install pip on the host if it is not already installed,
+  # but also make sure that it is at least version 7.x or above
+  # so that it supports the use of the constraint option which
+  # was added in pip 7.1.
+  PIP_VERSION=$(pip --version 2>/dev/null | awk '{print $2}' | cut -d. -f1)
+  if [[ "${PIP_VERSION}" -lt "7" ]]; then
+    get_pip ${PYTHON_EXEC_PATH}
+    # Ensure that our shell knows about the new pip
+    hash -r pip
+  fi
+
+  pip install} \
+    virtualenv==15.1.0 \
+    || pip install \
+         --isolated \
+         virtualenv==15.1.0
   # Ensure that our shell knows about the new pip
-  hash -r pip
+  hash -r virtualenv
 fi
 
 pip install --requirement requirements.txt

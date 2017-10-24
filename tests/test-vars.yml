@@ -59,6 +59,12 @@ device_mapping:
   - /dev/sdc
   - /dev/sdd
 
+# For CentOS lets not setup any repos or priorities
+openstack_host_rdo_repos: []
+pip_install_rdo_repos: []
+pip_install_repo_priorities: []
+openstack_host_repo_priorities: []
+
 ## Testing specific Ceph vars
 monitor_interface: eth1
 public_network: 10.1.1.0/24
