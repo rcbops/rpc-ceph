@@ -109,32 +109,17 @@
   vars_files:
     - test-vars.yml
 
+# https://github.com/ceph/ceph-ansible/pull/2093
 - name: Setup systemd settings for PrivateDevices on containers
-  hosts: osds:mons:rgws
+  hosts: rgws
   tasks:
    - name: Create systemd service directory
      file:
-       path: "/etc/systemd/system/ceph-{{ item }}@.service.d/"
+       path: "/etc/systemd/system/ceph-radosgw@.service.d/"
        state: directory
        group: "root"
        owner: "root"
        mode: "0755"
-     when:
-       - ansible_service_mgr == 'systemd'
-     with_items:
-       - "mon"
-       - "radosgw"
-       - "osd"
-   - name: Add systemd override for PrivateDevices
-     copy:
-       dest: "/etc/systemd/system/ceph-{{ item }}@.service.d/ceph-{{ item }}-systemd-overrides.conf"
-       content: |
-         [Service]
-         PrivateDevices=false
-     with_items:
-       - "mon"
-       - "radosgw"
-       - "osd"
      when:
        - ansible_service_mgr == 'systemd'
 
