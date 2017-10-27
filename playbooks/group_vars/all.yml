@@ -7,6 +7,12 @@ ceph_origin: 'upstream' # or 'distro' or 'local'
 ceph_stable: true # use ceph stable branch
 ceph_stable_release: jewel
 
+# Journal size should be 2 * (expected throughput * filestore max sync interval)
+# Our expected max throughput on non-SSD drives is about 140MB/s
+# filestore max sync interval default is 5. So 14GB should be the journal size
+# Let's round that up to 20GB as a lazy/safe option
+osd_journal_size: 20480
+
 radosgw_civetweb_num_threads: 1024
 ceph_conf_overrides:
    global:
