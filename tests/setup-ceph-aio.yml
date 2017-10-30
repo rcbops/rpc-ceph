@@ -4,6 +4,9 @@
 
 - include: setup-ceph-storage.yml
 
+- include: setup-rsyslog-server.yml
+
 - include: ../playbooks/deploy-ceph.yml
 
 - include: test-rgw.yml
+- include: test-logging.yml

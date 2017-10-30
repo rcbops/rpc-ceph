@@ -1,0 +1,26 @@
+---
+- hosts: mons
+  tasks:
+   - name: Ensure mon logs exist
+     stat:
+       path: "/var/log/rsyslog/{{ container_name }}/ceph-mon.{{ container_name }}.log"
+     delegate_to: "{{ physical_host }}"
+     register: ceph_mon_log
+     failed_when: ceph_mon_log.stat.isreg == False
+
+- hosts: rgws
+  tasks:
+   - name: Ensure rgw logs exist
+     stat:
+       path: "/var/log/rsyslog/{{ container_name }}/ceph-rgw-{{ container_name }}.log"
+     delegate_to: "{{ physical_host }}"
+     register: ceph_rgw_log
+     failed_when: ceph_rgw_log.stat.isreg == False
+
+- hosts: osds
+  tasks:
+   - name: Ensure osd logs exist
+     shell: "ls /var/log/rsyslog/{{ container_name }}/ceph-osd.*.log | wc -l"
+     delegate_to: "{{ physical_host }}"
+     register: ceph_osd_log
+     failed_when: (ceph_osd_log.stdout | int) != 3

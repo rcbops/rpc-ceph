@@ -48,3 +48,6 @@
   become: True
   roles:
   - ceph-rgw
+
+# Setup logging to centralized rsyslog server
+- include: ceph-setup-logging.yml
