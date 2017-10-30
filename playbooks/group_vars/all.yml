@@ -13,6 +13,12 @@ ceph_stable_release: jewel
 # Let's round that up to 20GB as a lazy/safe option
 osd_journal_size: 20480
 
+# Set osd filesystem settings
+osd_mkfs_type: xfs
+osd_mkfs_options_xfs: -f -i size=2048
+osd_mount_options_xfs: noatime,largeio,inode64,swalloc
+osd_objectstore: filestore
+
 radosgw_civetweb_num_threads: 1024
 ceph_conf_overrides:
    global:
