@@ -30,29 +30,21 @@
     - name: install required packages for Fedora > 23
       raw: sudo dnf -y install python2-dnf libselinux-python ntp
       when: ansible_distribution == 'Fedora' and ansible_distribution_major_version|int >= 23
-  vars_files:
-    - ../tests/test-vars.yml
 
 - hosts: mons
   gather_facts: false
   become: True
   roles:
   - ceph-mon
-  vars_files:
-    - ../tests/test-vars.yml
 
 - hosts: osds
   gather_facts: false
   become: True
   roles:
   - ceph-osd
-  vars_files:
-    - ../tests/test-vars.yml
 
 - hosts: rgws
   gather_facts: false
   become: True
   roles:
   - ceph-rgw
-  vars_files:
-    - ../tests/test-vars.yml
