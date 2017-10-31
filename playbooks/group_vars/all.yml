@@ -3,7 +3,7 @@ mon_group_name: mons
 osd_group_name: osds
 rgw_group_name: rgws
 
-ceph_origin: 'upstream' # or 'distro' or 'local'
+ceph_origin: 'repository' # or 'distro' or 'local'
 ceph_stable: true # use ceph stable branch
 ceph_stable_release: jewel
 
@@ -27,3 +27,5 @@ ceph_conf_overrides:
      mon_osd_down_out_interval: 900
 
 disable_transparent_hugepage: false
+containerized_deployment: false
+cephx: true
