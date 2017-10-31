@@ -6,3 +6,7 @@
   src: https://git.openstack.org/openstack/openstack-ansible-plugins
   scm: git
   version: stable/pike
+- name: rsyslog_client
+  src: https://git.openstack.org/openstack/openstack-ansible-rsyslog_client
+  scm: git
+  version: stable/pike

@@ -34,3 +34,6 @@ osdmonrgw
 osd1
 osd2
 osdmonrgw
+
+[rsyslog_all]
+localhost

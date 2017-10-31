@@ -1,0 +1,23 @@
+# Setup rsyslog logging
+- hosts: mons:osds:rgws
+  become: True
+  post_tasks:
+    - name: Configure syslog user in Ceph group
+      user:
+        name: syslog
+        groups: ceph
+        append: yes
+        state: present
+      register: group_change
+    - name: Restart rsyslog service
+      service:
+        name: rsyslog
+        state: restarted
+      when: group_change | changed
+  roles:
+    - role: "rsyslog_client"
+      rsyslog_client_log_rotate_file: ceph_log_rotate
+      rsyslog_client_log_dir: "/var/log/ceph"
+      rsyslog_client_config_name: "99-ceph-rsyslog-client.conf"
+  tags:
+    - rsyslog
