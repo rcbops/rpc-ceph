@@ -22,7 +22,7 @@ echo "+-------------------- START ENV VARS --------------------+"
 
 export FUNCTIONAL_TEST=${FUNCTIONAL_TEST:-true}
 export RPC_MAAS_DIR=${RPC_MAAS_DIR:-/etc/ansible/roles/rpc-maas}
-export IRR_CONTENXT=${IRR_CONTEXT:-"undefined"}
+export IRR_CONTEXT=${IRR_CONTEXT:-"undefined"}
 
 # Install python2 for Ubuntu 16.04 and CentOS 7
 if which apt-get; then
