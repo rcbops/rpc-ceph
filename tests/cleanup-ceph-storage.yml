@@ -1,0 +1,19 @@
+---
+- name: Clean up files if present
+  file:
+    state: absent
+    path: "/opt/{{ container_name }}_{{ item }}.img"
+  with_items:
+    - drive1
+    - drive2
+    - drive3
+    - journ1
+  delegate_to: "{{ physical_host }}"
+- name: Clean up losetup devices
+  shell: "losetup -D"
+  run_once: True
+  delegate_to: "{{ physical_host }}"
+- name: Clean up existing in /var/log/rsyslog
+  command: "rm -rf /var/log/rsyslog/*"
+  run_once: True
+  delegate_to: "{{ physical_host }}"

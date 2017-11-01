@@ -12,6 +12,7 @@
   hosts: osds
   become: true
   tasks:
+  - include: cleanup-ceph-storage.yml
   - name: Ensure xfsprogs is installed on localhost
     package:
       name: xfsprogs
@@ -23,40 +24,7 @@
     package:
       name: xfsprogs
       state: present
-  - name: Ensure Ceph fstab entriies are clear and file systems unmounted
-    mount:
-      name: "/srv/{{ container_name }}_{{ item }}"
-      src: "/opt/{{ container_name }}_{{ item }}.img"
-      fstype: xfs
-      opts: 'loop,noatime,nodiratime,nobarrier,logbufs=8'
-      passno: 0
-      dump: 0
-      state: absent
-    with_items:
-      - 'drive1'
-      - 'drive2'
-      - 'drive3'
-      - 'journ1'
-    register: mount_status
-    until: mount_status | success
-    retries: 5
-    delay: 2
-    delegate_to: "{{ physical_host }}"
-  - name: Clean up files if present
-    file:
-      state: absent
-      path: "/opt/{{ container_name }}_{{ item }}.img"
-    with_items:
-      - drive1
-      - drive2
-      - drive3
-      - journ1
-    delegate_to: "{{ physical_host }}"
-  - name: Clean up losetup devices
-    shell: "losetup -D"
-    run_once: True
-    delegate_to: "{{ physical_host }}"
-  - name: Create sparse Ceph files
+  - name: Create Ceph files
     shell: "fallocate -l 10G /opt/{{ container_name }}_{{ item }}.img"
     args:
       creates: "/opt/{{ container_name }}_{{ item }}.img"
