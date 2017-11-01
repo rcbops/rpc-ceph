@@ -4,9 +4,11 @@ mon1
 mon2
 osd1
 osd2
-osdmonrgw
+allsvc
 rgw1
 rgw2
+mgr1
+mgr2
 
 [hosts]
 localhost
@@ -18,22 +20,29 @@ osd1
 osd2
 rgw1
 rgw2
-osdmonrgw
+mgr1
+mgr2
+allsvc
 
 [rgws]
 rgw1
 rgw2
-osdmonrgw
+allsvc
 
 [mons]
 mon1
 mon2
-osdmonrgw
+allsvc
 
 [osds]
 osd1
 osd2
-osdmonrgw
+allsvc
+
+[mgrs]
+mgr1
+mgr2
+allsvc
 
 [rsyslog_all]
 localhost

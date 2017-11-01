@@ -1,6 +1,6 @@
 ---
-ansible_host: "{{ ansible_addr_prefix }}.107"
-ceph_storage_address: "{{ storage_addr_prefix }}.107"
+ansible_host: "{{ ansible_addr_prefix }}.103"
+ceph_storage_address: "{{ storage_addr_prefix }}.103"
 container_networks:
   management_address:
     address: "{{ ansible_host }}"

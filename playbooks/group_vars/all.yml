@@ -2,10 +2,11 @@
 mon_group_name: mons
 osd_group_name: osds
 rgw_group_name: rgws
+mgr_group_name: mgrs
 
 ceph_origin: 'repository' # or 'distro' or 'local'
 ceph_stable: true # use ceph stable branch
-ceph_stable_release: jewel
+ceph_stable_release: luminous
 
 # Journal size should be 2 * (expected throughput * filestore max sync interval)
 # Our expected max throughput on non-SSD drives is about 140MB/s
