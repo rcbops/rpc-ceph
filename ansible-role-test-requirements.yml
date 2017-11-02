@@ -15,9 +15,9 @@
   scm: git
   version: stable/pike
 - name: rpc-maas
-  src: https://github.com/rcbops/rpc-maas
+  src: https://github.com/andymcc/rpc-maas
   scm: git
-  version: master
+  version: ceph_luminous_support
 - name: rpc-maas/tests/common
   src: https://git.openstack.org/openstack/openstack-ansible-tests
   scm: git
