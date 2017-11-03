@@ -93,7 +93,7 @@
 
 # In order to change sysctl settings for CentOS7
 - name: Fix /proc/sys perms for CentOS7 containers
-  hosts: rgws:mons:osds
+  hosts: rgws:mons:osds:mgrs
   tasks:
     - name: Remount /proc/sys rw
       command: "mount -o remount rw /proc/sys"

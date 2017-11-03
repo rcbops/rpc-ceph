@@ -1,5 +1,5 @@
 # Setup rsyslog logging
-- hosts: mons:osds:rgws
+- hosts: mons:osds:rgws:mgrs
   become: True
   post_tasks:
     - name: Configure syslog user in Ceph group

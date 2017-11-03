@@ -75,6 +75,9 @@ ceph_mon_systemd_overrides:
 ceph_osd_systemd_overrides:
   Service:
     PrivateDevices: False
+ceph_mgr_systemd_overrides:
+  Service:
+    PrivateDevices: False
 
 ## Testing specific Ceph vars
 # We don't have enough space in an AIO to run 20GB journal devices
