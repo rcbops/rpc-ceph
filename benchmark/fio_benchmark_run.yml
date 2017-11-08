@@ -1,0 +1,24 @@
+---
+- hosts: benchmark_hosts
+  become: True
+  gather_facts: True
+  tasks:
+    - name: Run fio jobs and record version/config info
+      shell: 'echo -e "FIO Version: `fio --version`\nFIO Config Used:\n`cat /opt/ceph_bench/{{ item.name }}`\n\nFIO Test Output:\n`fio /opt/ceph_bench/{{ item.name }}`" | tee /opt/ceph_bench/logs/{{ item.name }}.{{ ansible_date_time.iso8601_basic_short }}.log'
+      register: fio_output
+      with_items:
+        - name: "fio_direct_read_test.cfg"
+          run_type: (sata_bench | default(True))
+        - name: "fio_direct_write_test.cfg"
+          run_type: (sata_bench | default(True))
+        - name: "fio_rw_mix.cfg"
+          run_type: (sata_bench | default(True))
+        - name: "fio_test_file_write.cfg"
+          run_type: (ssd_bench | default(True))
+        - name: "fio_test_file_read.cfg"
+          run_type: (ssd_bench | default(True))
+      when: item.run_type
+    - name: Debug fio outputs
+      debug:
+        var: item.stdout_lines
+      with_items: "{{ fio_output.results }}"

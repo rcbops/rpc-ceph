@@ -10,3 +10,4 @@
 
 - include: test-rgw.yml
 - include: test-logging.yml
+- include: ../benchmark/fio_benchmark.yml

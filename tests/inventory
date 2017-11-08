@@ -46,3 +46,6 @@ allsvc
 
 [rsyslog_all]
 localhost
+
+[benchmark_hosts]
+localhost
