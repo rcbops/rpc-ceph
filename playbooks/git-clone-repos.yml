@@ -15,11 +15,11 @@
       force: true
     when:
       - item.scm == "git" or item.scm is undefined
-    with_items: "{{ roles }}"
+    with_items: "{{ clone_roles }}"
     register: _git_clone
     until: _git_clone | success
     retries: 2
     delay: 5
 
   vars:
-    roles: "{{ lookup('file', role_file)  | from_yaml }}"
+    clone_roles: "{{ lookup('file', role_file)  | from_yaml }}"
