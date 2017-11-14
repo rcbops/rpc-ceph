@@ -79,6 +79,27 @@ ceph_mgr_systemd_overrides:
   Service:
     PrivateDevices: False
 
+## Testing specific fio_bench vars
+fio_direct_read_test_overrides:
+  global:
+    runtime: 10
+fio_direct_write_test_overrides:
+  global:
+    runtime: 10
+fio_rw_mix_overrides:
+  global:
+    runtime: 10
+fio_test_file_read_overrides:
+  global:
+    runtime: 10
+  fio_test_file:
+    size: 10M
+fio_test_file_write_overrides:
+  global:
+    runtime: 10
+  fio_test_file:
+    size: 10M
+
 ## Testing specific Ceph vars
 # We don't have enough space in an AIO to run 20GB journal devices
 osd_journal_size: 2048

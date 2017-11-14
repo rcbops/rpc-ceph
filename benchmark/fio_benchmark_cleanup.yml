@@ -1,0 +1,66 @@
+---
+- hosts: benchmark_hosts
+  become: True
+  tasks:
+    - name: Get bench_direct_device_name
+      shell: "rbd-nbd list-mapped | grep ' {{ fiobench_pool_name | default('fiobench') }} ' | grep ' bench_direct ' | awk '{ print $5 }'"
+      register: _find_bench_direct_device_name
+      when: bench_direct_device_name is not defined
+    - name: Get bench_file_device_name
+      shell: "rbd-nbd list-mapped | grep ' {{ fiobench_pool_name | default('fiobench') }} ' | grep ' bench_file ' | awk '{ print $5 }'"
+      register: _find_bench_file_device_name
+      when: bench_file_device_name is not defined
+    - name: Set bench_device_name vars
+      set_fact:
+        _bench_direct_device_name: "{{ bench_direct_device_name | default(_find_bench_direct_device_name.stdout) }}"
+        _bench_file_device_name: "{{ bench_file_device_name | default(_find_bench_file_device_name.stdout) }}"
+    - name: Unmount device
+      mount:
+        src: "{{ _bench_file_device_name }}"
+        fstype: xfs
+        state: unmounted
+        path: "/mnt/fio_bench"
+    - name: Ensure mount is removed from fstab
+      mount:
+        src: "{{ _bench_file_device_name }}"
+        fstype: xfs
+        state: absent
+        path: "/mnt/fio_bench"
+    - name: Remove /mnt/fio_bench directory
+      file:
+        state: absent
+        path: "/mnt/fio_bench"
+    - name: Unmap rbd-nbd device
+      command: "rbd-nbd unmap {{ item }}"
+      with_items:
+        - "{{ _bench_direct_device_name }}"
+        - "{{ _bench_file_device_name }}"
+    - name: Delete image
+      command: "rbd remove {{ fiobench_pool_name | default('fiobench') }}/{{ item }} -k /etc/ceph/ceph.client.fiobench.keyring -n client.fiobench"
+      with_items:
+        - "bench_file"
+        - "bench_direct"
+
+# Cleanup the benchmark pool if we created it
+- hosts: mons[0]
+  become: True
+  tasks:
+    - name: Check the value of mon_allow_pool_delete
+      shell: "ceph daemon mon.{{ ansible_hostname }} config get mon_allow_pool_delete | grep -q false"
+      register: allow_pool_delete
+      when: fiobench_pool_name is not defined
+    - name: Set to mon_allow_pool_delete if it isn't already
+      command: "ceph daemon mon.{{ ansible_hostname }} config set mon_allow_pool_delete true"
+      when:
+        - fiobench_pool_name is not defined
+        - allow_pool_delete.rc == 0
+    - name: Delete fiobench pool
+      command: "ceph osd pool delete fiobench fiobench --yes-i-really-really-mean-it"
+      when: fiobench_pool_name is not defined
+    - name: Set the mon_allow_pool_delete to false if it was before
+      command: "ceph daemon mon.{{ ansible_hostname }} config set mon_allow_pool_delete false"
+      when:
+        - fiobench_pool_name is not defined
+        - allow_pool_delete.rc == 0
+    - name: Remove client.fiobench user
+      command: "ceph auth del client.fiobench"
