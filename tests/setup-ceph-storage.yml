@@ -25,7 +25,7 @@
       name: xfsprogs
       state: present
   - name: Create Ceph files
-    shell: "fallocate -l 10G /opt/{{ container_name }}_{{ item }}.img"
+    shell: "fallocate -l {{ rpc_ceph_test_osd_size }} /opt/{{ container_name }}_{{ item }}.img"
     args:
       creates: "/opt/{{ container_name }}_{{ item }}.img"
     with_items:
