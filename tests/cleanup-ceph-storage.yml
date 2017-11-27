@@ -6,7 +6,6 @@
   with_items:
     - drive1
     - drive2
-    - drive3
     - journ1
   delegate_to: "{{ physical_host }}"
 - name: Clean up losetup devices

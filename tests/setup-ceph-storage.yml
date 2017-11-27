@@ -31,7 +31,6 @@
     with_items:
       - drive1
       - drive2
-      - drive3
       - journ1
     register: ceph_create
     delegate_to: "{{ physical_host }}"
@@ -40,7 +39,6 @@
     with_items:
       - drive1
       - drive2
-      - drive3
       - journ1
     register: ceph_losetup
     delegate_to: "{{ physical_host }}"
@@ -61,7 +59,6 @@
         - "lxc.cgroup.devices.allow = b {{ block_devs.results[0].stdout }} rwm"
         - "lxc.cgroup.devices.allow = b {{ block_devs.results[1].stdout }} rwm"
         - "lxc.cgroup.devices.allow = b {{ block_devs.results[2].stdout }} rwm"
-        - "lxc.cgroup.devices.allow = b {{ block_devs.results[3].stdout }} rwm"
     delegate_to: "{{ physical_host }}"
   - name: Wait for container connectivity
     wait_for_connection:
