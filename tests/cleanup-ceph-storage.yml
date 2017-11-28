@@ -7,6 +7,7 @@
     - drive1
     - drive2
     - journ1
+    - journ2
   delegate_to: "{{ physical_host }}"
 - name: Clean up losetup devices
   shell: "losetup -D"
