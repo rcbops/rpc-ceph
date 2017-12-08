@@ -3,6 +3,7 @@ localhost
 mon1
 mon2
 osd1
+osd2
 allsvc
 rgw1
 mgr1
@@ -15,6 +16,7 @@ localhost
 mon1
 mon2
 osd1
+osd2
 rgw1
 mgr1
 mgr2
@@ -31,6 +33,7 @@ allsvc
 
 [osds]
 osd1
+osd2
 allsvc
 
 [mgrs]
