@@ -32,6 +32,7 @@
       - drive1
       - drive2
       - journ1
+      - journ2
     register: ceph_create
     delegate_to: "{{ physical_host }}"
   - name: Run losetup
@@ -40,25 +41,20 @@
       - drive1
       - drive2
       - journ1
+      - journ2
     register: ceph_losetup
-    delegate_to: "{{ physical_host }}"
-  - name: Partition loopbacks
-    shell: parted --script {{ item.stdout }} 'mklabel gpt' && parted --script {{ item.stdout }} 'mkpart primary ext4 1 -1'
-    with_items: "{{ ceph_losetup.results }}"
-    delegate_to: "{{ physical_host }}"
-  - name: Get block devices
-    shell: "lsblk | grep {{ item.stdout|regex_replace('/dev/') }}p1 | awk '{print $2}'"
-    with_items: "{{ ceph_losetup.results }}"
-    register: block_devs
     delegate_to: "{{ physical_host }}"
   - name: Ceph extra lxc config
     lxc_container:
       name: "{{ container_name }}"
       container_config:
         - "lxc.aa_profile = unconfined"
-        - "lxc.cgroup.devices.allow = b {{ block_devs.results[0].stdout }} rwm"
-        - "lxc.cgroup.devices.allow = b {{ block_devs.results[1].stdout }} rwm"
-        - "lxc.cgroup.devices.allow = b {{ block_devs.results[2].stdout }} rwm"
+        - "lxc.cgroup.devices.allow = b *:* rwm"
+    delegate_to: "{{ physical_host }}"
+  - name: Partition loopbacks
+    shell: parted --script {{ item.stdout }} 'mklabel gpt' && parted --script {{ item.s
+dout }} 'mkpart primary ext4 1 -1'
+    with_items: "{{ ceph_losetup.results }}"
     delegate_to: "{{ physical_host }}"
   - name: Wait for container connectivity
     wait_for_connection:
@@ -66,11 +62,36 @@
       delay: "{{ lxc_container_wait_params.delay | default(omit) }}"
       sleep: "{{ lxc_container_wait_params.sleep | default(omit) }}"
       timeout: "{{ lxc_container_wait_params.timeout | default(omit) }}"
-  - name: Mknod on loopback devices
-    #shell: "mknod -m 666 {{ device_mapping[item.0] }} b {{ item.1.stdout.split(':')[0] }} {{ item.1.stdout.split(':')[1] }}"
-    shell: "mknod -m 666 {{ device_mapping[item.0] }}1 b {{ item.1.stdout.split(':')[0] }} {{ item.1.stdout.split(':')[1] }}"
-    with_indexed_items: "{{ block_devs.results }}"
-    failed_when: false
+  - name: Add devices to host
+    command: "lxc-device -n {{ container_name }} add {{ item[0].stdout }}{{ item[1] }}"
+    with_nested:
+      - "{{ ceph_losetup.results }}"
+      - [ "p1", "" ]
+    delegate_to: "{{ physical_host }}"
+  - name: Set the drive1 var
+    set_fact:
+      _drive1: "{{ item.stdout }}p1"
+    with_items: "{{ ceph_losetup.results }}"
+    when: item.item == "drive1"
+  - name: Set the drive2 var
+    set_fact:
+      _drive2: "{{ item.stdout }}p1"
+    with_items: "{{ ceph_losetup.results }}"
+    when: item.item == "drive2"
+  - name: Set journ1 var
+    set_fact:
+      _journ1: "{{ item.stdout }}p1"
+    with_items: "{{ ceph_losetup.results }}"
+    when: item.item == "journ1"
+  - name: Set journ2 var
+    set_fact:
+      _journ2: "{{ item.stdout }}p1"
+    with_items: "{{ ceph_losetup.results }}"
+    when: item.item == "journ2"
+  - name: Set devices vars
+    set_fact:
+      devices: [ "{{ _drive1 }}", "{{ _drive2 }}" ]
+      dedicated_devices: [ "{{ _journ1 }}", "{{ _journ2 }}" ]
   vars_files:
     - test-vars.yml
 
