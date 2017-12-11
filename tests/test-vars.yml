@@ -57,7 +57,6 @@ device_mapping:
   - /dev/sda
   - /dev/sdb
   - /dev/sdc
-  - /dev/sdd
 
 # For CentOS lets not setup any repos or priorities
 openstack_host_rdo_repos: []
@@ -107,15 +106,15 @@ fio_test_file_write_overrides:
 # We setup 3 osds + 1 journal per host, there are 3 hosts.
 rpc_ceph_test_osd_size: 3G
 # We don't have enough space in an AIO to run 20GB journal devices
-osd_journal_size: 1024
+journal_size: 1024
 monitor_interface: eth1
 public_network: 10.1.1.0/24
 cluster_network: 10.2.1.0/24
 osd_scenario: non-collocated
 devices:
-  - /dev/sda1
-  - /dev/sdb1
+  - /dev/sda
+  - /dev/sdb
 
 dedicated_devices:
-  - /dev/sdc1
-  - /dev/sdc1
+  - /dev/sdc
+  - /dev/sdc

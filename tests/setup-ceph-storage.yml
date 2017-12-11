@@ -43,8 +43,9 @@
     register: ceph_losetup
     delegate_to: "{{ physical_host }}"
   - name: Partition loopbacks
-    shell: parted --script {{ item.stdout }} 'mklabel gpt' && parted --script {{ item.stdout }} 'mkpart primary ext4 1 -1'
+    shell: parted --script {{ item.stdout }} 'mklabel gpt' && parted --script {{ item.stdout }} 'mkpart primary ext4 1 -1' && parted --script {{ item.stdout }}p1 'mklabel gpt' && partprobe
     with_items: "{{ ceph_losetup.results }}"
+    failed_when: False
     delegate_to: "{{ physical_host }}"
   - name: Get block devices
     shell: "lsblk | grep {{ item.stdout|regex_replace('/dev/') }}p1 | awk '{print $2}'"
@@ -56,9 +57,7 @@
       name: "{{ container_name }}"
       container_config:
         - "lxc.aa_profile = unconfined"
-        - "lxc.cgroup.devices.allow = b {{ block_devs.results[0].stdout }} rwm"
-        - "lxc.cgroup.devices.allow = b {{ block_devs.results[1].stdout }} rwm"
-        - "lxc.cgroup.devices.allow = b {{ block_devs.results[2].stdout }} rwm"
+        - "lxc.cgroup.devices.allow = b *:* rwm"
     delegate_to: "{{ physical_host }}"
   - name: Wait for container connectivity
     wait_for_connection:
@@ -67,26 +66,11 @@
       sleep: "{{ lxc_container_wait_params.sleep | default(omit) }}"
       timeout: "{{ lxc_container_wait_params.timeout | default(omit) }}"
   - name: Mknod on loopback devices
-    #shell: "mknod -m 666 {{ device_mapping[item.0] }} b {{ item.1.stdout.split(':')[0] }} {{ item.1.stdout.split(':')[1] }}"
-    shell: "mknod -m 666 {{ device_mapping[item.0] }}1 b {{ item.1.stdout.split(':')[0] }} {{ item.1.stdout.split(':')[1] }}"
+    shell: "mknod -m 666 {{ device_mapping[item.0] }} b {{ item.1.stdout.split(':')[0] }} {{ item.1.stdout.split(':')[1] }} && mknod -m 666 {{ device_mapping[item.0] }}1 b {{ item.1.stdout.split(':')[0] }} {{ item.1.stdout.split(':')[1] }}"
     with_indexed_items: "{{ block_devs.results }}"
     failed_when: false
   vars_files:
     - test-vars.yml
-
-# https://github.com/ceph/ceph-ansible/pull/2093
-- name: Setup systemd settings for PrivateDevices on containers
-  hosts: rgws
-  tasks:
-   - name: Create systemd service directory
-     file:
-       path: "/etc/systemd/system/ceph-radosgw@.service.d/"
-       state: directory
-       group: "root"
-       owner: "root"
-       mode: "0755"
-     when:
-       - ansible_service_mgr == 'systemd'
 
 # In order to change sysctl settings for CentOS7
 - name: Fix /proc/sys perms for CentOS7 containers
