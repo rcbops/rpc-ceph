@@ -62,7 +62,6 @@ device_mapping:
 openstack_host_rdo_repos: []
 pip_install_rdo_repos: []
 pip_install_repo_priorities: []
-uca_enable: False
 openstack_host_repo_priorities: []
 
 ## Container specific Ceph vars for running services in containers
