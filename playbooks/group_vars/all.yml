@@ -12,7 +12,7 @@ ceph_stable_release: luminous
 # Our expected max throughput on non-SSD drives is about 140MB/s
 # filestore max sync interval default is 5. So 14GB should be the journal size
 # Let's round that up to 20GB as a lazy/safe option
-osd_journal_size: 20480
+journal_size: "{{ osd_journal_size | default('20480') }}"
 
 # Set osd filesystem settings
 osd_mkfs_type: xfs
