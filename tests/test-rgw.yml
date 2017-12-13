@@ -1,18 +1,30 @@
 ---
 - hosts: mons[0]
   tasks:
-   - name: Delete scbench pool if it exits
-     command: ceph osd pool delete scbench scbench --yes-i-really-really-mean-it
-     ignore_errors: True
+    - name: Create the scbench pool used in the test
+      shell: ceph osd pool create scbench 100 100
 
-   - name: Create the scbench pool used in the test
-     shell: ceph osd pool create scbench 100 100
+    - name: Execute a standard rados bench test and save the output to stdout
+      shell: rados bench -p scbench 10 write
+      register: out
 
-   - name: Execute a standard rados bench test and save the output to stdout
-     shell: rados bench -p scbench 10 write 
-     register: out
+    - debug: var=out.stdout_lines
 
-   - debug: var=out.stdout_lines
+    - name: Check the value of mon_allow_pool_delete
+      shell: "ceph daemon mon.{{ ansible_hostname }} config get mon_allow_pool_delete | grep -q false"
+      register: allow_pool_delete
+    - name: Set to mon_allow_pool_delete if it isn't already
+      command: "ceph daemon mon.{{ ansible_hostname }} config set mon_allow_pool_delete true"
+      when:
+        - allow_pool_delete.rc == 0
+
+    - name: Delete fiobench pool
+      command: "ceph osd pool delete scbench scbench --yes-i-really-really-mean-it"
+
+    - name: Set the mon_allow_pool_delete to false if it was before
+      command: "ceph daemon mon.{{ ansible_hostname }} config set mon_allow_pool_delete false"
+      when:
+        - allow_pool_delete.rc == 0
 
   vars_files:
     - test-vars.yml
