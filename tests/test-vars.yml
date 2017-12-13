@@ -3,7 +3,6 @@ force_containers_destroy: True
 force_containers_data_destroy: False
 ansible_addr_prefix: "10.1.1"
 storage_addr_prefix: "10.2.1"
-maas_rpc_legacy_ceph: True
 container_name: "{{ inventory_hostname }}"
 physical_host: localhost
 properties:
@@ -117,3 +116,15 @@ devices:
 dedicated_devices:
   - /dev/sdc
   - /dev/sdc
+
+### MaaS settings
+# Enable the API usage
+maas_use_api: true
+# Will restart the agent service ONLY once at the end of a site.yml run
+maas_restart_independent: false
+# Set the default notification plan, in the gate this is set here
+maas_notification_plan: npTechnicalContactsEmail
+# Set the MaaS entity to be ansible_hostname instead of inventory_hostname
+maas_entity_name: "{{ ansible_hostname }}{{ maas_fqdn_extension }}"
+# Allow ceph services to be inside containers.
+maas_rpc_legacy_ceph: True
