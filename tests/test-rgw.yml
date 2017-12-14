@@ -1,4 +1,17 @@
 ---
+- hosts: utility_all[0]
+  tasks:
+    - name: Install python-swiftclient
+      pip:
+        name: "python-swiftclient"
+        state: "present"
+      register: install_packages
+      until: install_packages|success
+      retries: 5
+      delay: 2
+    - name: Run a swift stat
+      shell: ". /root/openrc && swift stat"
+
 - hosts: mons[0]
   tasks:
     - name: Create the scbench pool used in the test

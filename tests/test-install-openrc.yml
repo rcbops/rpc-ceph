@@ -1,0 +1,9 @@
+---
+- name: Install openrc role
+  hosts: utility_all
+  roles:
+    - role: "openstack_openrc"
+      tags:
+        - openstack_openrc
+  vars_files:
+    - common/test-vars.yml

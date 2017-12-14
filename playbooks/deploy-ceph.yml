@@ -153,3 +153,6 @@
 
 # Setup logging to centralized rsyslog server
 - include: ceph-setup-logging.yml
+# Setup Ceph RGW Endpoint if keystone is available
+- include: ceph-keystone-rgw.yml
+  when: radosgw_keystone | bool

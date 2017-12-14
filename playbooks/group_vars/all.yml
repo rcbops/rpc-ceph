@@ -39,7 +39,7 @@ ceph_conf_overrides_extra: {}
 # overall ceph_conf_overrides_all (above).
 # Additionally, we can set extras as a variable override without having to
 # respecify all the above settings.
-ceph_conf_overrides: "{{ ceph_conf_overrides_all | combine(ceph_conf_overrides_extra, recursive = True) }}"
+ceph_conf_overrides: "{{ ceph_conf_overrides_all | combine((ceph_conf_overrides_rgw | default({})), ceph_conf_overrides_extra, recursive = True) }}"
 
 os_tuning_params:
   - { name: kernel.pid_max, value: 4194303 }
@@ -62,3 +62,12 @@ os_tuning_params:
 disable_transparent_hugepage: false
 containerized_deployment: false
 cephx: true
+
+### Set this password in user_vars
+radosgw_keystone_admin_password:
+
+radosgw_keystone: false
+
+radosgw_service_publicurl: "https://{{ external_lb_vip_address }}:{{ radosgw_civetweb_port }}/swift/v1"
+radosgw_service_adminurl: "http://{{ internal_lb_vip_address }}:{{ radosgw_civetweb_port }}/swift/v1"
+radosgw_service_internalurl: "http://{{ internal_lb_vip_address }}:{{ radosgw_civetweb_port }}/swift/v1"
