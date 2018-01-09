@@ -50,7 +50,7 @@ The inventory should consist of the following:
 
 1. Configure the following inventory:
 
-   * ``ansible_host`` var.
+   * ``ansible_host`` var for each host.
    * Devices, ``dedicated_devices`` for osd hosts.
 
 2. Configure a variables file including the following ``ceph-ansible`` vars:
