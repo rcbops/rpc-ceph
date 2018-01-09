@@ -53,15 +53,16 @@ if [ "${FUNCTIONAL_TEST}" = true ]; then
   export CLONE_DIR="$(pwd)"
   export ANSIBLE_INVENTORY="${CLONE_DIR}/tests/inventory"
   export ANSIBLE_OVERRIDES="${CLONE_DIR}/tests/test-vars.yml"
-  export ANSIBLE_BINARY="ansible-playbook"
+  export ANSIBLE_BINARY="/opt/rpc-ceph_ansible-runtime/bin/ansible-playbook"
   bash scripts/bootstrap-ansible.sh
   # Clone the test repos
   pushd playbooks
-    ansible-playbook git-clone-repos.yml \
-                     -i ${CLONE_DIR}/tests/inventory \
-                     -e role_file=../ansible-role-test-requirements.yml
+    "${ANSIBLE_BINARY}" git-clone-repos.yml \
+         -i ${CLONE_DIR}/tests/inventory \
+         -e role_file=../ansible-role-test-requirements.yml
   popd
-  ansible-playbook -i tests/inventory tests/setup-ceph-aio.yml -e @tests/test-vars.yml
+  "${ANSIBLE_BINARY}" -i tests/inventory tests/setup-ceph-aio.yml \
+      -e @tests/test-vars.yml
   # Use the rpc-maas deploy to test MaaS
   if [ "${IRR_CONTEXT}" != "ceph" ]; then
     pushd ${RPC_MAAS_DIR}
