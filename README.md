@@ -60,11 +60,11 @@ The inventory should consist of the following:
    * ``cluster_network``
    * ``osd_scenario``
    * Any other ``ceph-ansible`` settings you want to configure.
-  
+
 3. Run the ``bootstrap-ansible.sh`` inside the scripts directory:
 
-   ```
-   # ./scripts/bootstrap-ansible.sh
+   ```bash
+   ./scripts/bootstrap-ansible.sh
    ```
 
 4. This configures ansible at a pre-tested version and clones the required role repositories:
@@ -75,8 +75,8 @@ The inventory should consist of the following:
 
 5. Run the ``ceph-ansible`` playbook from the playbooks directory:
 
-   ```
-   # ansible-playbook -i <link to your inventory file> playbooks/deploy-ceph.yml -e @<link to your vars file>
+   ```bash
+   /opt/rpc-ceph_ansible-runtime/bin/ansible-playbook -i <link to your inventory file> playbooks/deploy-ceph.yml -e @<link to your vars file>
    ```
 
 Your deployment should be successful.
@@ -96,7 +96,7 @@ Your deployment should be successful.
 For MaaS integration, perform the following export commands.
 Otherwise just use ``./run_tests.sh`` to build the AIO.
 
-```
+```bash
 export PUBCLOUD_USERNAME=<username>
 export PUBCLOUD_API_KEY=<api_key>
 export IRR_CONTEXT=master

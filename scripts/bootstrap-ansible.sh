@@ -74,23 +74,23 @@ fi
 pip install --requirement requirements.txt
 
 # Create a Virtualenv for the Ansible runtime
-if [ -f "/opt/ansible-runtime/bin/python" ]; then
-  VENV_PYTHON_VERSION="$(/opt/ansible-runtime/bin/python -c 'import sys; print(".".join(map(str, sys.version_info[:3])))')"
+if [ -f "/opt/rpc-ceph_ansible-runtime/bin/python" ]; then
+  VENV_PYTHON_VERSION="$(/opt/rpc-ceph_ansible-runtime/bin/python -c 'import sys; print(".".join(map(str, sys.version_info[:3])))')"
   if [ "$PYTHON_VERSION" != "$VENV_PYTHON_VERSION" ]; then
-    rm -rf /opt/ansible-runtime
+    rm -rf /opt/rpc-ceph_ansible-runtime
   fi
 fi
 virtualenv --python=${PYTHON_EXEC_PATH} \
            --clear \
            --no-pip --no-setuptools --no-wheel \
-           /opt/ansible-runtime
+           /opt/rpc-ceph_ansible-runtime
 
 # Install pip, setuptools and wheel into the venv
-get_pip /opt/ansible-runtime/bin/python
+get_pip /opt/rpc-ceph_ansible-runtime/bin/python
 
 # The vars used to prepare the Ansible runtime venv
-if [ -f "/opt/ansible-runtime/bin/pip" ]; then
-  PIP_COMMAND="/opt/ansible-runtime/bin/pip"
+if [ -f "/opt/rpc-ceph_ansible-runtime/bin/pip" ]; then
+  PIP_COMMAND="/opt/rpc-ceph_ansible-runtime/bin/pip"
 else
   PIP_COMMAND="$(which pip)"
 fi
@@ -99,29 +99,16 @@ PIP_OPTS+=" --constraint global-requirement-pins.txt"
 # Install ansible and the other required packages
 ${PIP_COMMAND} install ${PIP_OPTS} -r requirements.txt ${ANSIBLE_PACKAGE}
 
-# Ensure that Ansible binaries run from the venv
-pushd /opt/ansible-runtime/bin
-  for ansible_bin in $(ls -1 ansible*); do
-    if [ "${ansible_bin}" == "ansible" ] || [ "${ansible_bin}" == "ansible-playbook" ]; then
-
-      # For any other commands, we want to link directly to the binary
-      ln -sf /opt/ansible-runtime/bin/${ansible_bin} /usr/local/bin/${ansible_bin}
-
-    fi
-  done
-popd
-
 # Update dependent roles
 if [ -f "${ANSIBLE_ROLE_FILE}" ]; then
   if [[ "${ANSIBLE_ROLE_FETCH_MODE}" == 'galaxy' ]];then
     # Pull all required roles.
-    ansible-galaxy install --role-file="${ANSIBLE_ROLE_FILE}" \
-                           --force
+    /opt/rpc-ceph_ansible-runtime/bin/ansible-galaxy install \
+        --role-file="${ANSIBLE_ROLE_FILE}" --force
   elif [[ "${ANSIBLE_ROLE_FETCH_MODE}" == 'git-clone' ]];then
     pushd playbooks
-      ansible-playbook git-clone-repos.yml \
-                       -i ${CLONE_DIR}/tests/inventory \
-                       -e role_file=${ANSIBLE_ROLE_FILE}
+      /opt/rpc-ceph_ansible-runtime/bin/ansible-playbook git-clone-repos.yml \
+          -i ${CLONE_DIR}/tests/inventory -e role_file=${ANSIBLE_ROLE_FILE}
     popd
   else
     echo "Please set the ANSIBLE_ROLE_FETCH_MODE to either of the following options ['galaxy', 'git-clone']"
