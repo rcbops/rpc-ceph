@@ -107,7 +107,7 @@ if [ -f "${ANSIBLE_ROLE_FILE}" ]; then
         --role-file="${ANSIBLE_ROLE_FILE}" --force
   elif [[ "${ANSIBLE_ROLE_FETCH_MODE}" == 'git-clone' ]];then
     pushd playbooks
-      /opt/rpc-ceph_ansible-runtime/bin/ansible-playbook git-clone-repos.yml \
+      ${ANSIBLE_BINARY} git-clone-repos.yml \
           -i ${CLONE_DIR}/tests/inventory -e role_file=${ANSIBLE_ROLE_FILE}
     popd
   else
