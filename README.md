@@ -67,7 +67,9 @@ The inventory should consist of the following:
    ./scripts/bootstrap-ansible.sh
    ```
 
-4. This configures ansible at a pre-tested version and clones the required role repositories:
+4. This configures ansible at a pre-tested version, creates a ``ceph-ansible``
+   binary that points to the appropriate ansible-playbook binary, and clones the
+   required role repositories:
 
    * ``ceph-ansible``
    * ``rsyslog_client``
@@ -76,7 +78,7 @@ The inventory should consist of the following:
 5. Run the ``ceph-ansible`` playbook from the playbooks directory:
 
    ```bash
-   /opt/rpc-ceph_ansible-runtime/bin/ansible-playbook -i <link to your inventory file> playbooks/deploy-ceph.yml -e @<link to your vars file>
+   ceph-ansible -i <link to your inventory file> playbooks/deploy-ceph.yml -e @<link to your vars file>
    ```
 
 Your deployment should be successful.
