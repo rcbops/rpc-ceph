@@ -1,7 +1,7 @@
 - name: ceph-ansible
   src: https://github.com/ceph/ceph-ansible
   scm: git
-  version: f0411d4fe9e1f3bf432011fd226a0cee1730705e
+  version: v3.0.17
 - name: ../plugins
   src: https://git.openstack.org/openstack/openstack-ansible-plugins
   scm: git
