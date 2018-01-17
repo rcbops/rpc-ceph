@@ -39,9 +39,6 @@ if ! which pip; then
     https://bootstrap.pypa.io/get-pip.py | sudo python2.7
 fi
 
-# Install bindep and tox with pip.
-sudo pip install bindep tox
-
 # CentOS 7 requires two additional packages:
 #   redhat-lsb-core - for bindep profile support
 #   epel-release    - required to install python-ndg_httpsclient/python2-pyasn1
@@ -53,14 +50,12 @@ if [ "${FUNCTIONAL_TEST}" = true ]; then
   export CLONE_DIR="$(pwd)"
   export ANSIBLE_INVENTORY="${CLONE_DIR}/tests/inventory"
   export ANSIBLE_OVERRIDES="${CLONE_DIR}/tests/test-vars.yml"
-  export ANSIBLE_BINARY="${ANSIBLE_BINARY:-/opt/rpc-ceph_ansible-runtime/bin/ansible-playbook}"
+  export ANSIBLE_BINARY="${ANSIBLE_BINARY:-ceph-ansible}"
   bash scripts/bootstrap-ansible.sh
   # Clone the test repos
-  pushd playbooks
-    "${ANSIBLE_BINARY}" git-clone-repos.yml \
-         -i ${CLONE_DIR}/tests/inventory \
-         -e role_file=../ansible-role-test-requirements.yml
-  popd
+  "${ANSIBLE_BINARY}" playbooks/git-clone-repos.yml \
+       -i ${CLONE_DIR}/tests/inventory \
+       -e role_file=../ansible-role-test-requirements.yml
   "${ANSIBLE_BINARY}" -i tests/inventory tests/setup-ceph-aio.yml \
       -e @tests/test-vars.yml
   # Use the rpc-maas deploy to test MaaS
