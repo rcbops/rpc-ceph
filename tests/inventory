@@ -13,14 +13,14 @@ mgr2
 localhost
 
 [all_containers]
-mon1
-mon2
-osd1
-osd2
-rgw1
-mgr1
-mgr2
-allsvc
+mon1 container_name=mon1 physical_host=localhost
+mon2 container_name=mon2 physical_host=localhost
+osd1 container_name=osd1 physical_host=localhost
+osd2 container_name=osd2 physical_host=localhost
+rgw1 container_name=rgw1 physical_host=localhost
+mgr1 container_name=mgr1 physical_host=localhost
+mgr2 container_name=mgr2 physical_host=localhost
+allsvc container_name=allsvc physical_host=localhost
 
 [rgws]
 rgw1
