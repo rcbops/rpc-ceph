@@ -64,6 +64,4 @@ if [ "${FUNCTIONAL_TEST}" = true ]; then
       bash tests/test-ansible-functional.sh
     popd
   fi
-else
-  echo "Implement tox bits if necessary"
 fi
