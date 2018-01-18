@@ -2,7 +2,7 @@
 - hosts: mons[0]
   tasks:
     - name: Create the scbench pool used in the test
-      shell: ceph osd pool create scbench 100 100
+      shell: ceph osd pool create scbench 5 5
 
     - name: Execute a standard rados bench test and save the output to stdout
       shell: rados bench -p scbench 10 write
