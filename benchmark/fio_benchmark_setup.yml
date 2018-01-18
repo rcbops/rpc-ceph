@@ -5,7 +5,7 @@
   become: True
   tasks:
     - name: Create fiobench pool
-      command: "ceph osd pool create fiobench {{ fiobench_pgnum | default(100) }} {{ fiobench_pgpnum | default(fiobench_pgnum | default(100)) }}"
+      command: "ceph osd pool create fiobench {{ fiobench_pgnum | default(100) }} {{ fiobench_pgpnum | default(fiobench_pgnum | default(5)) }}"
       run_once: True
       when: fiobench_pool_name is not defined
     - name: Create benchmark ceph client
