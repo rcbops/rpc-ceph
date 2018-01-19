@@ -78,6 +78,8 @@ ceph_mgr_systemd_overrides:
     PrivateDevices: False
 
 ## Testing specific fio_bench vars
+fiobench_pgnum: 5
+fiobench_pgpnum: 5
 fio_direct_read_test_overrides:
   global:
     runtime: 10
