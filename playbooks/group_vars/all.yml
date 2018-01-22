@@ -20,6 +20,9 @@ osd_mkfs_options_xfs: -f -i size=2048
 osd_mount_options_xfs: noatime,largeio,inode64,swalloc
 osd_objectstore: filestore
 
+# Prevents misconfigured OSDs from joining the cluster and causing problems.
+osd_heartbeat_min_size: 9000
+
 radosgw_civetweb_num_threads: 4096
 ceph_conf_overrides:
    global:
