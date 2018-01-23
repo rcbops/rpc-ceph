@@ -105,6 +105,11 @@ fio_test_file_write_overrides:
 # NB if you change the size you will need to change the osd_journal_size
 # We setup 3 osds + 1 journal per host, there are 3 hosts.
 rpc_ceph_test_osd_size: 3G
+# Small test cluster we should set the default pg_num & pgp_num to 32
+ceph_conf_overrides_extra:
+   global:
+     osd_pool_default_pg_num: 32
+     osd_pool_default_pgp_num: 32
 # We don't have enough space in an AIO to run 20GB journal devices
 journal_size: 1024
 monitor_interface: eth1

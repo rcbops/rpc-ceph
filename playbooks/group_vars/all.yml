@@ -22,7 +22,7 @@ osd_objectstore: filestore
 
 
 radosgw_civetweb_num_threads: 4096
-ceph_conf_overrides:
+ceph_conf_overrides_all:
    global:
      osd_pool_default_pg_num: 128
      osd_pool_default_pgp_num: 128
@@ -33,6 +33,13 @@ ceph_conf_overrides:
      rbd_cache_max_dirty: 50331648
      rbd_cache_max_dirty_age: 15
      rbd_cache_target_dirty: 33554432
+
+ceph_conf_overrides_extra: {}
+# This allows us to have ceph_conf_overrides per group without overwriting the
+# overall ceph_conf_overrides_all (above).
+# Additionally, we can set extras as a variable override without having to
+# respecify all the above settings.
+ceph_conf_overrides: "{{ ceph_conf_overrides_all | combine(ceph_conf_overrides_extra, recursive = True) }}"
 
 os_tuning_params:
   - { name: kernel.pid_max, value: 4194303 }
