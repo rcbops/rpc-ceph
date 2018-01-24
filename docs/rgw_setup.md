@@ -20,10 +20,10 @@ To Install rgw **ONLY** and **NOT** use any of rpc-ceph configured varibles
 
 ### To install rgw addtions to the inventory file.   
 
-Add the **rgw** group with a list of hosts into the ceph environment's inventory file. 
+Add the **rgws** group with a list of hosts into the ceph environment's inventory file. 
 For example:
 ```bash
-[rgw]
+[rgws]
 ceph-rgw01
 ceph-rgw02
 ceph-rgw03
@@ -45,21 +45,23 @@ ceph-ansible -i <link to your inventory file> playbooks/deploy-ceph.yml -e@<link
 
 
 ## Installation of rgw with Stand Alone Openstack KeyStone
-To Install rgw and connect it to a Stand Alone instance of OpenStack Keystone.   Please refer to other documentation for the RPC guidelines for installing and setting up OpenStack Keystone.   This ceph rgw guide assumes you have an working OpenStack Keystone system in place
+To Install rgw and connect it to a Stand Alone instance of OpenStack Keystone.   Please refer to other documentation for the RPC guidelines for installing and setting up OpenStack Keystone.   This ceph rgw guide assumes you have an working OpenStack Keystone system setup set up because you will need information from it for variables.  
 
 ### To install rgw addtions to the inventory file.   
 
-Add the **rgw** group with a list of hosts into the ceph environment's inventory file. 
+Add the **rgws** group with a list of hosts into the ceph environment's inventory file. 
 For example:
 ```bash
-[rgw]
+[rgws]
 ceph-rgw01
 ceph-rgw02
 ceph-rgw03
 
 [keystone_all]
-keystone_host
+keystone_host   ansible_host=<ip_address>
 ```
+**Special Note**: You will need to have access to the keystone host/container via ssh, from the deployment host
+
 
 ### Preset variables
 rpc-ceph has already assigned some ceph-ansible variable in the file **(playbooks/group_vars/rgws.yml)[https://raw.githubusercontent.com/rcbops/rpc-ceph/master/playbooks/group_vars/rgws.yml]**  If special needs are required for a specific customer's requirements these variable can be changed or overridden
@@ -80,11 +82,15 @@ radosgw_keystone_service_description: "Ceph Object Service"
 * internal_lb_vip_address
 * service_region
 * radosgw_keystone **(set to True)**
-* keystone_service_adminurl
 * radosgw_keystone_admin_user
 * radosgw_keystone_admin_password
 * radosgw_keystone_admin_tenant
-* What from this?   https://github.com/rcbops/rpc-ceph/blob/master/playbooks/ceph-keystone-rgw.yml
+These all need to match whatever was setup on the openstack side, so the password/admin_user/tenant
+all have to match what is in the keystone/openstack deployment.
+* keystone_admin_user_name
+* keystone_auth_admin_password
+* keystone_admin_tenant_name
+* keystone_service_adminuri_insecure
 
 ### Run the deployment
 ```bash
@@ -93,21 +99,22 @@ ceph-ansible -i <link to your inventory file> playbooks/deploy-ceph.yml -e@<link
 
 
 ## Installation of rgw with Openstack KeyStone and OpenStack Ansible
-To Install rgw and connect it to a Stand Alone instance of OpenStack Keystone.   Please refer to other documentation for the RPC guidelines for installing and setting up OpenStack Keystone.   This ceph rgw guide assumes you have an working OpenStack Keystone system in place
+To Install rgw and connect it to a Stand Alone instance of OpenStack Keystone.   Please refer to other documentation for the RPC guidelines for installing and setting up OpenStack Keystone.   This ceph rgw guide assumes you have an working OpenStack Keystone system in set up set up because you will need information from it for variables
 
 ### To install rgw addtions to the inventory file.   
 
-Add the **rgw** group with a list of hosts into the ceph environment's inventory file. 
+Add the **rgws** group with a list of hosts into the ceph environment's inventory file. 
 For example:
 ```bash
-[rgw]
+[rgws]
 ceph-rgw01
 ceph-rgw02
 ceph-rgw03
 
 [keystone_all]
-keystone_host
+keystone_host   ansible_host=<ip_address>
 ```
+**Special Note**: You will need to have access to the keystone host/container via ssh, from the deployment host
 
 ### Preset variables
 rpc-ceph has already assigned some ceph-ansible variable in the file **(playbooks/group_vars/rgws.yml)[https://raw.githubusercontent.com/rcbops/rpc-ceph/master/playbooks/group_vars/rgws.yml]**  If special needs are required for a specific customer's requirements these variable can be changed or overridden
@@ -117,11 +124,15 @@ rpc-ceph has already assigned some ceph-ansible variable in the file **(playbook
 * internal_lb_vip_address
 * service_region
 * radosgw_keystone **(set to True)**
-* keystone_service_adminurl
 * radosgw_keystone_admin_user
 * radosgw_keystone_admin_password
 * radosgw_keystone_admin_tenant
-* What from this?   https://github.com/rcbops/rpc-ceph/blob/master/playbooks/ceph-keystone-rgw.yml
+These all need to match whatever was setup on the openstack side, so the password/admin_user/tenant
+all have to match what is in the keystone/openstack deployment.
+* keystone_admin_user_name
+* keystone_auth_admin_password
+* keystone_admin_tenant_name
+* keystone_service_adminuri_insecure
 
 ### Run the deployment
 ```bash
@@ -130,7 +141,15 @@ ceph-ansible -i <link to your inventory file> playbooks/deploy-ceph.yml -e@<link
 
 
 ## Load Balancers and SSL Certs
-A load balancer should be deployed prior to ceph rgw install and you have VIP.  Currently RPC terminates SSL in the load balancer so the Ceph Object Store does not need anything for SSL set
+A load balancer should be deployed prior to ceph rgw install and you have VIP.  Currently RPC terminates SSL in the load balancer so the Ceph Object Store does not need anything for SSL set.
+
+F5:  ?
+
+HAProxy:
+This is a bit tricky since we don't have IP/containers to point to. I'd advise against creating the swift group and then just not deploying it, because we (a) don't want the containers for swift at all, and (b) don't want them in the inventory. The haproxy group would have to be slightly different anyway (healthcheck wise etc).
+In the last deploy we created a dummy group for ceph in /etc/openstack_deploy/env.d/ and then added some "cephrgw" hosts to a group, for the purposes of haproxy - this is probably the best way to go about it for haproxy right now, I've put a patch upstream to allow us to manually specify ip address info for haproxy endpoints (https://review.openstack.org/#/c/527847/) but I'm trying to get that backported.
+Lastly, create the appropriate vars for Ceph:
+Something like this: https://review.openstack.org/#/c/517856/8/group_vars/ceph-rgw.yml
 
 
 
