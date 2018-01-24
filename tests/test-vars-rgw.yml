@@ -1,0 +1,56 @@
+---
+### Keystone RGW Integration vars
+# convert these to lookups
+radosgw_keystone: true
+radosgw_keystone_ssl: false
+service_region: RegionOne
+radosgw_keystone_admin_password: testpass
+keystone_admin_user_name: admin
+keystone_auth_admin_password: "SuperSecretePassword"
+keystone_admin_tenant_name: admin
+keystone_service_adminuri_insecure: false
+
+### HAproxy Vars
+external_lb_vip_address: 10.1.1.1
+internal_lb_vip_address: 10.1.1.1
+haproxy_default_services:
+  - service:
+      haproxy_service_name: galera
+      haproxy_backend_nodes: "{{ [groups['galera_all'][0]] | default([]) }}"  # list expected
+      haproxy_backup_nodes: "{{ groups['galera_all'][1:] | default([]) }}"
+      haproxy_port: 3306
+      haproxy_balance_type: tcp
+      haproxy_timeout_client: 5000s
+      haproxy_timeout_server: 5000s
+      haproxy_backend_options:
+        - "mysql-check user {{ galera_monitoring_user }}"
+      haproxy_whitelist_networks:
+        - 192.168.0.0/16
+        - 172.16.0.0/12
+        - 10.0.0.0/8
+  - service:
+      haproxy_service_name: keystone_service
+      haproxy_backend_nodes: "{{ groups['keystone_all'] | default([])  }}"
+      haproxy_port: 5000
+      haproxy_ssl: False
+      haproxy_balance_type: "http"
+      haproxy_backend_options:
+        - "httpchk HEAD /"
+  - service:
+      haproxy_service_name: keystone_admin
+      haproxy_backend_nodes: "{{ groups['keystone_all'] | default([])  }}"
+      haproxy_port: 35357
+      haproxy_balance_type: "http"
+      haproxy_backend_options:
+        - "httpchk HEAD /"
+  - service:
+      haproxy_service_name: ceph_rgw
+      haproxy_backend_nodes: "{{ groups['rgws'] | default([]) }}"
+      haproxy_port: 8080
+      haproxy_balance_type: "http"
+      haproxy_backend_options:
+        - "httpchk HEAD /"
+
+### Keystone required settings
+# This is needed to stop the dev mode tasks in OSA from failing.
+pip_install_developer_constraints: "--constraint /opt/developer-pip-constraints.txt"

@@ -100,7 +100,7 @@ fio_test_file_write_overrides:
   fio_test_file:
     size: 10M
 
-## Testing specific Ceph vars
+### Testing specific Ceph vars
 # Set the size of the OSD and journal devices
 # NB if you change the size you will need to change the osd_journal_size
 # We setup 3 osds + 1 journal per host, there are 3 hosts.

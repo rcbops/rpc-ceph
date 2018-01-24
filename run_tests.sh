@@ -22,6 +22,7 @@ echo "+-------------------- START ENV VARS --------------------+"
 
 export FUNCTIONAL_TEST=${FUNCTIONAL_TEST:-true}
 export RPC_MAAS_DIR=${RPC_MAAS_DIR:-/etc/ansible/roles/rpc-maas}
+export RE_JOB_SCENARIO=${RE_JOB_SCENARIO:-"functional"}
 export IRR_CONTEXT=${IRR_CONTEXT:-"undefined"}
 
 # Install python2 for Ubuntu 16.04 and CentOS 7
@@ -55,9 +56,15 @@ if [ "${FUNCTIONAL_TEST}" = true ]; then
   # Clone the test repos
   "${ANSIBLE_BINARY}" playbooks/git-clone-repos.yml \
        -i ${CLONE_DIR}/tests/inventory \
-       -e role_file=../ansible-role-test-requirements.yml
-  "${ANSIBLE_BINARY}" -i tests/inventory tests/setup-ceph-aio.yml \
-      -e @tests/test-vars.yml
+       -e role_file=../tests/ansible-role-test-requirements.yml
+  if [ "${RE_JOB_SCENARIO}" = "keystone_rgw" ]; then
+    export ANSIBLE_INVENTORY="${CLONE_DIR}/tests/inventory_rgw -e @tests/test-vars-rgw.yml"
+  fi
+  if [[ ! -d tests/common ]]; then
+    git clone https://github.com/openstack/openstack-ansible-tests -b stable/pike tests/common
+  fi
+  "${ANSIBLE_BINARY}" -i ${ANSIBLE_INVENTORY} -e @tests/test-vars.yml \
+      tests/setup-ceph-aio.yml
   # Use the rpc-maas deploy to test MaaS
   if [ "${IRR_CONTEXT}" != "ceph" ]; then
     pushd ${RPC_MAAS_DIR}

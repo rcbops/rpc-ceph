@@ -1,10 +1,17 @@
 ---
-
 - include: setup-containers.yml
 
 - include: setup-ceph-storage.yml
 
 - include: setup-rsyslog-server.yml
+- include: test-install-haproxy.yml
+  when: radosgw_keystone | bool
+- include: common/test-install-infra.yml
+  when: radosgw_keystone | bool
+- include: common/test-install-keystone.yml
+  when: radosgw_keystone | bool
+- include: test-install-openrc.yml
+  when: radosgw_keystone | bool
 
 - include: ../playbooks/deploy-ceph.yml
 

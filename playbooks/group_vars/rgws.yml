@@ -1,4 +1,27 @@
 ---
 radosgw_address_block: "{{ public_network }}"
 radosgw_civetweb_bind_ip: "{{ hostvars[inventory_hostname]['ansible_all_ipv4_addresses'] | ipaddr(radosgw_address_block) | first }}"
-
+radosgw_civetweb_port: 8080
+internal_lb_vip_address: "127.0.0.1"
+keystone_service_adminurl: "http://{{ internal_lb_vip_address }}:35357"
+## RadosGW Integration vars
+## These need to be removed if not integrating with OpenStack
+## NB The radosgw_keystone vars exist for backwards compat with ceph-ansible v2.x
+radosgw_keystone_service_name: "swift"
+radosgw_keystone_service_type: "object-store"
+radosgw_keystone_service_description: "Swift Service"
+radosgw_keystone_service_region: "{{ service_region }}"
+radosgw_keystone_admin_user: radosgw
+radosgw_keystone_admin_tenant: service
+ceph_conf_overrides_rgw: "{{ (radosgw_keystone | bool) | ternary(ceph_conf_overrides_rgw_keystone, {}) }}"
+ceph_conf_overrides_rgw_keystone:
+  "client.rgw.{{ hostvars[inventory_hostname]['ansible_hostname'] }}":
+    # OpenStack integration with Keystone
+    rgw_keystone_url: "{{ keystone_service_adminurl }}"
+    rgw_keystone_api_version: 3
+    rgw_keystone_admin_user: "{{ radosgw_keystone_admin_user }}"
+    rgw_keystone_admin_password: "{{ radosgw_keystone_admin_password }}"
+    rgw_keystone_admin_tenant: "{{ radosgw_keystone_admin_tenant }}"
+    rgw_keystone_admin_domain: default
+    rgw_keystone_accepted_roles: 'Member, _member_, admin'
+    rgw_s3_auth_use_keystone: true

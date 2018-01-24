@@ -51,7 +51,7 @@ if which yum; then
     sudo yum -y install redhat-lsb-core epel-release
 fi
 
-if [ "${RE_JOB_SCENARIO}" = "functional" ]; then
+if [ "${RE_JOB_SCENARIO}" = "functional" ] || [ "${RE_JOB_SCENARIO}" = "keystone_rgw" ]; then
   export CLONE_DIR="$(pwd)"
   export ANSIBLE_INVENTORY="${CLONE_DIR}/tests/inventory"
   export ANSIBLE_OVERRIDES="${CLONE_DIR}/tests/test-vars.yml"
@@ -59,9 +59,17 @@ if [ "${RE_JOB_SCENARIO}" = "functional" ]; then
   bash scripts/bootstrap-ansible.sh
   # Clone the test repos
   ${ANSIBLE_BINARY} playbooks/git-clone-repos.yml \
-                   -i ${CLONE_DIR}/tests/inventory \
-                   -e role_file=../ansible-role-test-requirements.yml
-  ${ANSIBLE_BINARY} -i tests/inventory tests/setup-ceph-aio.yml -e @tests/test-vars.yml
+                   -i ${ANSIBLE_INVENTORY} \
+                   -e role_file=../tests/ansible-role-test-requirements.yml
+  if [ "${RE_JOB_SCENARIO}" = "keystone_rgw" ]; then
+    export ANSIBLE_INVENTORY="${CLONE_DIR}/tests/inventory_rgw -e @tests/test-vars-rgw.yml"
+  fi
+  if [[ ! -d tests/common ]]; then
+    git clone https://github.com/openstack/openstack-ansible-tests -b stable/pike tests/common
+  fi
+  ${ANSIBLE_BINARY} tests/setup-ceph-aio.yml \
+                   -i ${ANSIBLE_INVENTORY} \
+                   -e @tests/test-vars.yml
   # Use the rpc-maas deploy to test MaaS
   if [ "${IRR_CONTEXT}" != "ceph" ]; then
     pushd ${RPC_MAAS_DIR}
