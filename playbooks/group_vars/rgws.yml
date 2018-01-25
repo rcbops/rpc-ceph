@@ -7,9 +7,9 @@ keystone_service_adminurl: "http://{{ internal_lb_vip_address }}:35357"
 ## RadosGW Integration vars
 ## These need to be removed if not integrating with OpenStack
 ## NB The radosgw_keystone vars exist for backwards compat with ceph-ansible v2.x
-radosgw_keystone_service_name: "swift"
+radosgw_keystone_service_name: "cephRGW"
 radosgw_keystone_service_type: "object-store"
-radosgw_keystone_service_description: "Swift Service"
+radosgw_keystone_service_description: "Ceph RADOS Gateway Service"
 radosgw_keystone_service_region: "{{ service_region }}"
 radosgw_keystone_admin_user: radosgw
 radosgw_keystone_admin_tenant: service
