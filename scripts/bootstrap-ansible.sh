@@ -5,6 +5,7 @@ export SSH_DIR=${SSH_DIR:-"/root/.ssh"}
 export ANSIBLE_ROLE_FILE=${ANSIBLE_ROLE_FILE:-"ansible-role-requirements.yml"}
 # Set the role fetch mode to any option [galaxy, git-clone]
 export ANSIBLE_ROLE_FETCH_MODE=${ANSIBLE_ROLE_FETCH_MODE:-git-clone}
+ANSIBLE_BINARY="${ANSIBLE_BINARY:-ceph-ansible}"
 
 # Prefer dnf over yum for CentOS.
 which dnf &>/dev/null && RHT_PKG_MGR='dnf' || RHT_PKG_MGR='yum'
