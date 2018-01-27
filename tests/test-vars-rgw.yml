@@ -2,7 +2,6 @@
 ### Keystone RGW Integration vars
 # convert these to lookups
 radosgw_keystone: true
-radosgw_keystone_ssl: false
 service_region: RegionOne
 radosgw_keystone_admin_password: testpass
 keystone_admin_user_name: admin
