@@ -67,6 +67,7 @@ cephx: true
 radosgw_keystone_admin_password:
 
 radosgw_keystone: false
+radosgw_keystone_endpoint_setup: false
 
 radosgw_service_publicurl: "https://{{ external_lb_vip_address }}:{{ radosgw_civetweb_port }}/swift/v1"
 radosgw_service_adminurl: "http://{{ internal_lb_vip_address }}:{{ radosgw_civetweb_port }}/swift/v1"
