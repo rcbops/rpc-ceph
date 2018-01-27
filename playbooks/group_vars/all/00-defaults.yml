@@ -1,4 +1,7 @@
 ---
+## This is a defaults file, it's likely to be changed during repo updates
+## To override, or update settings, or configuration, create a new file
+## in this directory, e.g. "overrides.yml" which will take precedence.
 mon_group_name: mons
 osd_group_name: osds
 rgw_group_name: rgws

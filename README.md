@@ -61,17 +61,22 @@ The inventory should consist of the following:
    * ``osd_scenario``
    * Any other ``ceph-ansible`` settings you want to configure.
 
-3. Override any variables from ``ceph.conf`` using ``ceph_conf_overrides_extra``:
+3. Set any override vars in playbooks/group_vars/host_group/overrides.yml, this allows:
+
+   * Defaults to remain, but be overriden if required (overrides.yml will take precedence).
+   * Git will ignore the overrides.yml file, so the repo can be updated without clearing out all deploy specific vars.
+
+4. Override any variables from ``ceph.conf`` using ``ceph_conf_overrides_extra``:
 
    * This allows the default ``group_vars`` to remain in place, and means you do not have to respecify any vars you aren't setting.
 
-4. Run the ``bootstrap-ansible.sh`` inside the scripts directory:
+5. Run the ``bootstrap-ansible.sh`` inside the scripts directory:
 
    ```bash
    ./scripts/bootstrap-ansible.sh
    ```
 
-5. This configures ansible at a pre-tested version, creates a ``ceph-ansible``
+6. This configures ansible at a pre-tested version, creates a ``ceph-ansible``
    binary that points to the appropriate ansible-playbook binary, and clones the
    required role repositories:
 
@@ -79,7 +84,7 @@ The inventory should consist of the following:
    * ``rsyslog_client``
    * ``openstack-ansible-plugins`` (``ceph-ansible`` uses the config template plugin from here).
 
-6. Run the ``ceph-ansible`` playbook from the playbooks directory:
+7. Run the ``ceph-ansible`` playbook from the playbooks directory:
 
    ```bash
    ceph-ansible -i <link to your inventory file> playbooks/deploy-ceph.yml -e @<link to your vars file>
