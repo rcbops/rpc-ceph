@@ -41,6 +41,11 @@ If you need to override ceph.conf variables use the `ceph_conf_overrides_extra` 
 
 **NB** If your Auth system is preconfigured: user, tenant & password settings need to match the Auth system's settings.
 
+### Run the deployment
+```bash
+ceph-ansible-playbook -i <link to your inventory file> playbooks/deploy-ceph.yml -e@<link to your vars file>
+```
+
 ### These variables are required to be populated when Auth is **not** preconfigured.
 
 * keystone\_admin\_user\_name
@@ -57,7 +62,7 @@ ceph-ansible -i <link to your inventory file> playbooks/deploy-ceph.yml -e@<link
 
 ### Setup Auth endpoints and users, if **not** preconfigured.
 ```bash
-ceph-ansible -i <link to your inventory file> playbooks/ceph-keystone-rgw.yml -e@<link to your vars file>
+ceph-ansible-playbook -i <link to your inventory file> playbooks/deploy-ceph.yml -e@<link to your vars file>
 ```
 
 ## Load Balancers and SSL Certs
