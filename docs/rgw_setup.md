@@ -1,22 +1,19 @@
 # Setting up Ceph Object Gateway for different RPC Use Cases
 
-Ceph Object Gateway(rgw) is an object storage interface built on top of librados to provide applications with a RESTful gateway to Ceph Storage Clusters. Ceph Object Storage supports two interfaces  S3 and OpenStack Swift.   
+Ceph Object Gateway(rgw) is an object storage interface built on top of librados to provide applications with a RESTful gateway to Ceph Storage Clusters. Ceph Object Storage supports two interfaces S3 and OpenStack Swift.
 
 Complete documentation for the Ceph Object Gateway can be found (here.)[http://docs.ceph.com/docs/master/radosgw/]
 
 ## Role of rpc-ceph
-The purpose of (rpc-ceph)[https://github.com/rcbops/rpc-ceph] is to provide a consistant versioned set of processes, variables and versioned software for RPC's use.  
+The purpose of (rpc-ceph)[https://github.com/rcbops/rpc-ceph] is to provide a consistant versioned set of processes, variables and software for RPC's use.
 
 ### List of Use Cases
 
-* General Installation using ceph-ansible without integration to an Auth System
-* Configuring rgw to use an instance of OpenStack Keystone
+* General Installation using ceph-ansible **without** a preconfigured external Auth System
+* General Installation using ceph-ansible **with** a preconfigured external Auth System
 
 
-## Installation of rgw without Integration to an Auth System
-To Install rgw and use the radosgw_keystone variables set to ceate a user/password you can use to access this sthem
-
-### To install rgw addtions to the inventory file.   
+### To install rgw addtions to the inventory file.
 
 Add the **rgws** group with a list of hosts into the ceph environment's inventory file. 
 For example:
@@ -26,67 +23,42 @@ ceph-rgw01
 ceph-rgw02
 ceph-rgw03
 ```
-**Special Note**: You will need to have access to the keystone host/container via ssh, from the deployment host
-
 
 ### Preset variables
-rpc-ceph has already assigned some ceph-ansible variable in the file **(playbooks/group_vars/rgws.yml)[https://raw.githubusercontent.com/rcbops/rpc-ceph/master/playbooks/group_vars/rgws.yml]**  If special needs are required for a specific customer's requirements these variable can be changed or overridden
+RPC-ceph has already assigned some ceph-ansible variables in the file **(playbooks/group_vars/rgws/00-defaults.yml)[https://raw.githubusercontent.com/rcbops/rpc-ceph/master/playbooks/group_vars/rgws/00-defaults.yml]**
 
-### Make sure you have each of these variables set in your vars file
+If you need to override ceph.conf variables use the `ceph_conf_overrides_extra` variable hash within your vars file.
+
+### These variables are required to be populated for **both** use cases.
+
 * public_network
-* internal_lb_vip_address
-* service_region
+* internal_lb_vip_address or keystone_service_adminurl
+* service_region or radosgw_keystone_service_region
+* radosgw_keystone ***(set to True)**
 * radosgw_keystone_admin_user
 * radosgw_keystone_admin_password
 * radosgw_keystone_admin_tenant
 
-### Run the deployment
+**NB** If your Auth system is preconfigured: user, tenant & password settings need to match the Auth system's settings.
+
+### These variables are required to be populated when Auth is **not** preconfigured.
+
+* keystone\_admin\_user\_name
+* keystone\_auth\_admin\_password
+* keystone\_admin\_tenant\_name
+* keystone\_service\_adminuri\_insecure
+
+**NB** These must match the Auth system's settings.
+
+### Run the Ceph deployment
 ```bash
 ceph-ansible -i <link to your inventory file> playbooks/deploy-ceph.yml -e@<link to your vars file>
 ```
 
-
-## Installation of rgw with Openstack KeyStone and OpenStack Ansible
-To Install rgw and connect it to a Stand Alone instance of OpenStack Keystone.   Please refer to other documentation for the RPC guidelines for installing and setting up OpenStack Keystone.   This ceph rgw guide assumes you have an working OpenStack Keystone system in set up set up because you will need information from it for variables
-
-### To install rgw addtions to the inventory file.   
-
-Add the **rgws** group with a list of hosts into the ceph environment's inventory file. 
-For example:
+### Setup Auth endpoints and users, if **not** preconfigured.
 ```bash
-[rgws]
-ceph-rgw01
-ceph-rgw02
-ceph-rgw03
-
-[keystone_all]
-keystone_host   ansible_host=<ip_address>
+ceph-ansible -i <link to your inventory file> playbooks/ceph-keystone-rgw.yml -e@<link to your vars file>
 ```
-**Special Note**: You will need to have access to the keystone host/container via ssh, from the deployment host
-
-### Preset variables
-rpc-ceph has already assigned some ceph-ansible variable in the file **(playbooks/group_vars/rgws.yml)[https://raw.githubusercontent.com/rcbops/rpc-ceph/master/playbooks/group_vars/rgws.yml]**  If special needs are required for a specific customer's requirements these variable can be changed or overridden
-
-### Make sure you have each of these variables set in your vars file
-* public_network
-* internal_lb_vip_address
-* service_region
-* radosgw_keystone **(set to True)**
-* radosgw_keystone_admin_user
-* radosgw_keystone_admin_password
-* radosgw_keystone_admin_tenant
-These all need to match whatever was setup on the openstack side, so the password/admin_user/tenant
-all have to match what is in the keystone/openstack deployment.
-* keystone_admin_user_name
-* keystone_auth_admin_password
-* keystone_admin_tenant_name
-* keystone_service_adminuri_insecure
-
-### Run the deployment
-```bash
-ceph-ansible -i <link to your inventory file> playbooks/deploy-ceph.yml -e@<link to your vars file>
-```
-
 
 ## Load Balancers and SSL Certs
 A load balancer should be deployed prior to ceph rgw install and you have VIP.  Currently RPC terminates SSL in the load balancer so the Ceph Object Store does not need anything for SSL set.

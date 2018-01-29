@@ -1,13 +1,23 @@
 ---
 - name: Install Ceph RGW
-  hosts: rgws[0]
+  hosts: rgws
   max_fail_percentage: 20
   user: root
   pre_tasks:
+    - name: Install python-keystoneclient
+      pip:
+        name: python-keystoneclient
+        state: "{{ ((upgrade_ceph_packages | default(False)) | bool) | ternary('latest', 'present') }}"
+      delegate_to: 127.0.0.1
+      run_once: true
+      register: install_pkgs
+      until: install_pkgs|success
+      retries: 5
+      delay: 2
     - name: Ensure RGW service
       keystone:
         command: "ensure_service"
-        endpoint: "http://127.0.0.1:35357/v3"
+        endpoint: "{{ keystone_service_adminurl }}/v3"
         login_user: "{{ keystone_admin_user_name }}"
         login_password: "{{ keystone_auth_admin_password }}"
         login_project_name: "{{ keystone_admin_tenant_name }}"
@@ -15,8 +25,8 @@
         service_type: "{{ radosgw_keystone_service_type }}"
         description: "{{ radosgw_keystone_service_description }}"
         insecure: "{{ keystone_service_adminuri_insecure }}"
+      delegate_to: 127.0.0.1
       run_once: true
-      delegate_to: "{{ groups['keystone_all'][0] }}"
       when: radosgw_keystone | bool
       register: add_service
       until: add_service|success
@@ -28,7 +38,7 @@
     - name: Ensure RGW user
       keystone:
         command: "ensure_user"
-        endpoint: "http://127.0.0.1:35357/v3"
+        endpoint: "{{ keystone_service_adminurl }}/v3"
         login_user: "{{ keystone_admin_user_name }}"
         login_password: "{{ keystone_auth_admin_password }}"
         login_project_name: "{{ keystone_admin_tenant_name }}"
@@ -37,8 +47,8 @@
         role_name: "{{ radosgw_keystone_role_name | default('service') }}"
         password: "{{ radosgw_keystone_admin_password }}"
         insecure: "{{ keystone_service_adminuri_insecure }}"
+      delegate_to: 127.0.0.1
       run_once: true
-      delegate_to: "{{ groups['keystone_all'][0] }}"
       when: radosgw_keystone | bool
       register: add_service
       until: add_service|success
@@ -50,7 +60,7 @@
     - name: Ensure RGW user to admin role
       keystone:
         command: "ensure_user_role"
-        endpoint: "http://127.0.0.1:35357/v3"
+        endpoint: "{{ keystone_service_adminurl }}/v3"
         login_user: "{{ keystone_admin_user_name }}"
         login_password: "{{ keystone_auth_admin_password }}"
         login_project_name: "{{ keystone_admin_tenant_name }}"
@@ -58,8 +68,8 @@
         tenant_name: "{{ radosgw_keystone_admin_tenant }}"
         role_name: "{{ radosgw_keystone_role_name | default('admin') }}"
         insecure: "{{ keystone_service_adminuri_insecure }}"
+      delegate_to: 127.0.0.1
       run_once: true
-      delegate_to: "{{ groups['keystone_all'][0] }}"
       register: add_admin_role
       when: radosgw_keystone | bool
       until: add_admin_role|success
@@ -71,7 +81,7 @@
     - name: Ensure RGW endpoint
       keystone:
         command: "ensure_endpoint"
-        endpoint: "http://127.0.0.1:35357/v3"
+        endpoint: "{{ keystone_service_adminurl }}/v3"
         login_user: "{{ keystone_admin_user_name }}"
         login_password: "{{ keystone_auth_admin_password }}"
         login_project_name: "{{ keystone_admin_tenant_name }}"
@@ -86,8 +96,8 @@
             interface: "admin"
           - url: "{{ radosgw_service_internalurl }}"
             interface: "internal"
+      delegate_to: 127.0.0.1
       run_once: true
-      delegate_to: "{{ groups['keystone_all'][0] }}"
       register: add_service
       when: radosgw_keystone | bool
       until: add_service|success
