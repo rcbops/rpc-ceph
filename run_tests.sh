@@ -51,11 +51,10 @@ if [ "${FUNCTIONAL_TEST}" = true ]; then
   export CLONE_DIR="$(pwd)"
   export ANSIBLE_INVENTORY="${CLONE_DIR}/tests/inventory"
   export ANSIBLE_OVERRIDES="${CLONE_DIR}/tests/test-vars.yml"
-  export ANSIBLE_BINARY="${ANSIBLE_BINARY:-ceph-ansible}"
-  export ANSIBLE_PLAYBOOK_BINARY="${ANSIBLE_PLAYBOOK_BINARY:-ceph-ansible-playbook}"
+  export ANSIBLE_BINARY="${ANSIBLE_BINARY:-ceph-ansible-playbook}"
   bash scripts/bootstrap-ansible.sh
   # Clone the test repos
-  "${ANSIBLE_PLAYBOOK_BINARY}" playbooks/git-clone-repos.yml \
+  "${ANSIBLE_BINARY}" playbooks/git-clone-repos.yml \
        -i ${CLONE_DIR}/tests/inventory \
        -e role_file=../tests/ansible-role-test-requirements.yml
   if [ "${RE_JOB_SCENARIO}" = "keystone_rgw" ]; then
@@ -64,7 +63,7 @@ if [ "${FUNCTIONAL_TEST}" = true ]; then
   if [[ ! -d tests/common ]]; then
     git clone https://github.com/openstack/openstack-ansible-tests -b stable/pike tests/common
   fi
-  "${ANSIBLE_PLAYBOOK_BINARY}" -i ${ANSIBLE_INVENTORY} -e @tests/test-vars.yml \
+  "${ANSIBLE_BINARY}" -i ${ANSIBLE_INVENTORY} -e @tests/test-vars.yml \
       tests/setup-ceph-aio.yml
   # Use the rpc-maas deploy to test MaaS
   if [ "${IRR_CONTEXT}" != "ceph" ]; then

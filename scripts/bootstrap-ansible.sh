@@ -5,7 +5,7 @@ export SSH_DIR=${SSH_DIR:-"/root/.ssh"}
 export ANSIBLE_ROLE_FILE=${ANSIBLE_ROLE_FILE:-"ansible-role-requirements.yml"}
 # Set the role fetch mode to any option [git-clone]
 export ANSIBLE_ROLE_FETCH_MODE=${ANSIBLE_ROLE_FETCH_MODE:-git-clone}
-ANSIBLE_PLAYBOOK_BINARY="${ANSIBLE_PLAYBOOK_BINARY:-ceph-ansible-playbook}"
+ANSIBLE_BINARY="${ANSIBLE_BINARY:-ceph-ansible-playbook}"
 
 # Prefer dnf over yum for CentOS.
 which dnf &>/dev/null && RHT_PKG_MGR='dnf' || RHT_PKG_MGR='yum'
@@ -155,7 +155,7 @@ echo "ceph-ansible-playbook wrapper created."
 # Update dependent roles
 if [ -f "${ANSIBLE_ROLE_FILE}" ]; then
   if [[ "${ANSIBLE_ROLE_FETCH_MODE}" == 'git-clone' ]];then
-    ${ANSIBLE_PLAYBOOK_BINARY} playbooks/git-clone-repos.yml \
+    ${ANSIBLE_BINARY} playbooks/git-clone-repos.yml \
         -i ${CLONE_DIR}/tests/inventory -e role_file=${ANSIBLE_ROLE_FILE}
   else
     echo "Please set the ANSIBLE_ROLE_FETCH_MODE to either of the following options ['git-clone']"
