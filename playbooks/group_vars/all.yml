@@ -67,6 +67,9 @@ cephx: true
 radosgw_keystone_admin_password:
 
 radosgw_keystone: false
+# We need to default this while until https://github.com/ceph/ceph-ansible/pull/2355 is merged
+# Set to true if using PKI keys
+radosgw_keystone_ssl: false
 
 radosgw_service_publicurl: "https://{{ external_lb_vip_address }}:{{ radosgw_civetweb_port }}/swift/v1"
 radosgw_service_adminurl: "http://{{ internal_lb_vip_address }}:{{ radosgw_civetweb_port }}/swift/v1"
