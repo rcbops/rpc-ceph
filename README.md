@@ -25,7 +25,6 @@ Deploying ``rpc-ceph`` uses ``boostrap.sh``, ``ceph-ansible``, default
 **NOTE:** Anything that can be configured with ``ceph-ansible`` is configurable with
 ``rpc-ceph``.
 
-
 ## Deploying Ceph for multi-node and production environments
 
 ### Architecture
