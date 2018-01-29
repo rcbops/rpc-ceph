@@ -76,3 +76,8 @@ playbooks/fetch/
 # Eclipse artifacts
 .project
 .pydevproject
+
+# Overrides group_vars
+playbooks/group_vars/**/*.yml
+!playbooks/group_vars/**/00-defaults.yml
+!playbooks/group_vars/**/*.yml.sample

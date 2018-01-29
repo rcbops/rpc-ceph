@@ -1,4 +1,7 @@
 ---
+## This is a defaults file, it's likely to be changed during repo updates
+## To override, or update settings, or configuration, create a new file
+## in this directory, e.g. "overrides.yml" which will take precedence.
 radosgw_address_block: "{{ public_network }}"
 radosgw_civetweb_bind_ip: "{{ hostvars[inventory_hostname]['ansible_all_ipv4_addresses'] | ipaddr(radosgw_address_block) | first }}"
 radosgw_civetweb_port: 8080
