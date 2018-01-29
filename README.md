@@ -109,7 +109,6 @@ Otherwise just use ``./run_tests.sh`` to build the AIO.
 ```bash
 export PUBCLOUD_USERNAME=<username>
 export PUBCLOUD_API_KEY=<api_key>
-export IRR_CONTEXT=master
 ```
 
 ### Tested builds as AIO
