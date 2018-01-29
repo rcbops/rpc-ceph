@@ -24,7 +24,8 @@ export RE_JOB_SCENARIO=${RE_JOB_SCENARIO:-"functional"}
 export RE_JOB_BRANCH=${RE_JOB_BRANCH:-"master"}
 export RPC_MAAS_DIR=${RPC_MAAS_DIR:-/etc/ansible/roles/rpc-maas}
 # NOTE(mattt): This is a legacy variable which is still used by rpc-maas
-export IRR_CONTEXT=${RE_JOB_BRANCH}
+export IRR_CONTEXT=${IRR_CONTEXT:-${RE_JOB_BRANCH}}
+export TEST_RPC_MAAS=${TEST_RPC_MAAS:-True}
 
 # Install python2 for Ubuntu 16.04 and CentOS 7
 if which apt-get; then
@@ -71,7 +72,7 @@ if [ "${RE_JOB_SCENARIO}" = "functional" ] || [ "${RE_JOB_SCENARIO}" = "keystone
                    -i ${ANSIBLE_INVENTORY} \
                    -e @tests/test-vars.yml
   # Use the rpc-maas deploy to test MaaS
-  if [ "${IRR_CONTEXT}" != "ceph" ]; then
+  if [ "${IRR_CONTEXT}" != "ceph" ] && [ "${TEST_RPC_MAAS}" == "True" ]; then
     pushd ${RPC_MAAS_DIR}
       bash tests/test-ansible-functional.sh
     popd
