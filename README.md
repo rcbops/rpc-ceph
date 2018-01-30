@@ -6,6 +6,12 @@ managed, and tested way to ensure version consistency and testing.
 By adding automated tests, ``rpc-ceph`` provides a way to manage tested
 versions of ``ceph-ansible`` used in RPC deployments.
 
+## Current versions of ceph-ansible & Ansible
+
+### **ceph-ansible version:** v3.0.21
+
+### **Ansible version:** 2.3.2
+
 ## What is rpc-ceph?
 
 ``rpc-ceph`` is a thin wrapper around the ``ceph-ansible`` project.
