@@ -62,7 +62,7 @@ ceph-ansible -i <link to your inventory file> playbooks/deploy-ceph.yml -e@<link
 
 ### Setup Auth endpoints and users, if **not** preconfigured.
 ```bash
-ceph-ansible-playbook -i <link to your inventory file> playbooks/deploy-ceph.yml -e@<link to your vars file>
+ceph-ansible-playbook -i <link to your inventory file> playbooks/ceph-keystone-rgw.yml -e@<link to your vars file>
 ```
 
 ## Load Balancers and SSL Certs
