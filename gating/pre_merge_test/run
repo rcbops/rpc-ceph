@@ -69,7 +69,7 @@ if [ "${RE_JOB_SCENARIO}" = "functional" ] || [ "${RE_JOB_SCENARIO}" = "keystone
                    -i ${ANSIBLE_INVENTORY} \
                    -e @tests/test-vars.yml
   # Use the rpc-maas deploy to test MaaS
-  if [ "${TEST_RPC_MAAS}" == "True" ]; then
+  if [ "${TEST_RPC_MAAS}" != "False" ]; then
     pushd ${RPC_MAAS_DIR}
       bash tests/test-ansible-functional.sh
     popd
