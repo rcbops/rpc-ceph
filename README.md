@@ -86,7 +86,7 @@ The inventory should consist of the following:
 7. Run the ``ceph-ansible`` playbook from the playbooks directory:
 
    ```bash
-   ceph-ansible -i <link to your inventory file> playbooks/deploy-ceph.yml -e @<link to your vars file>
+   ceph-ansible-playbook -i <link to your inventory file> playbooks/deploy-ceph.yml -e @<link to your vars file>
    ```
 
 7. Run any additional playbooks from the playbook directory:

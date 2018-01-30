@@ -51,7 +51,7 @@ if [ "${FUNCTIONAL_TEST}" = true ]; then
   export CLONE_DIR="$(pwd)"
   export ANSIBLE_INVENTORY="${CLONE_DIR}/tests/inventory"
   export ANSIBLE_OVERRIDES="${CLONE_DIR}/tests/test-vars.yml"
-  export ANSIBLE_BINARY="${ANSIBLE_BINARY:-ceph-ansible}"
+  export ANSIBLE_BINARY="${ANSIBLE_BINARY:-ceph-ansible-playbook}"
   bash scripts/bootstrap-ansible.sh
   # Clone the test repos
   "${ANSIBLE_BINARY}" playbooks/git-clone-repos.yml \

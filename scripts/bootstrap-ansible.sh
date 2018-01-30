@@ -3,9 +3,9 @@ set -e -u -x
 export ANSIBLE_PACKAGE=${ANSIBLE_PACKAGE:-"ansible==2.3.2.0"}
 export SSH_DIR=${SSH_DIR:-"/root/.ssh"}
 export ANSIBLE_ROLE_FILE=${ANSIBLE_ROLE_FILE:-"ansible-role-requirements.yml"}
-# Set the role fetch mode to any option [galaxy, git-clone]
+# Set the role fetch mode to any option [git-clone]
 export ANSIBLE_ROLE_FETCH_MODE=${ANSIBLE_ROLE_FETCH_MODE:-git-clone}
-ANSIBLE_BINARY="${ANSIBLE_BINARY:-ceph-ansible}"
+ANSIBLE_BINARY="${ANSIBLE_BINARY:-ceph-ansible-playbook}"
 
 # Prefer dnf over yum for CentOS.
 which dnf &>/dev/null && RHT_PKG_MGR='dnf' || RHT_PKG_MGR='yum'
@@ -120,37 +120,45 @@ cat > /usr/local/bin/ceph-ansible <<EOF
 # Wrapper to ensure ceph-ansible is deployed using the Ansible version
 # and dependencies required by ceph-ansible.
 
-function info() {
-    if [ "\${ANSIBLE_NOCOLOR:-0}" -eq "1" ]; then
-      echo -e "\${@}"
-    else
-      echo -e "\e[0;35m\${@}\e[0m"
-    fi
-}
-
-RUN_CMD=\$(basename \${0})
-
-if [ "\${RUN_CMD}" == "ceph-ansible" ] || [ "\${RUN_CMD}" == "ansible-playbook" ]; then
-  /opt/rpc-ceph_ansible-runtime/bin/ansible-playbook "\${@}"
-else
-  \${RUN_CMD} "\${@}"
-fi
+/opt/rpc-ceph_ansible-runtime/bin/ansible "\${@}"
 EOF
 
 chmod +x /usr/local/bin/ceph-ansible
 echo "ceph-ansible wrapper created."
 
+# Create ceph-ansible-playbook binary ensuring we use the correct version of ansible
+cat > /usr/local/bin/ceph-ansible-playbook <<EOF
+#!/usr/bin/env bash
+# Copyright 2018, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Wrapper to ensure ceph-ansible is deployed using the Ansible version
+# and dependencies required by ceph-ansible.
+
+/opt/rpc-ceph_ansible-runtime/bin/ansible-playbook "\${@}"
+EOF
+
+chmod +x /usr/local/bin/ceph-ansible-playbook
+echo "ceph-ansible-playbook wrapper created."
+
 # Update dependent roles
 if [ -f "${ANSIBLE_ROLE_FILE}" ]; then
-  if [[ "${ANSIBLE_ROLE_FETCH_MODE}" == 'galaxy' ]];then
-    # Pull all required roles.
-    /opt/rpc-ceph_ansible-runtime/bin/ansible-galaxy install \
-        --role-file="${ANSIBLE_ROLE_FILE}" --force
-  elif [[ "${ANSIBLE_ROLE_FETCH_MODE}" == 'git-clone' ]];then
+  if [[ "${ANSIBLE_ROLE_FETCH_MODE}" == 'git-clone' ]];then
     ${ANSIBLE_BINARY} playbooks/git-clone-repos.yml \
         -i ${CLONE_DIR}/tests/inventory -e role_file=${ANSIBLE_ROLE_FILE}
   else
-    echo "Please set the ANSIBLE_ROLE_FETCH_MODE to either of the following options ['galaxy', 'git-clone']"
+    echo "Please set the ANSIBLE_ROLE_FETCH_MODE to either of the following options ['git-clone']"
     exit 99
   fi
 fi
