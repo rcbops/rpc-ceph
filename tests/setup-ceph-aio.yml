@@ -1,8 +1,9 @@
 ---
+## Setup infrastructure on which to deploy Ceph
 - include: setup-containers.yml
-
 - include: setup-ceph-storage.yml
 
+## Setup non-ceph components for testing
 - include: setup-rsyslog-server.yml
 - include: test-install-haproxy.yml
   when: radosgw_keystone | bool
@@ -13,8 +14,13 @@
 - include: test-install-openrc.yml
   when: radosgw_keystone | bool
 
+## Ceph setup
 - include: ../playbooks/deploy-ceph.yml
+- include: ../playbooks/ceph-keystone-rgw.yml
+  when: radosgw_keystone | bool
+- include: ../playbooks/ceph-setup-logging.yml
 
+## Tests
 - include: test-rgw.yml
 - include: test-logging.yml
 - include: ../benchmark/fio_benchmark.yml

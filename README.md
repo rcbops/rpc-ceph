@@ -89,6 +89,11 @@ The inventory should consist of the following:
    ceph-ansible -i <link to your inventory file> playbooks/deploy-ceph.yml -e @<link to your vars file>
    ```
 
+7. Run any additional playbooks from the playbook directory:
+
+   * ``ceph-setup-logging.yml``will setup rsyslog client, ensure you have the appropriate rsyslog server setup, or other log shipping location, refer to: https://docs.openstack.org/openstack-ansible-rsyslog_client/latest/ for more details
+   * ``ceph-keystone-rgw.yml`` will setup required keystone users and endpoints for Ceph.
+
 Your deployment should be successful.
 
 **NOTE:** If there are any errors, troubleshoot as a standard ``ceph-ansible`` deployment.
