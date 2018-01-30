@@ -100,7 +100,7 @@ apt install --yes python-pip
 # Setup Inventory File
 Create file /opt/rpc-ceph/phobos/inventory
 ```
-[ceph-cluster]
+[all]
 rsyslog01-c_
 ceph-stor01-c_
 ceph-stor02-c_
@@ -108,7 +108,7 @@ ceph-stor03-c_
 ceph-stor04-c_
 ceph-stor05-c_
 
-[ceph-cluster:vars]
+[all:vars]
 ansible_python_interpreter=/usr/bin/python3
 
 [mgrs]
