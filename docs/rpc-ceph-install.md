@@ -2,10 +2,9 @@
 
 
 
-This process assumes that all servers already have either Ubuntu installed, all network configuration (incl bonding) is complete, and the servers are accessible via ssh.
-The servers involved in the deployment must be identified and the role(s) of each server clearly defined.  Every deployment needs "mons", "mgrs" and "osds".  Some deployments may also need RadosGW "rgws".  In a small deployment, a server may have all of these roles assigned.  In larger deployments, each server will typically be assigned fewer, or just a single role.
+This process assumes that all servers already have Ubuntu installed, all network configuration (incl bonding) is complete, and the servers are accessible via ssh. The servers involved in the deployment must be identified and the role(s) of each server clearly defined.  Every deployment needs "mons", "mgrs" and "osds".  The RadosGW "rgws" service is optional.  In a small deployment, a server may have all of these roles assigned.  In larger deployments, each server will typically be assigned fewer, or just a single role.
 In most cases, it is preferable to have separate networks for "Storage Front-end" (client access to the storage) and "Storage Back-end" (replication traffic within the cluster), but the "Storage Back-end" network is not required.
-The host from which the deployment will be managed must be identified.  This MAY be an "admin" server, "director" server or simply the first of the ceph storage servers, but it is USUALLY the first ceph storage server.  ALL of the following steps are to be performed on this deployment host.
+The host from which the deployment will be managed must be identified.  This MAY be an "admin" server or simply the first of the ceph storage servers, but it is USUALLY the first ceph storage server.  ALL of the following steps are to be performed on this deployment host.
 
 ## Base Installation of Ceph using rpc-ceph
 
@@ -62,28 +61,28 @@ ceph-stor05
 ansible_python_interpreter=/usr/bin/python3
 
 [mgrs]
-ceph-mon01
-ceph-mon02
-ceph-mon03
+ceph-mon01      ansible_ssh_host=<IP>
+ceph-mon02      ansible_ssh_host=<IP>
+ceph-mon03      ansible_ssh_host=<IP>
 
 [mons]
-ceph-mon01
-ceph-mon02
-ceph-mon03
+ceph-mon01      ansible_ssh_host=<IP>
+ceph-mon02      ansible_ssh_host=<IP>
+ceph-mon03      ansible_ssh_host=<IP>
  
 [osds]
-ceph-stor01
-ceph-stor02
-ceph-stor03
-ceph-stor04
-ceph-stor05
+ceph-stor01     ansible_ssh_host=<IP>
+ceph-stor02     ansible_ssh_host=<IP>
+ceph-stor03     ansible_ssh_host=<IP>
+ceph-stor04     ansible_ssh_host=<IP>
+ceph-stor05     ansible_ssh_host=<IP>
  
 [rgws]
-ceph-mon01
-ceph-mon02
-ceph-mon03
-ceph-mon04
-ceph-mon05
+ceph-mon01      ansible_ssh_host=<IP>
+ceph-mon02      ansible_ssh_host=<IP>
+ceph-mon03      ansible_ssh_host=<IP>
+ceph-mon04      ansible_ssh_host=<IP>
+ceph-mon05      ansible_ssh_host=<IP>
 ```
 
 ### Verify ansible connectivity to all hosts:
@@ -107,11 +106,11 @@ of course more specific firewall configuration may be required. Some general gui
   * restful listens on port 8789
 
 
-### Edit parameter files
-You can make changes to the configration parameter by editing the **playbooks/group_vars/[service]/00-default.yml** files. These files will not be overwritten when git pull request is run.  
+### Creating parameter files
+You can make changes to the configration parameter by create a **playbooks/group_vars/[service]/overrides.yml** file. These files will not be overwritten when git pull request is run.  
 
-#### Edit the playbook/group_vars/all/00-defaults.yml file:
-The file is well documented with comments and default values.  Several RPC specific settings have already been put in place and any customer specific changes should be placed here.
+#### Create the playbooks/group_vars/all/overrides.yml file:
+The file *playbooks/group_vars/all/all.yml.sample* is well documented with comments and default values.  Several RPC specific settings have already been put in place so any customer specific changes should be placed in **playbooks/group_vars/all/overrides.yml** .
 The most common values which need to be modified are:
 ```bash 
 monitor_interface: eth3           # Must specify the physical interface that monitors use to communicate with the "Storage Front-end" network
@@ -120,8 +119,8 @@ cluster_network: 192.168.200.0/24 # The IP network used on the "Storage Back-end
  ```
 
 
-#### Edit the playbooks/group_vars/mons/00-defaults.yml file:
-The file is well documented with comments and default values. RPC and customer specific configurations should be placed here.
+#### Create the playbooks/group_vars/mons/overrides.yml file:
+The file *playbooks/group_vars/mons/mons.yml.sample* is well documented with comments and default values. Customer specific configurations should be placed in **playbooks/group_vars/mons/overrides.yml**.
 ```bash 
 Assuming this cluster will be used by Openstack, set "openstack_config" to true so that common openstack pools and users are
 auto-created for us:
@@ -131,19 +130,19 @@ openstack_config: true
 There are other openstack related options here, which you may wish to review, but in most cases, no further changes
 are needed.
  
-If this ceph cluster will not be used by openstack, then it is likely that no changes to this file are needed.
+If this ceph cluster will not be used by openstack, then it is likely that no overrides will be needed.
 ```
 
-#### Edit the playbook/group_vars/mgrs/00-defaults.yml 
-This file is new with the luminous version 
-with comments and default values.  RPC and customer specific configurations should be placed here.
+
+#### If Necessary, Create the playbooks/group_vars/mgrs/overrides.yml file
+The file *playbooks/group_vars/mrgs/mgrs.yml.sample* is new with the luminous version with comments and default values.  Any customer specific configurations should be placed in **playbooks/group_vars/mrgs/overrides.yml**
 ```bash
-Typically, no changes are required to this file.
+Typically, no overrides file will be needed.
 ```
 
 
-#### Edit the playbook/group_vars/osds/00-defualt.yml file:
-The file is well documented with comments and default values. RPC and customer specific settings should be placed here:
+#### Create the playbooks/group_vars/osds/overrides.yml file:
+The file *playbooks/group_vars/osds/osds.yml.sample* is well documented with comments and default values.  Customer specific settings should be placed in **playbooks/group_vars/osds/overrides.yml**.
 ```bash
 Several "Storage Scenarios" are describe in this file. 
 Uncomment and populate the values which correspond to the current deployment. The most common ones are:
