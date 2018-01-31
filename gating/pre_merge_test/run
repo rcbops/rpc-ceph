@@ -69,8 +69,9 @@ if [ "${RE_JOB_SCENARIO}" = "functional" ] || [ "${RE_JOB_SCENARIO}" = "keystone
                    -i ${ANSIBLE_INVENTORY} \
                    -e @tests/test-vars.yml
   # Use the rpc-maas deploy to test MaaS
-  if [ "${TEST_RPC_MAAS}" != "False" ]; then
+  if [ "${TEST_RPC_MAAS}" != "False" ] && [ "${RE_JOB_SCENARIO}" != "keystone_rgw" ]; then
     pushd ${RPC_MAAS_DIR}
+      export RE_JOB_SCENARIO="ceph"
       bash tests/test-ansible-functional.sh
     popd
   fi
