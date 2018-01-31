@@ -18,9 +18,13 @@
 - include: ../playbooks/deploy-ceph.yml
 - include: ../playbooks/ceph-keystone-rgw.yml
   when: radosgw_keystone | bool
-- include: ../playbooks/ceph-setup-logging.yml
 
 ## Tests
 - include: test-rgw.yml
-- include: test-logging.yml
 - include: ../benchmark/fio_benchmark.yml
+
+## Logging setup and tests
+# This is done after to allow time for the logs
+# to exist.
+- include: ../playbooks/ceph-setup-logging.yml
+- include: test-logging.yml
