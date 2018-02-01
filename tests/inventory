@@ -6,8 +6,6 @@ osd1
 osd2
 allsvc
 rgw1
-mgr1
-mgr2
 
 [hosts]
 localhost
@@ -18,8 +16,6 @@ mon2
 osd1
 osd2
 rgw1
-mgr1
-mgr2
 allsvc
 
 [rgws]
@@ -37,8 +33,8 @@ osd2
 allsvc
 
 [mgrs]
-mgr1
-mgr2
+mon1
+mon2
 allsvc
 
 [rsyslog_all]
