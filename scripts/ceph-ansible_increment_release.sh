@@ -49,7 +49,6 @@ current_version=$(grep "ceph-ansible version:" ${PATH_TO_PLAYBOOKS}README.md | c
 ## On a Mac we need to work around the terrible Mac sed
 if $(uname | grep -iq darwin); then
   sed -i " " "s/$current_version/$LATEST_TAG/" ${PATH_TO_PLAYBOOKS}README.md
-  echo "update version $"
 else
   sed -i "s/$current_version/$LATEST_TAG/" ${PATH_TO_PLAYBOOKS}README.md
 fi
