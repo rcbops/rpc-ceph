@@ -6,8 +6,6 @@ osd1
 osd2
 allsvc
 rgw1
-mgr1
-mgr2
 keystone1
 rsyslog1
 
@@ -21,8 +19,6 @@ mon2
 osd1
 osd2
 rgw1
-mgr1
-mgr2
 allsvc
 rsyslog1
 
@@ -41,8 +37,8 @@ osd2
 allsvc
 
 [mgrs]
-mgr1
-mgr2
+mon1
+mon2
 allsvc
 
 [rsyslog_all]
