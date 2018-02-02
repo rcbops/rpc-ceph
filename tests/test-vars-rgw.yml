@@ -10,8 +10,8 @@ keystone_admin_tenant_name: admin
 keystone_service_adminuri_insecure: false
 
 ### HAproxy Vars
-external_lb_vip_address: 10.1.1.1
-internal_lb_vip_address: 10.1.1.1
+external_lb_vip_address: "{{ bootstrap_host_public_address | default(ansible_default_ipv4.address) }}"
+internal_lb_vip_address: 172.29.236.100
 haproxy_default_services:
   - service:
       haproxy_service_name: galera
