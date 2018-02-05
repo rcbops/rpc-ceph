@@ -2,10 +2,10 @@
   scm: git
   src: https://github.com/ceph/ceph-ansible
   version: v3.0.22
-- name: ../plugins
+- name: ../ceph_plugins
   scm: git
   src: https://git.openstack.org/openstack/openstack-ansible-plugins
-  version: stable/pike
+  version: 17.0.0.0b3
 - name: rsyslog_client
   scm: git
   src: https://git.openstack.org/openstack/openstack-ansible-rsyslog_client
