@@ -20,5 +20,3 @@
   roles:
     - role: "haproxy_server"
       haproxy_service_configs: "{{ haproxy_default_services | default([]) }}"
-  vars_files:
-    - test-vars.yml

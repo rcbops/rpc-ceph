@@ -5,8 +5,7 @@
 
 ## Setup non-ceph components for testing
 - include: setup-rsyslog-server.yml
-- include: test-install-haproxy.yml
-  when: radosgw_keystone | bool
+- include: ../playbooks/ceph-rgw-haproxy.yml
 - include: common/test-install-infra.yml
   when: radosgw_keystone | bool
 - include: common/test-install-keystone.yml

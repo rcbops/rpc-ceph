@@ -8,7 +8,7 @@
   - name: Clone git repos
     git:
       repo: "{{ item.src }}"
-      dest: "/etc/ansible/roles/{{ item.name }}"
+      dest: "/etc/ansible/ceph_roles/{{ item.name }}"
       version: "{{ item.version }}"
       refspec: "{{ item.refspec | default(omit) }}"
       update: true
