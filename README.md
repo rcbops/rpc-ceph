@@ -10,7 +10,7 @@ versions of ``ceph-ansible`` used in RPC deployments.
 
 ### **ceph-ansible version:** v3.0.22
 
-### **Ansible version:** 2.4.2
+### **Ansible version:** 2.4.3
 
 ## What is rpc-ceph?
 
