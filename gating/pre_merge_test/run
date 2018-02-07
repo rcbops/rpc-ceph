@@ -21,7 +21,7 @@ env
 echo "+-------------------- START ENV VARS --------------------+"
 
 export RE_JOB_SCENARIO=${RE_JOB_SCENARIO:-"functional"}
-export RPC_MAAS_DIR=${RPC_MAAS_DIR:-/etc/ansible/roles/rpc-maas}
+export RPC_MAAS_DIR=${RPC_MAAS_DIR:-/etc/ansible/ceph_roles/rpc-maas}
 export TEST_RPC_MAAS=${TEST_RPC_MAAS:-True}
 
 # Install python2 for Ubuntu 16.04 and CentOS 7

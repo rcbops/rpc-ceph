@@ -14,6 +14,8 @@ properties:
   service_name: "{{ inventory_hostname }}"
 ansible_become: True
 ansible_user: root
+external_lb_vip_address: "{{ bootstrap_host_public_address | default(ansible_default_ipv4.address) }}"
+internal_lb_vip_address: 172.29.236.100
 
 ## LXC container default bind mounts
 lxc_container_default_bind_mounts:

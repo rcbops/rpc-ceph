@@ -88,6 +88,7 @@ The inventory should consist of the following:
    * ``ceph-ansible``
    * ``rsyslog_client``
    * ``openstack-ansible-plugins`` (``ceph-ansible`` uses the config template plugin from here).
+   * ``haproxy_server``
 
 7. Run the ``ceph-ansible`` playbook from the playbooks directory:
 
@@ -99,6 +100,7 @@ The inventory should consist of the following:
 
    * ``ceph-setup-logging.yml``will setup rsyslog client, ensure you have the appropriate rsyslog server setup, or other log shipping location, refer to: https://docs.openstack.org/openstack-ansible-rsyslog_client/latest/ for more details
    * ``ceph-keystone-rgw.yml`` will setup required keystone users and endpoints for Ceph.
+   * ``ceph-rgw-haproxy.yml`` will setup the HAProxy VIP for Ceph Rados GW. Ensure you specify ``haproxy_all`` group in your inventory with the HAProxy hosts.
 
 Your deployment should be successful.
 
