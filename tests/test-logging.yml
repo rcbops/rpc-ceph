@@ -6,7 +6,15 @@
        path: "/var/log/rsyslog/{{ container_name }}/ceph-mon.{{ container_name }}.log"
      delegate_to: "{{ groups['rsyslog_all'][0] }}"
      register: ceph_mon_log
-     failed_when: ceph_mon_log.stat.isreg == False
+
+   - name: debug ceph_mon_log
+     debug:
+       var: ceph_mon_log
+
+   - name: Pause when log doesn't exist (Debug purposes)
+     pause:
+       minutes: 120
+     when: ceph_mon_log.stat.isreg is undefined or ceph_mon_log.stat.isreg == False
 
 - hosts: rgws
   tasks:

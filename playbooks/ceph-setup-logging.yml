@@ -1,11 +1,6 @@
 # Setup rsyslog logging
 - hosts: mons:osds:rgws:mgrs
   become: True
-  pre_tasks:
-    - name: Pause to allow services to restart
-      pause:
-        seconds: "{{ logging_setup_wait_time | default(1) }}"
-        prompt: "Waiting for Ceph services to start appropriately"
   post_tasks:
     - name: Configure syslog user in Ceph group
       user:
