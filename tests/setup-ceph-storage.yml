@@ -20,6 +20,9 @@
       use: "{{ ansible_pkg_mgr }}"
     delegate_to: "{{ physical_host }}"
     run_once: True
+  - name: Ensure apt cache is updated
+    apt:
+      update_cache: true
   - name: Ensure xfsprogs is installed on containers
     package:
       name: xfsprogs

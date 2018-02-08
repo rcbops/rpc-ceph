@@ -1,24 +1,28 @@
-- name: Gather facts for the LXC hosts
-  hosts: localhost
-  become: true
+---
+# Copyright 2017, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Gather nspawn container host facts
+  hosts: "{{ nspawn_host_group | default('hosts') }}"
   gather_facts: true
 
-- include: destroy_containers.yml
-  when: destroy_first | default(True) | bool
-
-- name: Playbook for creating containers
+- name: Create container(s)
   hosts: all_containers
-  become: True
-  gather_facts: False
-  any_errors_fatal: true
+  gather_facts: false
+  user: root
   roles:
-    - role: "lxc_container_create"
-  post_tasks:
-    - name: Wait for container connectivity
-      wait_for_connection:
-        connect_timeout: "{{ lxc_container_wait_params.connect_timeout | default(omit) }}"
-        delay: "{{ lxc_container_wait_params.delay | default(omit) }}"
-        sleep: "{{ lxc_container_wait_params.sleep | default(omit) }}"
-        timeout: "{{ lxc_container_wait_params.timeout | default(omit) }}"
-  vars_files:
-    - test-vars.yml
+    - role: "nspawn_container_create"
+  environment: "{{ deployment_environment_variables | default({}) }}"
+  tags:
+    - nspawn-containers-create

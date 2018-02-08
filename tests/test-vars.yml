@@ -16,29 +16,7 @@ ansible_become: True
 ansible_user: root
 external_lb_vip_address: "{{ bootstrap_host_public_address | default(ansible_default_ipv4.address) }}"
 internal_lb_vip_address: 172.29.236.100
-
-## LXC container default bind mounts
-lxc_container_default_bind_mounts:
-  - host_directory: "/openstack/backup/{{ inventory_hostname }}"
-    container_directory: "/var/backup"
-  - host_directory: "/openstack/log/{{ inventory_hostname }}"
-    container_directory: "/var/log"
-
-lxc_container_wait_params:
-  # Wait 3 seconds before attempting the first connection
-  delay: 3
-  # Wait 60 seconds for the container to respond
-  timeout: 60
-
-# LXC Settings
-lxc_net_address: 10.255.255.1
-lxc_net_dhcp_range: 10.255.255.2,10.255.255.253
-lxc_net_netmask: 255.255.255.0
-lxc_image_cache_server: rpc-repo.rackspace.com
-lxc_container_backing_store: dir
-lxc_net_bridge: lxcbr0
-lxc_kernel_options:
-  - { key: 'fs.inotify.max_user_instances', value: 1024 }
+container_tech: "nspawn"
 
 ansible_ssh_extra_args: >
   -o UserKnownHostsFile=/dev/null
