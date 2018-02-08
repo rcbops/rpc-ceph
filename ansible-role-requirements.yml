@@ -14,3 +14,7 @@
   src: https://git.openstack.org/openstack/openstack-ansible-haproxy_server
   scm: git
   version: stable/pike
+- name: rsyslog_server
+  src: https://git.openstack.org/openstack/openstack-ansible-rsyslog_server
+  scm: git
+  version: stable/pike

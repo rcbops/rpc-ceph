@@ -47,7 +47,7 @@ The inventory should consist of the following:
    (Since the Luminous release this is required).
  * 3+ osds hosts with storage drives.
  * OPTIONAL: 1-3+ rgws hosts - these will be load balanced.
- * ``rsyslog_all`` host, pointing to the existing rsyslog logging server.
+ * ``rsyslog_all`` host, pointing to an existing or new rsyslog logging server.
  * OPTIONAL:``benchmark_hosts`` - the host on which to run benchmarking
    (Read ``benchmark/README.md`` for more).
 
@@ -89,6 +89,7 @@ The inventory should consist of the following:
    * ``rsyslog_client``
    * ``openstack-ansible-plugins`` (``ceph-ansible`` uses the config template plugin from here).
    * ``haproxy_server``
+   * ``rsyslog_server``
 
 7. Run the ``ceph-ansible`` playbook from the playbooks directory:
 
@@ -101,6 +102,7 @@ The inventory should consist of the following:
    * ``ceph-setup-logging.yml``will setup rsyslog client, ensure you have the appropriate rsyslog server setup, or other log shipping location, refer to: https://docs.openstack.org/openstack-ansible-rsyslog_client/latest/ for more details
    * ``ceph-keystone-rgw.yml`` will setup required keystone users and endpoints for Ceph.
    * ``ceph-rgw-haproxy.yml`` will setup the HAProxy VIP for Ceph Rados GW. Ensure you specify ``haproxy_all`` group in your inventory with the HAProxy hosts.
+   * ``ceph-rsyslog-server.yml`` will setup rsyslog server on the ``rsyslog_all`` hosts specified. **NB** If there is already an existing rsyslog server that you are connecting into, you should not run this.
 
 Your deployment should be successful.
 
