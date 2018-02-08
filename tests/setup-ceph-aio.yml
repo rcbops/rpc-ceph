@@ -4,7 +4,7 @@
 - include: setup-ceph-storage.yml
 
 ## Setup non-ceph components for testing
-- include: setup-rsyslog-server.yml
+- include: ../playbooks/ceph-rsyslog-server.yml
 - include: ../playbooks/ceph-rgw-haproxy.yml
 - include: common/test-install-infra.yml
   when: radosgw_keystone | bool
