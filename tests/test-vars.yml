@@ -128,8 +128,15 @@ dedicated_devices:
   - /dev/sdc
 
 ### MaaS settings
-# Enable the API usage
+# Enable the API usage and verification steps
 maas_use_api: true
+maas_verify_status: true
+maas_verify_registration: true
+maas_excluded_checks: []
+maas_check_period_override:
+  disk_utilisation: 900
+maas_excluded_alarms: []
+maas_rally_enabled: false
 # Will restart the agent service ONLY once at the end of a site.yml run
 maas_restart_independent: false
 # Set the default notification plan, in the gate this is set here
