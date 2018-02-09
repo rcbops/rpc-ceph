@@ -300,8 +300,7 @@ openstack_config: false
 ## Ceph Integration with RPC OpenStack(RPCO)
 
 Current documentation of the Integration pieces of Ceph and OpenStack 
-https://github.com/rsoprivatecloud/rpc-deployments/blob/master/installs/newton/RPCO_Ceph-Ansible_install.md
- 
+https://github.com/rsoprivatecloud/rpc-deployments/blob/master/installs/ceph/RPCO_Ceph-Ansible_install.md 
 
 ## Integration of Ceph Object Storage (RGW) with OpenStack
 Information on setting up RGW with RPC Openstack can be found here:
