@@ -10,8 +10,11 @@
       when: fiobench_pool_name is not defined
     - name: Create benchmark ceph client
       command: "ceph auth get-or-create client.fiobench mon 'allow r' osd 'allow * pool={{ fiobench_pool_name | default('fiobench') }}'"
-      when: inventory_hostname == groups['mons'][0]
+      run_once: True
       register: _ceph_benchmark_client
+    - name: Set application for benchmark pool
+      command: "ceph osd pool application enable {{ fiobench_pool_name | default('fiobench') }} rbd"
+      run_once: True
     - name: Set benchmark_client fact
       set_fact:
         ceph_benchmark_client: "{{ _ceph_benchmark_client }}"
