@@ -42,11 +42,35 @@
       - journ1
     register: ceph_losetup
     delegate_to: "{{ physical_host }}"
-  - name: Partition loopbacks
-    shell: parted --script {{ item.stdout }} 'mklabel gpt' && parted --script {{ item.stdout }} 'mkpart primary ext4 1 -1' && parted --script {{ item.stdout }}p1 'mklabel gpt' && partprobe
+  - name: Set mklabel gpt on loopback device
+    shell: parted --script {{ item.stdout }} 'mklabel gpt'
+    register: disk_gpt
+    until: disk_gpt | success
+    retries: 10
+    delay: 1
     with_items: "{{ ceph_losetup.results }}"
-    failed_when: False
     delegate_to: "{{ physical_host }}"
+  - name: Create partition on loopback device
+    shell: parted --script {{ item.stdout }} 'mkpart primary ext4 1 -1'
+    register: part_create
+    until: part_create | success
+    retries: 10
+    delay: 1
+    with_items: "{{ ceph_losetup.results }}"
+    delegate_to: "{{ physical_host }}"
+  - name: Set mklabel gpt on loopback partitions
+    shell: parted --script {{ item.stdout }}p1 'mklabel gpt'
+    register: part_gpt
+    until: (part_gpt.rc == 1) or (part_gpt.rc == 0)
+    retries: 10
+    delay: 1
+    failed_when: part_gpt.rc not in [0,1]
+    with_items: "{{ ceph_losetup.results }}"
+    delegate_to: "{{ physical_host }}"
+  - name: Run partprobe now that all disks are created
+    command: partprobe
+    delegate_to: "{{ physical_host }}"
+    run_once: True
   - name: Get block devices
     shell: "lsblk | grep {{ item.stdout|regex_replace('/dev/') }}p1 | awk '{print $2}'"
     with_items: "{{ ceph_losetup.results }}"
