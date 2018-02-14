@@ -21,6 +21,7 @@
 ## Tests
 - include: test-rgw.yml
 - include: ../benchmark/fio_benchmark.yml
+- include: ../benchmark/rgw_benchmark.yml
 
 ## Logging setup and tests
 # This is done after to allow time for the logs

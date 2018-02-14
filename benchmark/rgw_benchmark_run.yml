@@ -1,0 +1,16 @@
+---
+- hosts: benchmark_hosts
+  become: True
+  gather_facts: True
+  tasks:
+    - name: Run hummingbird bench  and record version/config info
+      shell: 'echo -e "\nHumminbird Version: `/opt/ceph_bench/hummingbird version`\n\nBench Config Used:\n`cat /opt/ceph_bench/{{ item.name }}`\n\nHummingbird Benchmark Output:\n`/opt/ceph_bench/hummingbird bench /opt/ceph_bench/{{ item.name }}`" | tee /opt/ceph_bench/logs/{{ item.name }}.{{ ansible_date_time.iso8601_basic_short }}.log'
+      register: hummingbird_bench_output
+      with_items:
+        - name: "rgw_bench_test.conf"
+          run_type: (rgw_bench | default(True))
+      when: item.run_type
+    - name: Debug hummingbird-bench outputs
+      debug:
+        var: item.stdout_lines
+      with_items: "{{ hummingbird_bench_output.results }}"

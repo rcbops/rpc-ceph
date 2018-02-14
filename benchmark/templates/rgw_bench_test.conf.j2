@@ -1,0 +1,11 @@
+[bench]
+auth=http://{{ internal_lb_vip_address }}:8080/auth/v1.0
+user=testuser:swift
+key=swiftsecret
+concurrency={{ bench_rgw_concurrency | default(15) }} 
+object_size={{ bench_rgw_object_size | default(256)}}
+num_objects={{ bench_rgw_number_of_objects | default(5000) }}
+num_gets={{ bench_rgw_number_of_gets | default(10000)}}
+delete = yes
+auth_version=1.0
+policy_name=gold

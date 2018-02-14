@@ -1,0 +1,4 @@
+---
+- include: rgw_benchmark_setup.yml
+- include: rgw_benchmark_run.yml
+- include: rgw_benchmark_cleanup.yml
