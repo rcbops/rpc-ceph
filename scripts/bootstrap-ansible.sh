@@ -30,15 +30,15 @@ determine_distro
 # Install the base packages
 case ${DISTRO_ID} in
     centos|rhel)
-        yum -y install \
+        sudo $RHT_PKG_MGR -y install \
           git curl autoconf gcc gcc-c++ nc \
           python2 python2-devel \
           openssl-devel libffi-devel \
           libselinux-python
         ;;
     ubuntu)
-        apt-get update
-        DEBIAN_FRONTEND=noninteractive apt-get -y install \
+        sudo apt-get update
+        DEBIAN_FRONTEND=noninteractive sudo apt-get -y install \
           git python-all python-dev curl python2.7-dev build-essential \
           libssl-dev libffi-dev netcat python-requests python-openssl python-pyasn1 \
           python-netaddr python-prettytable python-crypto python-yaml \
@@ -72,8 +72,6 @@ if [[ "${VIRTUALENV_VERSION}" -lt "13" ]]; then
   hash -r virtualenv
 fi
 
-pip install --requirement requirements.txt
-
 # Create a Virtualenv for the Ansible runtime
 if [ -f "/opt/rpc-ceph_ansible-runtime/bin/python" ]; then
   VENV_PYTHON_VERSION="$(/opt/rpc-ceph_ansible-runtime/bin/python -c 'import sys; print(".".join(map(str, sys.version_info[:3])))')"
@@ -101,7 +99,7 @@ PIP_OPTS+=" --constraint global-requirement-pins.txt"
 ${PIP_COMMAND} install ${PIP_OPTS} -r requirements.txt ${ANSIBLE_PACKAGE}
 
 # Create ceph-ansible binary ensuring we use the correct version of ansible
-cat > /usr/local/bin/ceph-ansible <<EOF
+cat <<EOF | sudo tee /usr/local/bin/ceph-ansible
 #!/usr/bin/env bash
 # Copyright 2018, Rackspace US, Inc.
 #
@@ -123,11 +121,11 @@ cat > /usr/local/bin/ceph-ansible <<EOF
 /opt/rpc-ceph_ansible-runtime/bin/ansible "\${@}"
 EOF
 
-chmod +x /usr/local/bin/ceph-ansible
+sudo chmod +x /usr/local/bin/ceph-ansible
 echo "ceph-ansible wrapper created."
 
 # Create ceph-ansible-playbook binary ensuring we use the correct version of ansible
-cat > /usr/local/bin/ceph-ansible-playbook <<EOF
+cat <<EOF | sudo tee /usr/local/bin/ceph-ansible-playbook
 #!/usr/bin/env bash
 # Copyright 2018, Rackspace US, Inc.
 #
@@ -149,7 +147,7 @@ cat > /usr/local/bin/ceph-ansible-playbook <<EOF
 /opt/rpc-ceph_ansible-runtime/bin/ansible-playbook "\${@}"
 EOF
 
-chmod +x /usr/local/bin/ceph-ansible-playbook
+sudo chmod +x /usr/local/bin/ceph-ansible-playbook
 echo "ceph-ansible-playbook wrapper created."
 
 # Update dependent roles

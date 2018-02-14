@@ -1,0 +1,12 @@
+{% for group in groups %}
+[{{ group }}]
+{% for host in groups[group] %}
+{{ host }} ansible_host={{ hostvars[host]['ansible_host'] }}
+{% endfor %}
+
+{% endfor %}
+[all:vars]
+ansible_user={{ hostvars[play_hosts|first]['ansible_user'] }}
+ansible_become={{ hostvars[play_hosts|first]['ansible_become'] }}
+ansible_ssh_extra_args={{ hostvars[play_hosts|first]['ansible_ssh_extra_args'] }}
+ansible_python_interpreter={{ hostvars[play_hosts|first]['ansible_python_interpreter'] }}

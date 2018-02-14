@@ -1,0 +1,301 @@
+---
+
+- name: Deploy Openstack Instances
+  hosts: localhost,
+  connection: local
+
+  tasks:
+    - name: Check for required variables
+      assert:
+        that: item
+      with_items:
+        - cluster_deploy_version
+        - ssh_keyname
+        - stor_count
+        - client_count
+      loop_control:
+        label: "Assert {{ item }} is defined"
+
+    - name: Deploy Storage Nodes
+      os_server:
+        state: present
+        name: "ceph-{{ cluster_deploy_version }}-stor-{{ item }}"
+        image: "{{ stor_image }}"
+        flavor: "{{ stor_flavor }}"
+        key_name: "{{ ssh_keyname }}"
+        nics: "{{ networks }}"
+        meta: "instance_role=ceph-{{ cluster_deploy_version }}-storage"
+        timeout: 720
+        validate_certs: false
+        cloud: phobos
+      with_sequence: count={{ stor_count }}
+      register: storage_nodes
+
+    - name: Deploy Rsyslog Nodes
+      os_server:
+        state: present
+        name: "ceph-{{ cluster_deploy_version }}-rsyslog"
+        image: "{{ log_image }}"
+        flavor: "{{ log_flavor }}"
+        key_name: "{{ ssh_keyname }}"
+        nics: "{{ networks }}"
+        meta: "instance_role=ceph-{{ cluster_deploy_version }}-rsyslog"
+        timeout: 720
+        validate_certs: false
+      register: rsyslog_nodes
+
+    - name: Deploy Haproxy Nodes
+      os_server:
+        state: present
+        name: "ceph-{{ cluster_deploy_version }}-haproxy"
+        image: "{{ log_image }}"
+        flavor: "{{ log_flavor }}"
+        key_name: "{{ ssh_keyname }}"
+        nics: "{{ networks }}"
+        meta: "instance_role=ceph-{{ cluster_deploy_version }}-haproxy"
+        timeout: 720
+        validate_certs: false
+      register: haproxy_nodes
+
+    - name: Deploy Client Nodes
+      os_server:
+        state: present
+        name: "ceph-{{ cluster_deploy_version }}-client-{{ item }}"
+        image: "{{ log_image }}"
+        flavor: "{{ log_flavor }}"
+        key_name: "{{ ssh_keyname }}"
+        nics: "{{ networks }}"
+        meta: "instance_role=ceph-{{ cluster_deploy_version }}-client"
+        timeout: 720
+        validate_certs: false
+      with_sequence: count={{ client_count }}
+      register: client_nodes
+
+    - name: Deploy Admin Nodes
+      os_server:
+        state: present
+        name: "ceph-{{ cluster_deploy_version }}-admin"
+        image: "{{ log_image }}"
+        flavor: "{{ log_flavor }}"
+        key_name: "{{ ssh_keyname }}"
+        nics: "{{ networks }}"
+        meta: "instance_role=ceph-{{ cluster_deploy_version }}-admin"
+        timeout: 720
+        validate_certs: false
+      with_sequence: count={{ log_count }}
+      register: admin_nodes
+
+    - name: Wait for SSH
+      command: >
+        ssh -o BatchMode=yes
+        -o StrictHostKeyChecking=no
+        -o UserKnownHostsFile=/dev/null
+        -o ConnectTimeout=30
+        ubuntu@{{ rsyslog_nodes.server.addresses.get(external_network)[0].addr }} true
+      register: log_ssh_result
+      until: log_ssh_result|success
+      retries: 300
+      delay: 5
+
+    - name: Wait for SSH
+      command: >
+        ssh -o BatchMode=yes
+        -o StrictHostKeyChecking=no
+        -o UserKnownHostsFile=/dev/null
+        -o ConnectTimeout=30
+        ubuntu@{{ item.server.addresses.get(external_network)[0].addr }} true
+      register: client_ssh_result
+      until: client_ssh_result|success
+      retries: 300
+      delay: 5
+      with_items: "{{ client_nodes.results }}"
+      when: client_count > 0
+
+    - name: Wait for SSH
+      command: >
+        ssh -o BatchMode=yes
+        -o StrictHostKeyChecking=no
+        -o UserKnownHostsFile=/dev/null
+        -o ConnectTimeout=30
+        ubuntu@{{ haproxy_nodes.server.addresses.get(external_network)[0].addr }} true
+      register: haproxy_ssh_result
+      until: haproxy_ssh_result|success
+      retries: 300
+      delay: 5
+
+    - name: Wait for SSH
+      command: >
+        ssh -o BatchMode=yes
+        -o StrictHostKeyChecking=no
+        -o UserKnownHostsFile=/dev/null
+        -o ConnectTimeout=30
+        ubuntu@{{ item.server.addresses.get(external_network)[0].addr }} true
+      register: adm_ssh_result
+      until: adm_ssh_result|success
+      retries: 300
+      delay: 5
+      with_items: "{{ admin_nodes.results }}"
+
+    - name: Add admin_all host group
+      add_host:
+        name: "{{ item.server.name }}"
+        groups: admin_all
+        ansible_host: "{{ item.server.addresses.get(external_network)[0].addr }}"
+        ansible_user: ubuntu
+        ansible_become: true
+        ansible_ssh_extra_args: -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
+        ansible_python_interpreter: /usr/bin/python3
+        host_id: "{{ item.server.id }}"
+      with_items: "{{ admin_nodes.results }}"
+
+    - name: Wait for SSH
+      command: >
+        ssh -o BatchMode=yes
+        -o StrictHostKeyChecking=no
+        -o UserKnownHostsFile=/dev/null
+        -o ConnectTimeout=30
+        ubuntu@{{ item.server.addresses.get(external_network)[0].addr }} true
+      register: stor_ssh_result
+      until: stor_ssh_result|success
+      retries: 300
+      delay: 5
+      with_items: "{{ storage_nodes.results }}"
+
+    - name: Add rsyslog_all host group
+      add_host:
+        name: "{{ rsyslog_nodes.server.name }}"
+        groups: rsyslog_all
+        ansible_host: "{{ rsyslog_nodes.server.addresses.get(external_network)[0].addr }}"
+        ansible_user: ubuntu
+        ansible_become: true
+        ansible_ssh_extra_args: -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
+        ansible_python_interpreter: /usr/bin/python3
+        host_id: "{{ rsyslog_nodes.server.id }}"
+
+    - name: Add clients host group
+      add_host:
+        name: "{{ item.server.name }}"
+        groups: clients
+        ansible_host: "{{ item.server.addresses.get(external_network)[0].addr }}"
+        ansible_user: ubuntu
+        ansible_become: true
+        ansible_ssh_extra_args: -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
+        ansible_python_interpreter: /usr/bin/python3
+        host_id: "{{ item.server.id }}"
+      with_items: "{{ client_nodes.results }}"
+      when: client_count > 0
+
+    - name: Add haproxy_all host group
+      add_host:
+        name: "{{ haproxy_nodes.server.name }}"
+        groups: haproxy_all
+        ansible_host: "{{ haproxy_nodes.server.addresses.get(external_network)[0].addr }}"
+        ansible_user: ubuntu
+        ansible_become: true
+        ansible_ssh_extra_args: -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
+        ansible_python_interpreter: /usr/bin/python3
+        host_id: "{{ haproxy_nodes.server.id }}"
+
+    - name: Add osds and rgws host group
+      add_host:
+        name: "{{ item.server.name }}"
+        groups: 
+          - osds
+          - rgws
+        ansible_host: "{{ item.server.addresses.get(external_network)[0].addr }}"
+        ansible_user: ubuntu
+        ansible_become: true
+        ansible_ssh_extra_args: -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
+        ansible_python_interpreter: /usr/bin/python3
+        host_id: "{{ item.server.id }}"
+      with_items: "{{ storage_nodes.results }}"
+
+    - name: Add mgrs and mons host group
+      add_host:
+        name: "{{ item.server.name }}"
+        groups: 
+          - mgrs
+          - mons
+        ansible_host: "{{ item.server.addresses.get(external_network)[0].addr }}"
+        ansible_user: ubuntu
+        ansible_become: true
+        ansible_ssh_extra_args: -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
+        ansible_python_interpreter: /usr/bin/python3
+        host_id: "{{ item.server.id }}"
+      with_items:
+        - "{{ storage_nodes.results[0] }}"
+        - "{{ storage_nodes.results[1] }}"
+        - "{{ storage_nodes.results[2] }}"
+
+- name: Deploy hosts file
+  hosts:
+    - admin_all
+    - rsyslog_all
+    - mons
+    - mgrs
+    - osds
+    - rgws
+    - haproxy_all
+    - clients
+
+  tasks:
+    - name: Write /etc/hosts
+      template:
+        src: hosts.j2
+        dest: /etc/hosts
+
+- name: Bootstrap admin deploy node
+  hosts: admin_all
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Add rpc group
+      group:
+        name: rpc
+        system: true
+
+    - name: Add rpc to ubuntu
+      user:
+        name: ubuntu
+        groups: rpc
+        append: true
+
+    - name: Set /opt Permissions
+      file:
+        path: /opt
+        group: rpc
+        mode: 0775
+        state: directory
+
+    - name: Clone rpc-ceph
+      git:
+        repo: 'https://github.com/rcbops/rpc-ceph.git'
+        dest: /opt/rpc-ceph
+        version: master
+        update: false
+
+    - name: Install python-pip
+      apt:
+        name: python-pip
+        state: present
+        update_cache: true
+
+    - name: Write inventory file
+      template:
+        src: inventory_file.j2
+        dest: /opt/rpc-ceph/inventory
+
+    - name: Ensure permissions on clone
+      file:
+        path: /opt/rpc-ceph
+        state: directory
+        recurse: true
+        owner: ubuntu
+        group: rpc
+
+    - name: Ensure permissions on fetch
+      file:
+        path: /opt/rpc-ceph/playbooks/fetch
+        state: directory
+        owner: ubuntu
+        group: rpc
