@@ -8,7 +8,7 @@ versions of ``ceph-ansible`` used in RPC deployments.
 
 ## Current versions of ceph-ansible & Ansible
 
-### **ceph-ansible version:** v3.0.22
+### **ceph-ansible version:** v3.0.25
 
 ### **Ansible version:** 2.4.3
 
