@@ -1,7 +1,7 @@
 - name: ceph-ansible
   scm: git
   src: https://github.com/ceph/ceph-ansible
-  version: v3.0.22
+  version: v3.0.25
 - name: ../ceph_plugins
   scm: git
   src: https://git.openstack.org/openstack/openstack-ansible-plugins
@@ -11,10 +11,10 @@
   src: https://git.openstack.org/openstack/openstack-ansible-rsyslog_client
   version: stable/pike
 - name: haproxy_server
-  src: https://git.openstack.org/openstack/openstack-ansible-haproxy_server
   scm: git
+  src: https://git.openstack.org/openstack/openstack-ansible-haproxy_server
   version: stable/pike
 - name: rsyslog_server
-  src: https://git.openstack.org/openstack/openstack-ansible-rsyslog_server
   scm: git
+  src: https://git.openstack.org/openstack/openstack-ansible-rsyslog_server
   version: stable/pike
