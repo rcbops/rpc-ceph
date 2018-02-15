@@ -16,8 +16,6 @@
   become: True
   tasks:
   - name: Remove the subuser of the test user created for benchmark
-    command: "radosgw-admin subuser rm --uid='testuser' --subuser='testuser:swift'"
-    ignore_errors: yes
+    command: "radosgw-admin subuser rm --uid='rgwbench' --subuser='rgwbench:test'"
   - name: Remove test user created for benchmark
-    command: "radosgw-admin user rm --uid='testuser'"
-    ignore_errors: yes
+    command: "radosgw-admin user rm --uid='rgwbench'"

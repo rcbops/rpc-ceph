@@ -72,6 +72,8 @@ the configuration file is made from the template  **benchmark/templates/rgw_benc
 The parameters you can adjust are concurrency, size of put object, number of objects added 
 and number of get requests.  The tool deletes all put objects as a final step.
 
+* bench_rgw_user_password:  password used by the benchmark
+* bench_rgw_hummingbird_url: url to the benchmarking tool **hummingbird**
 * bench_rgw_concurrency:  number of concurrent operations
 * bench_rgw_object_size:   size of the object in bytes used in the benchmark 
 * bench_rgw_number_of_objects:  number of objects placed in the system 
@@ -80,6 +82,25 @@ and number of get requests.  The tool deletes all put objects as a final step.
 When choosing the concurrency setting keep in mind the network throughput available on the client boxes. 
 When choosing the object size and number settings keep in mind that multiple replicas of the object will 
 written into the system so check the clusters available space.   
+
+### Benchmark Settings for an AIO
+Due the the fact that rpc-ceph tests are run on an AIO the setting placed in **tests/test-vars.yml** are:
+* bench_rgw_concurrency:  15
+* bench_rgw_object_size: 256
+* bench_rgw_number_of_objects: 5000 
+* bench_rgw_number_of_gets: 10000
+
+### Benchmark Settings Defaults
+For the benchmark to be useful on production systems the amount of data written and read needs to be significant.
+So the benchmarks defaults setting are:
+* bench_rgw_concurrency:  50
+* bench_rgw_object_size: 524288 *512k*
+* bench_rgw_number_of_objects: 250000
+* bench_rgw_number_of_gets: 500000
+
+This will write out 128GB of data into the cluster which depending on your replication strategy could end up
+being a lot more. So validate these numbers accordingly. Also keep in mind the size of the clients 
+network connection because if you saturate that link the results of the benchmark will not be accurate.
 
 ### Running the benchmark
 The time it takes to run the benchmark will depend on the size and number of objects selected, 
@@ -96,8 +117,8 @@ Humminbird Version: v1.0.0
 Bench Config Used:
 [bench]
 auth=http://172.29.236.100:8080/auth/v1.0
-user=testuser:swift
-key=swiftsecret
+user=rgwbench:test
+key=rgwbenchsecret
 concurrency=15 
 object_size=256
 num_objects=5000

@@ -4,11 +4,11 @@
   gather_facts: True
   become: True
   tasks:
-    - name: Create user testuser 
-      command: "radosgw-admin user create --uid='testuser' --display-name='Testy Tester'"
+    - name: Create user rgwbench
+      command: "radosgw-admin user create --uid='rgwbench' --display-name='Rgw Benchmark'"
       run_once: True
-    - name: Create subuser testuser:swift 
-      command: "radosgw-admin subuser create --uid='testuser' --subuser='testuser:swift' --access=full --secret='swiftsecret'"
+    - name: Create subuser rgwbench:test
+      command: "radosgw-admin subuser create --uid='rgwbench' --subuser='rgwbench:test' --access=full --secret='{{ bench_rgw_user_password }}'"
       run_once: True
 
 - hosts: benchmark_hosts
@@ -16,8 +16,11 @@
   become: True
   post_tasks:
     ### Using the bench command of Hummingbird for benchmarking it's a single binary with no dependencies or additional libraries.
-    - name: Install benchmark software 
-      shell: 'wget https://github.com/troubling/hummingbird/releases/download/v1.0.0/hummingbird && chmod +x hummingbird && mv hummingbird /opt/ceph_bench/'
+    - name: Install the benchmark software
+      get_url:
+        url: "{{ bench_rgw_hummingbird_url }}"
+        dest: /opt/ceph_bench/
+        mode: 0751
     - name: Template out humminbird bench config file
       config_template:
         src: "templates/{{ item.name }}.j2"

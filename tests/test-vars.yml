@@ -104,6 +104,8 @@ fio_test_file_write_overrides:
     size: 10M
 
 ### Testing valuses for rgw benchmark
+bench_rgw_user_password: rgwbenchsecret
+bench_rgw_hummingbird_url:  https://github.com/troubling/hummingbird/releases/download/v1.0.0/hummingbird
 bench_rgw_concurrency:  15
 bench_rgw_object_size: 256
 bench_rgw_number_of_objects: 5000
