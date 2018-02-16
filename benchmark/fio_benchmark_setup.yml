@@ -67,21 +67,12 @@
         - /mnt/fio_bench
     - name: Template out fio_bench files
       config_template:
-        src: "templates/{{ item.name }}.j2"
-        dest: "/opt/ceph_bench/{{ item.name }}"
+        src: "templates/{{ item.src }}"
+        dest: "/opt/ceph_bench/{{ item.name }}.cfg"
         config_overrides: "{{ item.override }}"
         config_type: "ini"
-      with_items:
-        - name: "fio_direct_read_test.cfg"
-          override: "{{ fio_direct_read_test_overrides | default({}) }}"
-        - name: "fio_direct_write_test.cfg"
-          override: "{{ fio_direct_write_test_overrides | default({}) }}"
-        - name: "fio_rw_mix.cfg"
-          override: "{{ fio_rw_mix_overrides | default({}) }}"
-        - name: "fio_test_file_read.cfg"
-          override: "{{ fio_test_file_read_overrides | default({}) }}"
-        - name: "fio_test_file_write.cfg"
-          override: "{{ fio_test_file_write_overrides | default({}) }}"
+      with_items: "{{ fio_bench_list }}"
+
     # In py2 ConfigParser cant strip spaces around delimiters FIO needs that.
     - name: Manually strip spaces around delimiters
       shell: "sed -i 's/ = /=/g' /opt/ceph_bench/*.cfg"

@@ -5,9 +5,10 @@ norandommap=1
 
 [fio_test_file]
 directory=/mnt/fio_bench
-bs=16k
+bs={{ item.blocksize | default("16k") }}
 rw=randwrite
 direct=1
 size=1G
-numjobs=16
+numjobs={{ item.numjobs | default(16) }}
+iodepth={{ item.iodepth | default(1) }}
 time_based=1
