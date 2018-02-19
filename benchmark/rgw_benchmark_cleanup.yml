@@ -1,0 +1,21 @@
+---
+- hosts: benchmark_hosts
+  become: True
+  tasks:
+  - name: Remove hummingbird software
+    file:
+      state: absent
+      path: "/opt/ceph_bench/hummingbird"
+  - name: Remove remove rgw_bench.conf
+    file:
+      state: absent
+      path: "/opt/ceph_bench/rgw_bench_test.conf"
+
+# Cleanup he user and sub user created for the benchmark
+- hosts: mons[0]
+  become: True
+  tasks:
+  - name: Remove the subuser of the test user created for benchmark
+    command: "radosgw-admin subuser rm --uid='rgwbench' --subuser='rgwbench:test'"
+  - name: Remove test user created for benchmark
+    command: "radosgw-admin user rm --uid='rgwbench'"

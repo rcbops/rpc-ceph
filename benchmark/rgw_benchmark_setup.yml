@@ -1,0 +1,32 @@
+---
+- hosts:
+    - mons
+  gather_facts: True
+  become: True
+  tasks:
+    - name: Create user rgwbench
+      command: "radosgw-admin user create --uid='rgwbench' --display-name='Rgw Benchmark'"
+      run_once: True
+    - name: Create subuser rgwbench:test
+      command: "radosgw-admin subuser create --uid='rgwbench' --subuser='rgwbench:test' --access=full --secret='{{ bench_rgw_user_password }}'"
+      run_once: True
+
+- hosts: benchmark_hosts
+  gather_facts: True
+  become: True
+  post_tasks:
+    ### Using the bench command of Hummingbird for benchmarking it's a single binary with no dependencies or additional libraries.
+    - name: Install the benchmark software
+      get_url:
+        url: "{{ bench_rgw_hummingbird_url }}"
+        dest: /opt/ceph_bench/
+        mode: 0751
+    - name: Template out humminbird bench config file
+      config_template:
+        src: "templates/{{ item.name }}.j2"
+        dest: "/opt/ceph_bench/{{ item.name }}"
+        config_overrides: "{{ item.override }}"
+        config_type: "ini"
+      with_items:
+        - name: "rgw_bench_test.conf"
+          override: "{{ rgw_benchmark_overrides | default({}) }}"
