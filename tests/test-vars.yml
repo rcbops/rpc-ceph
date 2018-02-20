@@ -83,21 +83,31 @@ ceph_mgr_systemd_overrides:
 ## Testing specific fio_bench vars
 fiobench_pgnum: 5
 fiobench_pgpnum: 5
-fio_direct_read_test_overrides:
+fio_direct_read_test_1024k_overrides:
   global:
     runtime: 10
-fio_direct_write_test_overrides:
+fio_direct_write_test_1024k_overrides:
   global:
     runtime: 10
-fio_rw_mix_overrides:
+fio_rw_mix_1024k_overrides:
   global:
     runtime: 10
-fio_test_file_read_overrides:
+fio_test_file_read_16k_overrides:
   global:
     runtime: 10
   fio_test_file:
     size: 10M
-fio_test_file_write_overrides:
+fio_test_file_write_16k_overrides:
+  global:
+    runtime: 10
+  fio_test_file:
+    size: 10M
+fio_test_file_read_4k_overrides:
+  global:
+    runtime: 10
+  fio_test_file:
+    size: 10M
+fio_test_file_write_4k_overrides:
   global:
     runtime: 10
   fio_test_file:
