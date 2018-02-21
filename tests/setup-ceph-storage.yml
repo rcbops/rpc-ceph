@@ -96,10 +96,9 @@
   vars_files:
     - test-vars.yml
 
-# In order to change sysctl settings for CentOS7
-- name: Fix /proc/sys perms for CentOS7 containers
+# In order to change sysctl settings /proc/sys needs permissions
+- name: Fix /proc/sys perms for containers
   hosts: rgws:mons:osds:mgrs
   tasks:
     - name: Remount /proc/sys rw
       command: "mount -o remount rw /proc/sys"
-      when: ansible_os_family | lower == "redhat"
