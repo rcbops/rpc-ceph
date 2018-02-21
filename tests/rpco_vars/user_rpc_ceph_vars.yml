@@ -1,0 +1,10 @@
+---
+ceph_mons:
+  - 172.29.236.31
+  - 172.29.236.32
+  - 172.29.236.33
+
+ceph_stable_release: luminous
+ceph_pkg_source: ceph
+glance_default_store: rbd
+tempest_run: True
