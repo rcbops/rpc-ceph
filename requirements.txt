@@ -15,3 +15,4 @@ PyYAML>=3.10.0 # MIT
 # NOTE(mattt): This causes issues w/ ansible's apt_key module and SNI
 #urllib3>=1.21.1 # MIT
 virtualenv>=13.1.0 # MIT
+shade>=1.26.0

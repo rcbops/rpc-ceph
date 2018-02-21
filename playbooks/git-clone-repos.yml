@@ -2,7 +2,7 @@
 - name: Clone ansible-role-reqs
   hosts: localhost
   connection: local
-  user: root
+  become: true
   tasks:
 
   - name: Clone git repos
