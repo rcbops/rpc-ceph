@@ -3,11 +3,11 @@
   become: True
   tasks:
     - name: Get bench_direct_device_name
-      shell: "rbd-nbd list-mapped | grep ' {{ fiobench_pool_name | default('fiobench') }} ' | grep ' bench_direct ' | awk '{ print $5 }'"
+      shell: "rbd-nbd list-mapped | grep ' {{ fiobench_pool_name | default('fiobench') }} ' | grep ' bench_direct-{{ inventory_hostname_short }} ' | awk '{ print $5 }'"
       register: _find_bench_direct_device_name
       when: bench_direct_device_name is not defined
     - name: Get bench_file_device_name
-      shell: "rbd-nbd list-mapped | grep ' {{ fiobench_pool_name | default('fiobench') }} ' | grep ' bench_file ' | awk '{ print $5 }'"
+      shell: "rbd-nbd list-mapped | grep ' {{ fiobench_pool_name | default('fiobench') }} ' | grep ' bench_file-{{ inventory_hostname_short }} ' | awk '{ print $5 }'"
       register: _find_bench_file_device_name
       when: bench_file_device_name is not defined
     - name: Set bench_device_name vars
@@ -38,8 +38,8 @@
     - name: Delete image
       command: "rbd remove {{ fiobench_pool_name | default('fiobench') }}/{{ item }} -k /etc/ceph/ceph.client.fiobench.keyring -n client.fiobench"
       with_items:
-        - "bench_file"
-        - "bench_direct"
+        - "bench_file-{{ inventory_hostname_short }}"
+        - "bench_direct-{{ inventory_hostname_short }}"
 
 # Cleanup the benchmark pool if we created it
 - hosts: mons[0]
