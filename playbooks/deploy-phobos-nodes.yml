@@ -42,6 +42,7 @@
         meta: "instance_role=ceph-{{ cluster_deploy_version }}-rsyslog"
         timeout: 720
         validate_certs: false
+        cloud: phobos
       register: rsyslog_nodes
 
     - name: Deploy Haproxy Nodes
@@ -55,7 +56,18 @@
         meta: "instance_role=ceph-{{ cluster_deploy_version }}-haproxy"
         timeout: 720
         validate_certs: false
+        cloud: phobos
       register: haproxy_nodes
+
+    - name: Create Client Server Group
+      os_server_group:
+        state: present
+        name: "ceph-{{ cluster_deploy_version }}-clients"
+        policies: "anti-affinity"
+        validate_certs: false
+        cloud: phobos
+      register: client_server_group
+      when: client_count > 0
 
     - name: Deploy Client Nodes
       os_server:
@@ -66,8 +78,10 @@
         key_name: "{{ ssh_keyname }}"
         nics: "{{ networks }}"
         meta: "instance_role=ceph-{{ cluster_deploy_version }}-client"
+        scheduler_hints: "group={{ client_server_group.id | default('') }}"
         timeout: 720
         validate_certs: false
+        cloud: phobos
       with_sequence: count={{ client_count }}
       register: client_nodes
 
@@ -82,6 +96,7 @@
         meta: "instance_role=ceph-{{ cluster_deploy_version }}-admin"
         timeout: 720
         validate_certs: false
+        cloud: phobos
       with_sequence: count={{ log_count }}
       register: admin_nodes
 
