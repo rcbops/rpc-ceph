@@ -39,13 +39,13 @@
     - name: Create a ceph device for benchmarking
       command: "rbd create {{ fiobench_pool_name | default('fiobench') }}/{{ item }} -s {{ fiobench_size | default(2048) }} -n client.fiobench -k /etc/ceph/ceph.client.fiobench.keyring"
       with_items:
-        - bench_direct
-        - bench_file
+        - "bench_direct-{{ inventory_hostname_short }}"
+        - "bench_file-{{ inventory_hostname_short }}"
     - name: Map nbd direct device
-      command: "rbd-nbd map {{ fiobench_pool_name | default('fiobench') }}/bench_direct -k /etc/ceph/ceph.client.fiobench.keyring -n client.fiobench"
+      command: "rbd-nbd map {{ fiobench_pool_name | default('fiobench') }}/bench_direct-{{ inventory_hostname_short }} -k /etc/ceph/ceph.client.fiobench.keyring -n client.fiobench"
       register: _nbd_direct_device
     - name: Map nbd file device
-      command: "rbd-nbd map {{ fiobench_pool_name | default('fiobench') }}/bench_file -k /etc/ceph/ceph.client.fiobench.keyring -n client.fiobench"
+      command: "rbd-nbd map {{ fiobench_pool_name | default('fiobench') }}/bench_file-{{ inventory_hostname_short }} -k /etc/ceph/ceph.client.fiobench.keyring -n client.fiobench"
       register: _nbd_file_device
     - name: Set bench_device_name facts
       set_fact:
