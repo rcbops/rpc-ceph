@@ -1,54 +1,83 @@
 ---
 fio_bench_list_default:
-  - src: "fio_direct_read_test.cfg.j2"
-    name: "fio_direct_read_test_EBS"
-    override: "{{ fio_direct_read_test_1024k_overrides | default({}) }}"
-    blocksize: "1024k"
-    iodepth: 8
-    numjobs: 1
-    run_bench: sata_bench | default(True)
-  - src: "fio_direct_write_test.cfg.j2"
+  - src: "fio_direct_test.cfg.j2"
     name: "fio_direct_write_test_EBS"
     override: "{{ fio_direct_write_test_1024k_overrides | default({}) }}"
     blocksize: "1024k"
     iodepth: 8
+    rw: write
     numjobs: 1
-    run_bench: sata_bench | default(True)
+    run_bench: "{{ sata_bench | default(True) }}"
+  - src: "fio_direct_test.cfg.j2"
+    name: "fio_direct_read_test_EBS"
+    override: "{{ fio_direct_read_test_1024k_overrides | default({}) }}"
+    blocksize: "1024k"
+    iodepth: 8
+    rw: read
+    numjobs: 1
+    run_bench: "{{ sata_bench | default(True) }}"
   - src: "fio_rw_mix.cfg.j2"
     name: "fio_rw_mix_EBS"
     override: "{{ fio_rw_mix_1024k_overrides | default({}) }}"
     blocksize: "1024k"
     iodepth: 8
     numjobs: 1
-    run_bench: sata_bench | default(True)
-  - src: "fio_test_file_read.cfg.j2"
-    name: "fio_test_file_read_EBS"
-    override: "{{ fio_test_file_read_16k_overrides | default({}) }}"
-    blocksize: "16k"
-    iodepth: 1
-    numjobs: 16
-    run_bench: ssd_bench | default(True)
-  - src: "fio_test_file_write.cfg.j2"
+    run_bench: "{{ sata_bench | default(True) }}"
+  - src: "fio_test_file.cfg.j2"
     name: "fio_test_file_write_EBS"
     override: "{{ fio_test_file_write_16k_overrides | default({}) }}"
     blocksize: "16k"
     iodepth: 1
+    rw: randwrite
     numjobs: 16
-    run_bench: ssd_bench | default(True)
-  - src: "fio_test_file_read.cfg.j2"
-    name: "fio_test_file_read_4k_iodepth8"
-    override: "{{ fio_test_file_read_4k_overrides | default({}) }}"
-    blocksize: "4k"
-    iodepth: 8
-    numjobs: 1
-    run_bench: ssd_bench | default(True)
-  - src: "fio_test_file_write.cfg.j2"
+    run_bench: "{{ ssd_bench | default(True) }}"
+  - src: "fio_test_file.cfg.j2"
+    name: "fio_test_file_read_EBS"
+    override: "{{ fio_test_file_read_16k_overrides | default({}) }}"
+    blocksize: "16k"
+    iodepth: 1
+    rw: randread
+    numjobs: 16
+    run_bench: "{{ ssd_bench | default(True) }}"
+  - src: "fio_test_file.cfg.j2"
     name: "fio_test_file_write_4k_iodepth8"
     override: "{{ fio_test_file_write_4k_overrides | default({}) }}"
     blocksize: "4k"
     iodepth: 8
     numjobs: 1
-    run_bench: ssd_bench | default(True)
+    run_bench: "{{ ssd_bench | default(True) }}"
+  - src: "fio_test_file.cfg.j2"
+    name: "fio_test_file_read_4k_iodepth8"
+    override: "{{ fio_test_file_read_4k_overrides | default({}) }}"
+    blocksize: "4k"
+    iodepth: 8
+    numjobs: 1
+    run_bench: "{{ ssd_bench | default(True) }}"
+  - src: "fio_direct_test.cfg.j2"
+    name: "fio_direct_write_test_RBD"
+    override: "{{ fio_rbd_write_test_1024k_overrides | default({}) }}"
+    blocksize: "1024k"
+    ioengine: rbd
+    iodepth: 8
+    numjobs: 1
+    run_bench: "{{ rbd_bench | default(True) }}"
+  - src: "fio_direct_test.cfg.j2"
+    name: "fio_direct_read_test_RBD"
+    override: "{{ fio_rbd_read_test_1024k_overrides | default({}) }}"
+    blocksize: "1024k"
+    ioengine: rbd
+    rw: read
+    iodepth: 8
+    numjobs: 1
+    run_bench: "{{ rbd_bench | default(True) }}"
+  - src: "fio_rw_mix.cfg.j2"
+    name: "fio_rw_mix_RBD"
+    override: "{{ fio_rbd_rw_mix_1024k_overrides | default({}) }}"
+    blocksize: "1024k"
+    ioengine: rbd
+    iodepth: 8
+    numjobs: 1
+    run_bench: "{{ rbd_bench | default(True) }}"
 
 fio_bench_list: "{{ (fio_bench_list_default | union(fio_bench_list_extras)) }}"
 fio_bench_list_extras: []

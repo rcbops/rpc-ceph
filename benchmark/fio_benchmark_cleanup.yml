@@ -1,13 +1,21 @@
 ---
 - hosts: benchmark_hosts
   become: True
+  vars:
+    _pool_name: "{{ fiobench_pool_name | default('fiobench') }}"
+    _ceph_args: "--id {{ fiobench_client_name | default('fiobench') }}"
   tasks:
     - name: Get bench_direct_device_name
-      shell: "rbd-nbd list-mapped | grep ' {{ fiobench_pool_name | default('fiobench') }} ' | grep ' bench_direct-{{ inventory_hostname_short }} ' | awk '{ print $5 }'"
+      shell: "rbd-nbd list-mapped | grep ' {{ _pool_name }} ' \
+                | grep ' bench_direct_EBS-{{ inventory_hostname_short }} ' \
+                | awk '{ print $5 }'"
       register: _find_bench_direct_device_name
       when: bench_direct_device_name is not defined
     - name: Get bench_file_device_name
-      shell: "rbd-nbd list-mapped | grep ' {{ fiobench_pool_name | default('fiobench') }} ' | grep ' bench_file-{{ inventory_hostname_short }} ' | awk '{ print $5 }'"
+      shell: "rbd-nbd list-mapped \
+                | grep ' {{ _pool_name }} ' \
+                | grep ' bench_file-{{ inventory_hostname_short }} ' \
+                | awk '{ print $5 }'"
       register: _find_bench_file_device_name
       when: bench_file_device_name is not defined
     - name: Set bench_device_name vars
@@ -30,32 +38,42 @@
       file:
         state: absent
         path: "/mnt/fio_bench"
-    - name: Unmap rbd-nbd device
-      command: "rbd-nbd unmap {{ item }}"
-      with_items:
-        - "{{ _bench_direct_device_name }}"
-        - "{{ _bench_file_device_name }}"
+    - name: Unmap rbd-nbd direct device
+      command: "rbd-nbd unmap {{ _bench_direct_device_name }}"
+      when: _bench_direct_device_name|length > 0
+    - name: Unmap rbd-nbd file device
+      command: "rbd-nbd unmap {{ _bench_file_device_name }}"
+      when: _bench_file_device_name|length > 0
+    - name: Check for fiobench.keyring
+      stat:
+        path: /etc/ceph/ceph.client.fiobench.keyring
+      register: keyring
     - name: Delete image
-      command: "rbd remove {{ fiobench_pool_name | default('fiobench') }}/{{ item }} -k /etc/ceph/ceph.client.fiobench.keyring -n client.fiobench"
+      command: "rbd {{ _ceph_args }} remove {{ _pool_name }}/{{ item }}"
       with_items:
         - "bench_file-{{ inventory_hostname_short }}"
-        - "bench_direct-{{ inventory_hostname_short }}"
+        - "bench_direct_EBS-{{ inventory_hostname_short }}"
+        - "bench_direct_RBD-{{ inventory_hostname_short }}"
+      when: keyring.stat.exists
 
 # Cleanup the benchmark pool if we created it
 - hosts: mons[0]
   become: True
+  vars:
+    _pool_name: "{{ fiobench_pool_name | default('fiobench') }}"
   tasks:
     - name: Check the value of mon_allow_pool_delete
       shell: "ceph daemon mon.{{ ansible_hostname }} config get mon_allow_pool_delete | grep -q false"
       register: allow_pool_delete
       when: fiobench_pool_name is not defined
+      ignore_errors: true
     - name: Set to mon_allow_pool_delete if it isn't already
       command: "ceph daemon mon.{{ ansible_hostname }} config set mon_allow_pool_delete true"
       when:
         - fiobench_pool_name is not defined
         - allow_pool_delete.rc == 0
     - name: Delete fiobench pool
-      command: "ceph osd pool delete fiobench fiobench --yes-i-really-really-mean-it"
+      command: "ceph osd pool delete {{ _pool_name }} {{ _pool_name }} --yes-i-really-really-mean-it"
       when: fiobench_pool_name is not defined
     - name: Set the mon_allow_pool_delete to false if it was before
       command: "ceph daemon mon.{{ ansible_hostname }} config set mon_allow_pool_delete false"

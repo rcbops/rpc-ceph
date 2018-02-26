@@ -1,29 +1,50 @@
+{% set ioengine = item.ioengine | default("libaio") %}
 [global]
 clocksource=clock_gettime
 randrepeat=0
 runtime=180
 offset_increment=100g
 
-[sequential-write]
+[{{ item.name }}-sequential-write]
 bs={{ item.blocksize | default("1M") }}
-ioengine=libaio
+ioengine={{ ioengine }}
+{% if ioengine == 'rbd' %}
+clientname={{ fiobench_client_name | default('fiobench') }}
+pool={{ fiobench_pool_name | default('fiobench') }}
+rbdname=bench_direct_RBD-{{ inventory_hostname_short }}
+{% else %}
+filename={{ bench_direct_device_name }}
 direct=1
+{% endif %}
 iodepth={{ item.iodepth | default(8) }}
 numjobs={{ item.numjobs | default(1) }}
-filename={{ bench_direct_device_name }}
 do_verify=0
 rw=write
 rwmixread=0
 rwmixwrite=100
+per_job_logs=0
+write_bw_log=/opt/ceph_bench/logs/{{ item.name }}.${TIMESTAMP}
+write_iops_log=/opt/ceph_bench/logs/{{ item.name }}.${TIMESTAMP}
+write_lat_log=/opt/ceph_bench/logs/{{ item.name }}.${TIMESTAMP}
 
-[sequential-read]
+[{{ item.name }}-sequential-read]
 bs={{ item.blocksize | default("1M") }}
-ioengine=libaio
+ioengine={{ ioengine }}
+{% if ioengine == 'rbd' %}
+clientname={{ fiobench_client_name | default('fiobench') }}
+pool={{ fiobench_pool_name | default('fiobench') }}
+rbdname=bench_direct_RBD-{{ inventory_hostname_short }}
+{% else %}
+filename={{ bench_direct_device_name }}
 direct=1
+{% endif %}
 iodepth={{ item.iodepth | default(8) }}
 numjobs={{ item.numjobs | default(1) }}
-filename={{ bench_direct_device_name }}
 do_verify=0
 rw=read
 rwmixread=100
 rwmixwrite=0
+per_job_logs=0
+write_bw_log=/opt/ceph_bench/logs/{{ item.name }}.${TIMESTAMP}
+write_iops_log=/opt/ceph_bench/logs/{{ item.name }}.${TIMESTAMP}
+write_lat_log=/opt/ceph_bench/logs/{{ item.name }}.${TIMESTAMP}

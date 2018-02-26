@@ -1,0 +1,34 @@
+---
+- name: set job_name fact
+  set_fact:
+    job_name: "{{ fio_job_name }}.{{ run_id }}"
+- name: "Run fio job {{ fio_job_name }} and record version/config info"
+  shell: >
+    echo "FIO Version: `fio --version`\n
+          FIO Config Used:\n`cat /opt/ceph_bench/{{ fio_job_name }}.cfg `\n\n
+          FIO Test Output:\n`TIMESTAMP={{ run_id }} fio /opt/ceph_bench/{{ fio_job_name }}.cfg`" \
+            | tee /opt/ceph_bench/logs/{{ job_name }}.log
+  register: fio_output
+- name: Debug fio outputs
+  debug:
+    var: fio_output
+- name: "create fetch/{{ inventory_hostname_short }} directory"
+  file:
+    state: directory
+    path: "fetch/{{ inventory_hostname_short }}"
+- name: fetch log files
+  fetch:
+    src: "/opt/ceph_bench/logs/{{ job_name }}_{{ item }}.log"
+    dest: "fetch/{{ inventory_hostname_short }}/{{ job_name }}/{{ job_name }}_{{ item }}.log"
+    flat: true
+  with_items:
+    - bw
+    - iops
+    - lat
+    - clat
+    - slat
+- name: fetch results log file
+  fetch:
+    src: "/opt/ceph_bench/logs/{{ job_name }}.log"
+    dest: "fetch/{{ inventory_hostname_short }}/{{ job_name }}.log"
+    flat: true

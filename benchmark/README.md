@@ -25,9 +25,9 @@ defaults to 2G. This will be created in the specified pool, or the default
 The ``fio_bench_list_default`` var, defined in ``benchmark_hosts`` group_vars,
 is the list of default benchmarks. There are 5 main test scenarios:
 
-fio_direct_read_test - Direct reads from an rbd device
-fio_direct_write_test - Direct writes to an rbd device
-fio_rw_mix - Mixture of direct reads and writes to/from an rbd device
+fio_direct_read_test - Direct reads from an rbd device (libaio or rbd)
+fio_direct_write_test - Direct writes to an rbd device (libaio or rbd)
+fio_rw_mix - Mixture of direct reads and writes to/from an rbd device (libaio or rbd)
 fio_test_file_read - Reads from a mounted rbd device with an xfs file system.
 fio_test_file_write - Writes to a mounted rbd device with an xfs file system.
 
@@ -38,10 +38,11 @@ from an rbd device with 32k blocksize, iodepth 8 and numjobs 4:
 
 ```
 fio_bench_list_extras:
-  - src: "fio_direct_read_test.cfg.j2"
+  - src: "fio_direct_test.cfg.j2"
     name: "my_custom_direct_read_test"
     override: "{{ fio_direct_read_test_32k_overrides | default({}) }}"
     blocksize: "32k"
+    rw: read
     numjobs: 4
     iodepth: 8
     run_bench: True
@@ -56,7 +57,7 @@ Additionally, settings can be overridden using config_template overrides. The
 specific overrides var for each benchmark in ``fio_bench_list`` is specified by
 the ``override`` var for each item.
 
-### Running tests
+### Running EBS tests
 There are 5 test scenarios based on the document linked above. These are
 meant to represent tests for SSDs and SATA devices. By default all 5 tests will
 run in serial, and output logs to /opt/ceph_bench/<test>.<timestamp>.log.
@@ -77,10 +78,16 @@ fio_test_file_write
 Alternatively, you could adjust the ``fio_bench_list`` vars to set the
 ``run_bench`` var to be on/off, or have a different criteria as needed.
 
+For librbd based tests set ssd_bench=false and sata_bench=false and rbd_bench=true
+to run the SATA tests with ioengine=rbd instead of libaio.
+
 ### Benchmark log output
 The output of all FIO runs are stored in ``/opt/ceph_bench/logs``, with the name
 of the job used to generate the log, along with a ``date_time`` value to ensure
 that logs are not overwritten on consecutive runs and can instead be compared.
+
+The logs will also be pulled from the benchmark_hosts and written to 
+``benchmark/<client_hostname>/<test>.<timestamp>.log``
 
 ### Cleaning up a deploy
 The cleanup script will unmount, unmap and remove the rbd image, as well as
