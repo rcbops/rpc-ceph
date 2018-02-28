@@ -27,7 +27,7 @@ git clone https://github.com/ceph/ceph-ansible /tmp/ceph-ansible_rpc-ceph
 pushd /tmp/ceph-ansible_rpc-ceph
 ## Get the latest tag and save that
 git fetch --tags
-LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
+LATEST_TAG=$(git describe --tags `git rev-list --tags` | grep "v3.0" -m 1)
 popd
 ## Cleanup ceph-ansible dir
 rm -rf /tmp/ceph-ansible_rpc-ceph
