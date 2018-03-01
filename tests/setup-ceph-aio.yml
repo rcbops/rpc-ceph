@@ -1,17 +1,24 @@
 ---
 ## Setup infrastructure on which to deploy Ceph
 - include: setup-containers.yml
+- include: build-containers.yml
 - include: setup-ceph-storage.yml
 
 ## Setup non-ceph components for testing
 - include: ../playbooks/ceph-rsyslog-server.yml
 - include: ../playbooks/ceph-rgw-haproxy.yml
 - include: common/test-install-infra.yml
-  when: radosgw_keystone | bool
+  when:
+    - groups['keystone_all'] is defined
+    - "groups['keystone_all'] | length > 0"
 - include: common/test-install-keystone.yml
-  when: radosgw_keystone | bool
+  when:
+    - groups['keystone_all'] is defined
+    - "groups['keystone_all'] | length > 0"
 - include: test-install-openrc.yml
-  when: radosgw_keystone | bool
+  when:
+    - groups['keystone_all'] is defined
+    - "groups['keystone_all'] | length > 0"
 
 ## Ceph setup
 - include: ../playbooks/deploy-ceph.yml

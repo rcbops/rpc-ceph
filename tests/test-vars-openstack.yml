@@ -1,0 +1,16 @@
+---
+## For OpenStack AIO only build necessary services
+openstack_confd_entries:
+  - name: cinder.yml.aio
+  - name: glance.yml.aio
+  - name: keystone.yml.aio
+  - name: neutron.yml.aio
+  - name: nova.yml.aio
+bootstrap_host_loopback_swift: false
+radosgw_keystone: true
+service_region: RegionOne
+radosgw_keystone_admin_password: testpass
+keystone_admin_user_name: admin
+keystone_admin_tenant_name: admin
+keystone_service_adminuri_insecure: false
+openstack_config: True

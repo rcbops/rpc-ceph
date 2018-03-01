@@ -126,12 +126,48 @@ export PUBCLOUD_USERNAME=<username>
 export PUBCLOUD_API_KEY=<api_key>
 ```
 
-### Tested builds as AIO
+### AIO Scenarios
 
-* ceph-ansible deployments including RGW.
-* Testing of Ceph components (RGW testing is currently implemented)
-* RPC-MaaS integration
-* RPC-O integration (coming a bit less soon).
+To run an AIO scenario for Ceph you can pick from the following:
+
+**functional**:
+This is a base AIO for Ceph, includes MaaS testing, benchmarking using fio and
+RadosGW benchmarking, this runs on each commit, with the following components:
+
+* 2 x rgw hosts
+* 3 x osd hosts
+* 3 x mon hosts
+* 3 x mgr hosts
+* 1 x rsyslog server
+* HAproxy configured on localhost
+
+**rpco_newton**:
+An RPC-O newton-rc integration test, that will deploy an RPC-O AIO, and
+integrate it with Ceph, followed by Tempest tests. This runs daily, as it takes
+a long time to build.
+
+* RPC-O AIO @ newton-rc
+  * Keystone
+  * Glance
+  * Cinder
+  * Nova
+  * Neutron
+  * Tempest
+* 2 x rgw hosts
+* 3 x osd hosts
+* 3 x mon hosts
+* 3 x mgr hosts
+
+**keystone_rgw**:
+A basic keystone integration test, that will run on each commit.
+Utilizing the swift client to ensure Keystone integration is working.
+
+* Keystone deployed from OpenStack-Ansible role
+* 2 x rgw hosts
+* 3 x osd hosts
+* 3 x mon hosts
+* 3 x mgr hosts
+
 
 ### Currently not supported for AIO
 
