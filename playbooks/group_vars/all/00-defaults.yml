@@ -42,7 +42,7 @@ ceph_conf_overrides_extra: {}
 # overall ceph_conf_overrides_all (above).
 # Additionally, we can set extras as a variable override without having to
 # respecify all the above settings.
-ceph_conf_overrides: "{{ ceph_conf_overrides_all | combine((ceph_conf_overrides_rgw | default({})), ceph_conf_overrides_extra, recursive = True) }}"
+ceph_conf_overrides: "{{ ceph_conf_overrides_all | combine((ceph_conf_overrides_mgr | default({})), (ceph_conf_overrides_rgw | default({})), (ceph_conf_overrides_mon | default({})), (ceph_conf_overrides_osd | default({})), ceph_conf_overrides_extra, recursive = True) }}"
 
 os_tuning_params:
   - { name: kernel.pid_max, value: 4194303 }

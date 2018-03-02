@@ -2,4 +2,5 @@
 ## This is a defaults file, it's likely to be changed during repo updates
 ## To override, or update settings, or configuration, create a new file
 ## in this directory, e.g. "overrides.yml" which will take precedence.
-dummy:
+ceph_conf_overrides_osd_extra: {}
+ceph_conf_overrides_osd: "{{ ceph_conf_overrides_osd_extra }}"
