@@ -66,6 +66,10 @@ disable_transparent_hugepage: false
 containerized_deployment: false
 cephx: true
 
+# rgw_bench defaults
+bench_rgw_user_password: rgwbenchsecret
+bench_rgw_hummingbird_url:  https://github.com/troubling/hummingbird/releases/download/v1.0.0/hummingbird
+
 ### Set this password in user_vars
 radosgw_keystone_admin_password:
 
@@ -79,6 +83,8 @@ radosgw_service_adminurl: "http://{{ internal_lb_vip_address }}:{{ radosgw_civet
 radosgw_service_internalurl: "http://{{ internal_lb_vip_address }}:{{ radosgw_civetweb_port }}/swift/v1"
 
 ## RadosGW VIP for HAProxy
+external_lb_vip_address: 127.0.0.1
+internal_lb_vip_address: 127.0.0.1
 haproxy_default_services:
   - service:
       haproxy_service_name: ceph_rgw

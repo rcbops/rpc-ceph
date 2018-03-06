@@ -1,0 +1,41 @@
+---
+log_flavor: vm-osa-aio
+log_image: a4a9bc69-de27-4cec-903a-cf57be693738
+log_count: 1
+
+stor_flavor: ironic-rpc-storage-cap
+stor_image: 78856fa6-1de4-42d3-b545-466f6501e21f
+
+security_group: 58753c65-1804-4eee-8349-77f1c5573001
+external_network: ironic
+networks:
+  - net-name: "{{ external_network }}"
+
+fiobench_pgnum: 2048
+fiobench_size: 100G
+ssd_bench: false
+
+monitor_interface: bond0
+public_network: 172.20.40.0/22
+cluster_network: 172.20.40.0/22
+osd_scenario: non-collocated
+devices:
+  - /dev/sdd
+  - /dev/sde
+  - /dev/sdf
+  - /dev/sdg
+  - /dev/sdh
+  - /dev/sdi
+  - /dev/sdj
+  - /dev/sdk
+
+dedicated_devices:
+  - /dev/sdb
+  - /dev/sdb
+  - /dev/sdb
+  - /dev/sdb
+  - /dev/sdc
+  - /dev/sdc
+  - /dev/sdc
+  - /dev/sdc
+

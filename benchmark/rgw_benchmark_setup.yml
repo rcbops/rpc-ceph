@@ -19,7 +19,7 @@
     - name: Install the benchmark software
       get_url:
         url: "{{ bench_rgw_hummingbird_url }}"
-        dest: /opt/ceph_bench/
+        dest: /opt/ceph_bench/hummingbird
         mode: 0751
     - name: Template out humminbird bench config file
       config_template:
