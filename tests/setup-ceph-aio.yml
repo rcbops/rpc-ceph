@@ -24,6 +24,8 @@
 - include: ../playbooks/deploy-ceph.yml
 - include: ../playbooks/ceph-keystone-rgw.yml
   when: radosgw_keystone | bool
+- include: setup-swiftoperator-user.yml
+  when: radosgw_keystone | bool
 
 ## Tests
 - include: test-rgw.yml

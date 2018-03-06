@@ -8,3 +8,4 @@ ceph_stable_release: luminous
 ceph_pkg_source: ceph
 glance_default_store: rbd
 tempest_run: True
+tempest_service_available_swift: True
