@@ -67,7 +67,7 @@ containerized_deployment: false
 cephx: true
 
 # rgw_bench defaults
-bench_rgw_user_password: rgwbenchsecret
+bench_rgw_user_password:
 bench_rgw_hummingbird_url:  https://github.com/troubling/hummingbird/releases/download/v1.0.0/hummingbird
 
 ### Set this password in user_vars
