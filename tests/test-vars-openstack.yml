@@ -6,3 +6,7 @@ keystone_admin_user_name: admin
 keystone_admin_tenant_name: admin
 keystone_service_adminuri_insecure: false
 openstack_config: True
+# Ensure RGW hosts have swiftoperator as an accepted role for Tempest
+ceph_conf_overrides_rgw_extra:
+  "client.rgw.{{ hostvars[inventory_hostname]['ansible_hostname'] }}":
+    rgw_keystone_accepted_roles: 'Member, _member_, admin, swiftoperator'
