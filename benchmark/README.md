@@ -144,6 +144,8 @@ Currently this benchmark is set up to run automatically in creation of a CephAIO
 you would like to buy pass the benchmark set `rgw_bench="False"`.   The results will also be
 displayed in the ansible output.
 
+NOTE: When running the benchmark on a multinode cluster you must `internal_lb_vip_address` to the address of your rgw auth endpoint
+
 ### Sample output
 ```
 Humminbird Version: v1.0.0
