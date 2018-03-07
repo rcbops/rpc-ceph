@@ -71,9 +71,15 @@ The inventory should consist of the following:
    * Defaults to remain, but be overriden if required (overrides.yml will take precedence).
    * Git will ignore the overrides.yml file, so the repo can be updated without clearing out all deploy specific vars.
 
-4. Override any variables from ``ceph.conf`` using ``ceph_conf_overrides_extra``:
+4. Override any variables from ``ceph.conf`` using ``ceph_conf_overrides_extra`` or ``ceph_conf_overrides_<group>_extra``:
 
    * This allows the default ``group_vars`` to remain in place, and means you do not have to respecify any vars you aren't setting.
+   * The ``ceph_conf_overrides_<group>_extra`` var will override only vars for only the hosts in that group, with currently supported groups:
+     * ceph_conf_overrides_rgw_extra
+     * ceph_conf_overrides_mon_extra
+     * ceph_conf_overrides_mgr_extra
+     * ceph_conf_overrides_osd_extra
+   * The overrides will merge with the existing settings and take precedence but not squash them.
 
 5. Run the ``bootstrap-ansible.sh`` inside the scripts directory:
 

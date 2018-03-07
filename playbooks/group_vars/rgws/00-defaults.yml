@@ -16,7 +16,10 @@ radosgw_keystone_service_description: "Ceph RADOS Gateway Service"
 radosgw_keystone_service_region: "{{ service_region }}"
 radosgw_keystone_admin_user: radosgw
 radosgw_keystone_admin_tenant: service
-ceph_conf_overrides_rgw: "{{ (radosgw_keystone | bool) | ternary(ceph_conf_overrides_rgw_keystone, {}) }}"
+## Use this to override existing RGW specific config template settings,
+## whilst keeping the defaults.
+ceph_conf_overrides_rgw_extra: {}
+ceph_conf_overrides_rgw: "{{ (radosgw_keystone | bool) | ternary(ceph_conf_overrides_rgw_keystone, {}) | combine(ceph_conf_overrides_rgw_extra, recursive = True) }}"
 ceph_conf_overrides_rgw_keystone:
   "client.rgw.{{ hostvars[inventory_hostname]['ansible_hostname'] }}":
     # OpenStack integration with Keystone
