@@ -1,4 +1,13 @@
 ---
+# Ensure only the required services are built
+openstack_confd_entries:
+  - name: cinder.yml.aio
+  - name: glance.yml.aio
+  - name: keystone.yml.aio
+  - name: neutron.yml.aio
+  - name: nova.yml.aio
+bootstrap_host_loopback_swift: false
+
 ceph_mons:
   - 172.29.236.31
   - 172.29.236.32

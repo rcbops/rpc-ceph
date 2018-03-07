@@ -61,8 +61,7 @@ function _set_rpco_vars {
     RSYSLOG_HOST_IP=$(grep $RSYSLOG_HOST /etc/hosts | awk {' print $1 '})
     echo -e "\n[rsyslog_all]\n$RSYSLOG_HOST ansible_host=$RSYSLOG_HOST_IP" >> ${CLONE_DIR}/tests/inventory_rpco
   fi
-  # Copy over the required vars.
-  cp ${CLONE_DIR}/tests/rpco_vars/user_rpc_ceph_vars.yml /etc/openstack_deploy/user_rpc_ceph_vars.yml
+  # Generate Cinder Ceph Client UUID
   CINDER_CEPH_CLIENT_UUID=$(uuidgen)
   echo "cinder_ceph_client_uuid: $CINDER_CEPH_CLIENT_UUID" >> /etc/openstack_deploy/user_rpc_ceph_vars.yml
 }
@@ -81,8 +80,7 @@ function _configure_rpco {
     export ANSIBLE_BINARY="openstack-ansible"
     ## Bootstrap RPC-O's ansible
     bash scripts/bootstrap-ansible.sh
-    ## Bootstrap the AIO vars etc with the scenario in test-vars-openstack.yml
-    export BOOTSTRAP_OPTS="@${CLONE_DIR}/tests/test-vars-openstack.yml"
+    cp ${CLONE_DIR}/tests/rpco_vars/user_rpc_ceph_vars.yml /etc/openstack_deploy/user_rpc_ceph_vars.yml
     bash scripts/bootstrap-aio.sh
     ## Build out the hosts, infrastructure and keystone only.
     pushd ${RPC_OPENSTACK_DIR}/openstack-ansible/playbooks
