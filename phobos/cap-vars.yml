@@ -15,6 +15,8 @@ fiobench_pgnum: 2048
 fiobench_size: 100G
 ssd_bench: false
 
+bench_rgw_user_password: rgwbenchsecret
+
 monitor_interface: bond0
 public_network: 172.20.40.0/22
 cluster_network: 172.20.40.0/22
