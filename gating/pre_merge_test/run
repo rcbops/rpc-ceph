@@ -24,6 +24,8 @@ export RE_JOB_SCENARIO=${RE_JOB_SCENARIO:-"functional"}
 export RPC_OPENSTACK_DIR=${RPC_OPENSTACK_DIR:-/opt/rpc-openstack}
 export RPC_MAAS_DIR=${RPC_MAAS_DIR:-/etc/ansible/ceph_roles/rpc-maas}
 export TEST_RPC_MAAS=${TEST_RPC_MAAS:-True}
+export BOOTSTRAP_OPTS=${BOOTSTRAP_OPTS:-""}
+export DATA_DISK_MIN_SIZE_GB=${DATA_DISK_MIN_SIZE_GB:-50}
 
 # Install python2 for Ubuntu 16.04 and CentOS 7
 if which apt-get; then
@@ -111,6 +113,19 @@ function _deploy_rpco {
   popd
 }
 
+function _get_data_disk {
+  # Get minimum disk size
+  DATA_DISK_MIN_SIZE="$((1024**3 * ${DATA_DISK_MIN_SIZE_GB} ))"
+
+  # Determine the largest secondary disk device that meets the minimum size
+  DATA_DISK_DEVICE=$(lsblk -brndo NAME,TYPE,RO,SIZE | awk '/d[b-z]+ disk 0/{ if ($4>m && $4>='$DATA_DISK_MIN_SIZE'){m=$4; d=$1}}; END{print d}')
+
+  # Only set the secondary disk device option if there is one
+  if [ -n "${DATA_DISK_DEVICE}" ]; then
+    export BOOTSTRAP_OPTS="-e bootstrap_host_data_disk_device=${DATA_DISK_DEVICE}"
+  fi
+}
+
 if [ "${RE_JOB_SCENARIO}" = "functional" ] || [ "${RE_JOB_SCENARIO}" = "keystone_rgw" ] || [ "${RE_JOB_SCENARIO}" = "rpco_newton" ]; then
   export CLONE_DIR="$(pwd)"
   export ANSIBLE_INVENTORY="${CLONE_DIR}/tests/inventory"
@@ -136,9 +151,10 @@ if [ "${RE_JOB_SCENARIO}" = "functional" ] || [ "${RE_JOB_SCENARIO}" = "keystone
   if [[ ! -d tests/common ]]; then
     git clone https://github.com/openstack/openstack-ansible-tests -b stable/pike tests/common
   fi
+  _get_data_disk
   ${ANSIBLE_BINARY} tests/setup-ceph-aio.yml \
                    -i ${ANSIBLE_INVENTORY} \
-                   -e @tests/test-vars.yml
+                   -e @tests/test-vars.yml ${BOOTSTRAP_OPTS}
   if [ "${RE_JOB_SCENARIO}" == "rpco_newton" ]; then
     _deploy_rpco
   fi
