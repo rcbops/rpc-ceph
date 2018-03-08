@@ -310,7 +310,10 @@
 
     - name: Ensure permissions on fetch
       file:
-        path: /opt/rpc-ceph/playbooks/fetch
+        path: "/opt/rpc-ceph/{{ item }}/fetch"
         state: directory
         owner: ubuntu
         group: rpc
+      with_items:
+        - playbooks
+        - benchmark

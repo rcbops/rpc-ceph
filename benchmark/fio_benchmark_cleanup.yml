@@ -55,6 +55,8 @@
         - "bench_direct_EBS-{{ inventory_hostname_short }}"
         - "bench_direct_RBD-{{ inventory_hostname_short }}"
       when: keyring.stat.exists
+      register: rbd_rm_result
+      failed_when: rbd_rm_result.rc != 2 and rbd_rm_result.rc != 0
 
 # Cleanup the benchmark pool if we created it
 - hosts: mons[0]

@@ -1,7 +1,8 @@
 ---
-- name: set job_name fact
+- name: set log_path fact
   set_fact:
     job_name: "{{ fio_job_name }}.{{ run_id }}"
+    log_path: "/opt/ceph_bench/logs/{{ run_id }}/{{ inventory_hostname_short }}"
 - name: "Run fio job {{ fio_job_name }} and record version/config info"
   shell: >
     echo "FIO Version: `fio --version`\n
@@ -11,24 +12,25 @@
   register: fio_output
 - name: Debug fio outputs
   debug:
-    var: fio_output
-- name: "create fetch/{{ inventory_hostname_short }} directory"
-  file:
-    state: directory
-    path: "fetch/{{ inventory_hostname_short }}"
+    var: fio_output.stdout_lines
 - name: fetch log files
   fetch:
     src: "/opt/ceph_bench/logs/{{ job_name }}_{{ item }}.log"
-    dest: "fetch/{{ inventory_hostname_short }}/{{ job_name }}/{{ job_name }}_{{ item }}.log"
+    dest: "/opt/ceph_bench/logs/{{ run_id }}/{{ inventory_hostname_short }}/{{ fio_job_name }}/{{ fio_job_name }}_{{ item }}.log"
     flat: true
-  with_items:
-    - bw
-    - iops
-    - lat
-    - clat
-    - slat
+  with_items: "{{ fio_types }}"
+- name: graph results
+  command: "fio_generate_plots {{ fio_job_name | regex_replace('_','-') }}"
+  args:
+    chdir: "/opt/ceph_bench/logs/{{ run_id }}/{{ inventory_hostname_short }}/{{ fio_job_name }}"
+  delegate_to: localhost
 - name: fetch results log file
   fetch:
     src: "/opt/ceph_bench/logs/{{ job_name }}.log"
-    dest: "fetch/{{ inventory_hostname_short }}/{{ job_name }}.log"
+    dest: "/opt/ceph_bench/logs/{{ run_id }}/{{ inventory_hostname_short }}/{{ fio_job_name }}.log"
     flat: true
+- name: Write README.md
+  template:
+    src: README_fio.md.j2
+    dest: "{{ log_path }}/{{ fio_job_name }}/README.md"
+  delegate_to: localhost
