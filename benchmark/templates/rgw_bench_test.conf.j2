@@ -2,7 +2,7 @@
 auth=http://{{ internal_lb_vip_address }}:8080/auth/v1.0
 user=rgwbench:test
 key={{ bench_rgw_user_password }}
-concurrency={{ bench_rgw_concurrency | default(50) }} 
+concurrency={{ bench_rgw_concurrency | default(50) }}
 object_size={{ bench_rgw_object_size | default(524288) }}
 num_objects={{ bench_rgw_number_of_objects | default(250000) }}
 num_gets={{ bench_rgw_number_of_gets | default(500000) }}

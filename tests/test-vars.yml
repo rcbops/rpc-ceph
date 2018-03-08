@@ -112,6 +112,15 @@ fio_test_file_write_4k_overrides:
     runtime: 10
   fio_test_file:
     size: 10M
+fio_rbd_write_test_1024k_overrides:
+  global:
+    runtime: 10
+fio_rbd_read_test_1024k_overrides:
+  global:
+    runtime: 10
+fio_rbd_rw_mix_1024k_overrides:
+  global:
+    runtime: 10
 
 ### Testing valuses for rgw benchmark
 bench_rgw_user_password: rgwbenchsecret

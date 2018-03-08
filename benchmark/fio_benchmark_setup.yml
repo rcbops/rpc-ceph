@@ -3,17 +3,22 @@
     - mons
   gather_facts: True
   become: True
+  vars:
+    _pool_name: "{{ fiobench_pool_name | default('fiobench') }}"
+    _pgnum: "{{ fiobench_pgnum | default('128') }}"
+    _pgpnum: "{{ fiobench_pgpnum | default(_pgnum) }}"
+    _size: "{{ fiobench_size | default('2048') }}"
   tasks:
     - name: Create fiobench pool
-      command: "ceph osd pool create fiobench {{ fiobench_pgnum | default(128) }} {{ fiobench_pgpnum | default(fiobench_pgnum | default(128)) }}"
+      command: "ceph osd pool create {{ _pool_name }} {{ _pgnum }} {{ _pgpnum }}"
       run_once: True
       when: fiobench_pool_name is not defined
     - name: Create benchmark ceph client
-      command: "ceph auth get-or-create client.fiobench mon 'allow r' osd 'allow * pool={{ fiobench_pool_name | default('fiobench') }}'"
+      command: "ceph auth get-or-create client.fiobench mon 'allow r' osd 'allow * pool={{ _pool_name }}'"
       run_once: True
       register: _ceph_benchmark_client
     - name: Set application for benchmark pool
-      command: "ceph osd pool application enable {{ fiobench_pool_name | default('fiobench') }} rbd"
+      command: "ceph osd pool application enable {{ _pool_name }} rbd"
       run_once: True
     - name: Set benchmark_client fact
       set_fact:
@@ -22,6 +27,12 @@
 - hosts: benchmark_hosts
   gather_facts: True
   become: True
+  vars:
+    _pool_name: "{{ fiobench_pool_name | default('fiobench') }}"
+    _pgnum: "{{ fiobench_pgnum | default('128') }}"
+    _pgpnum: "{{ fiobench_pgpnum | default(_pgnum) }}"
+    _size: "{{ fiobench_size | default('2048') }}"
+    _ceph_args: "--id {{ fiobench_client_name | default('fiobench') }}"
   post_tasks:
     - name: Install benchmark package
       package:
@@ -37,27 +48,40 @@
         content: "{{ [hostvars[groups['mons'][0]]['ceph_benchmark_client']['stdout'], '\n'] | join('') }}"
         dest: "/etc/ceph/ceph.client.fiobench.keyring"
     - name: Create a ceph device for benchmarking
-      command: "rbd create {{ fiobench_pool_name | default('fiobench') }}/{{ item }} -s {{ fiobench_size | default(2048) }} -n client.fiobench -k /etc/ceph/ceph.client.fiobench.keyring"
+      command: "rbd {{ _ceph_args }} create {{ _pool_name }}/{{ item }} -s {{ _size }}"
       with_items:
-        - "bench_direct-{{ inventory_hostname_short }}"
+        - "bench_direct_EBS-{{ inventory_hostname_short }}"
+        - "bench_direct_RBD-{{ inventory_hostname_short }}"
         - "bench_file-{{ inventory_hostname_short }}"
+      register: create_result
+      failed_when: create_result.rc != 17 and create_result.rc != 0
+      changed_when: create_result.rc == 0
+    - name: Get mapped rbd-nbd devices
+      command: "rbd-nbd {{ _ceph_args }} list-mapped"
+      register: nbd_mapped_before
     - name: Map nbd direct device
-      command: "rbd-nbd map {{ fiobench_pool_name | default('fiobench') }}/bench_direct-{{ inventory_hostname_short }} -k /etc/ceph/ceph.client.fiobench.keyring -n client.fiobench"
-      register: _nbd_direct_device
+      command: "rbd-nbd {{ _ceph_args }} map {{ _pool_name }}/bench_direct_EBS-{{ inventory_hostname_short }}"
+      when: "'bench_direct_EBS-' + inventory_hostname_short not in nbd_mapped_before.stdout"
     - name: Map nbd file device
-      command: "rbd-nbd map {{ fiobench_pool_name | default('fiobench') }}/bench_file-{{ inventory_hostname_short }} -k /etc/ceph/ceph.client.fiobench.keyring -n client.fiobench"
-      register: _nbd_file_device
-    - name: Set bench_device_name facts
+      command: "rbd-nbd {{ _ceph_args }} map {{ _pool_name }}/bench_file-{{ inventory_hostname_short }}"
+      when: "'bench_file-' + inventory_hostname_short not in nbd_mapped_before.stdout"
+    - name: Get mapped rbd-nbd devices
+      command: "rbd-nbd {{ _ceph_args }} list-mapped"
+      register: nbd_mapped_after
+    - name: Set bench_direct_device_name
       set_fact:
-        bench_direct_device_name: "{{ _nbd_direct_device.stdout }}"
-        bench_file_device_name: "{{ _nbd_file_device.stdout}}"
+        bench_direct_device_name: "{{ nbd_mapped_after.stdout | regex_search(regexp, '\\1') | join('') }}"
+      vars:
+        regexp: 'bench_direct_EBS-{{ inventory_hostname_short }}.*(\/dev\/nbd[0-9]+)'
+    - name: Set bench_file_device_name
+      set_fact:
+        bench_file_device_name: "{{ nbd_mapped_after.stdout | regex_search(regexp, '\\1') | join('') }}"
+      vars:
+        regexp: 'bench_file-{{ inventory_hostname_short }}.*(\/dev\/nbd[0-9]+)'
     - name: Create xfs file system on device
       filesystem:
         fstype: xfs
-        device: "{{ item }}"
-      with_items:
-        - "{{ bench_direct_device_name }}"
-        - "{{ bench_file_device_name }}"
+        device: "{{ bench_file_device_name }}"
     - name: Create benchmark directories
       file:
         state: directory
