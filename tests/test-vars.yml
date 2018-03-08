@@ -81,6 +81,8 @@ ceph_mgr_systemd_overrides:
     PrivateDevices: False
 
 ## Testing specific fio_bench vars
+ebs_direct_bench: true
+ebs_file_bench: true
 fiobench_pgnum: 5
 fiobench_pgpnum: 5
 fio_direct_read_test_1024k_overrides:
@@ -89,7 +91,7 @@ fio_direct_read_test_1024k_overrides:
 fio_direct_write_test_1024k_overrides:
   global:
     runtime: 10
-fio_rw_mix_1024k_overrides:
+fio_direct_rw_mix_1024k_overrides:
   global:
     runtime: 10
 fio_test_file_read_16k_overrides:
@@ -119,6 +121,18 @@ fio_rbd_read_test_1024k_overrides:
   global:
     runtime: 10
 fio_rbd_rw_mix_1024k_overrides:
+  global:
+    runtime: 10
+fio_rbd_read_test_4k_overrides:
+  global:
+    runtime: 10
+fio_rbd_write_test_4k_overrides:
+  global:
+    runtime: 10
+fio_rbd_read_test_16k_overrides:
+  global:
+    runtime: 10
+fio_rbd_write_test_16k_overrides:
   global:
     runtime: 10
 

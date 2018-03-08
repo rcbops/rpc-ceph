@@ -13,8 +13,6 @@ networks:
 
 fiobench_pgnum: 4096
 fiobench_size: 100G
-sata_bench: false
-ssd_bench: false
 
 bench_rgw_user_password: rgwbenchsecret
 
@@ -47,14 +45,3 @@ devices:
   - /dev/sdw
   - /dev/sdx
   - /dev/sdy
-
-external_lb_vip_address: "{{ bootstrap_host_public_address | default(ansible_default_ipv4.address) }}"
-internal_lb_vip_address: "{{ bootstrap_host_public_address | default(ansible_default_ipv4.address) }}"
-haproxy_default_services:
-  - service:
-    haproxy_service_name: ceph_rgw
-    haproxy_backend_nodes: "{{ groups['rgws'] | default([]) }}"
-    haproxy_port: 8080
-    haproxy_balance_type: "http"
-    haproxy_backend_options:
-      - "httpchk HEAD /"

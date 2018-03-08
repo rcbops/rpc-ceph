@@ -26,14 +26,17 @@
     command: ./configure
     args:
       chdir: /opt/fio
+      creates: /usr/local/bin/fio
   - name: Make fio
     command: make
     args:
       chdir: /opt/fio
+      creates: /usr/local/bin/fio
   - name: Install fio
     command: make install
     args:
       chdir: /opt/fio
+      creates: /usr/local/bin/fio
 
 - name: Create Pool
   hosts:
@@ -100,7 +103,7 @@
         - "bench_direct_RBD-{{ inventory_hostname_short }}"
         - "bench_file-{{ inventory_hostname_short }}"
       register: create_result
-      failed_when: create_result.rc != 17 and create_result.rc != 0
+      failed_when: create_result.rc not in [0,17]
       changed_when: create_result.rc == 0
     - name: Get mapped rbd-nbd devices
       command: "rbd-nbd {{ _ceph_args }} list-mapped"

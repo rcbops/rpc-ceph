@@ -13,7 +13,6 @@ networks:
 
 fiobench_pgnum: 2048
 fiobench_size: 100G
-ssd_bench: false
 
 bench_rgw_user_password: rgwbenchsecret
 
@@ -40,4 +39,3 @@ dedicated_devices:
   - /dev/sdc
   - /dev/sdc
   - /dev/sdc
-

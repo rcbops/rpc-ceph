@@ -56,10 +56,10 @@
         - "bench_direct_RBD-{{ inventory_hostname_short }}"
       when: keyring.stat.exists
       register: rbd_rm_result
-      failed_when: rbd_rm_result.rc != 2 and rbd_rm_result.rc != 0
+      failed_when: rbd_rm_result.rc not in [0,2]
 
 # Cleanup the benchmark pool if we created it
-- hosts: mons[0]
+- hosts: mons
   become: True
   vars:
     _pool_name: "{{ fiobench_pool_name | default('fiobench') }}"
@@ -77,6 +77,7 @@
     - name: Delete fiobench pool
       command: "ceph osd pool delete {{ _pool_name }} {{ _pool_name }} --yes-i-really-really-mean-it"
       when: fiobench_pool_name is not defined
+      run_once: true
     - name: Set the mon_allow_pool_delete to false if it was before
       command: "ceph daemon mon.{{ ansible_hostname }} config set mon_allow_pool_delete false"
       when:
@@ -84,3 +85,4 @@
         - allow_pool_delete.rc == 0
     - name: Remove client.fiobench user
       command: "ceph auth del client.fiobench"
+      run_once: true
