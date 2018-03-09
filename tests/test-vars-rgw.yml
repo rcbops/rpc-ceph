@@ -51,3 +51,5 @@ haproxy_default_services:
 ### Keystone required settings
 # This is needed to stop the dev mode tasks in OSA from failing.
 pip_install_developer_constraints: "--constraint /opt/developer-pip-constraints.txt"
+
+test_run_bench: True
