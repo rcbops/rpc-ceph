@@ -1,5 +1,42 @@
 ---
-- hosts:
+- name: Build FIO
+  hosts: localhost,benchmark_hosts
+  become: true
+  tasks:
+  - name: Install dependencies
+    apt:
+      name: "{{ item }}"
+      state: present
+      update_cache: true
+    with_items:
+      - make
+      - gcc
+      - librbd-dev
+      - librados-dev
+      - libaio-dev
+      - zlib1g-dev
+      - libibverbs-dev
+      - libcairo2-dev
+  - name: Get fio
+    git:
+       repo: https://github.com/axboe/fio.git
+       dest: /opt/fio
+       version: refs/tags/fio-3.5
+  - name: Configure fio
+    command: ./configure
+    args:
+      chdir: /opt/fio
+  - name: Make fio
+    command: make
+    args:
+      chdir: /opt/fio
+  - name: Install fio
+    command: make install
+    args:
+      chdir: /opt/fio
+
+- name: Create Pool
+  hosts:
     - mons
   gather_facts: True
   become: True
@@ -24,7 +61,8 @@
       set_fact:
         ceph_benchmark_client: "{{ _ceph_benchmark_client }}"
 
-- hosts: benchmark_hosts
+- name: Setup Clients
+  hosts: benchmark_hosts
   gather_facts: True
   become: True
   vars:
@@ -40,7 +78,6 @@
         state: present
         use: "{{ ansible_pkg_mgr }}"
       with_items:
-        - fio
         - rbd-nbd
         - xfsprogs
     - name: Write ceph benchmark client key to file
