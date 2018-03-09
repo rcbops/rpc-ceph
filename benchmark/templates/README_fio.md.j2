@@ -1,0 +1,15 @@
+# {{ fio_job_name }}
+
+## Summary
+
+```
+{% for line in fio_output.stdout_lines %}
+{{ line }}
+{% endfor %}
+```
+
+## Graph
+
+{% for fio_type in fio_types %}
+![{{ fio_job_name }}_{{ fio_type }}]({{ fio_job_name | regex_replace('_','-') }}-{{ fio_type }}.svg)
+{% endfor %}

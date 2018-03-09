@@ -1,3 +1,6 @@
+[local]
+localhost ansible_connection=local
+
 {% for group in groups %}
 [{{ group }}]
 {% for host in groups[group] %}

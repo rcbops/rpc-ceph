@@ -1,4 +1,10 @@
 ---
+fio_types:
+  - bw
+  - iops
+  - lat
+  - clat
+  - slat
 fio_bench_list_default:
   - src: "fio_direct_test.cfg.j2"
     name: "fio_direct_write_test_EBS"
