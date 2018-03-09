@@ -137,8 +137,8 @@ export PUBCLOUD_API_KEY=<api_key>
 To run an AIO scenario for Ceph you can pick from the following:
 
 **functional**:
-This is a base AIO for Ceph, includes MaaS testing, benchmarking using fio and
-RadosGW benchmarking, this runs on each commit, with the following components:
+This is a base AIO for Ceph, includes MaaS testing, this runs on each
+commit, with the following components:
 
 * 2 x rgw hosts
 * 3 x osd hosts
@@ -146,6 +146,8 @@ RadosGW benchmarking, this runs on each commit, with the following components:
 * 3 x mgr hosts
 * 1 x rsyslog server
 * HAproxy configured on localhost
+
+This job does not run the benchmarking playbooks.
 
 **rpco_newton**:
 An RPC-O newton-rc integration test, that will deploy an RPC-O AIO, and
@@ -174,6 +176,8 @@ Utilizing the swift client to ensure Keystone integration is working.
 * 3 x mon hosts
 * 3 x mgr hosts
 
+Additionally this test runs the FIO and RGW benchmarking playbooks to ensure
+they work, but does not run the MaaS playbooks.
 
 ### Currently not supported for AIO
 
