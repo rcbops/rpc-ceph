@@ -1,5 +1,7 @@
 ---
 ## Setup infrastructure on which to deploy Ceph
+- include: setup-data-disk.yml
+  when: bootstrap_host_data_disk_device is defined
 - include: setup-containers.yml
 - include: build-containers.yml
 - include: setup-ceph-storage.yml
