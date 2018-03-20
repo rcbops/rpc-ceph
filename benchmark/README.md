@@ -25,11 +25,17 @@ defaults to 2G. This will be created in the specified pool, or the default
 The ``fio_bench_list_default`` var, defined in ``benchmark_hosts`` group_vars,
 is the list of default benchmarks. There are 5 main test scenarios:
 
-fio_direct_read_test - Direct reads from an rbd device (libaio or rbd)
-fio_direct_write_test - Direct writes to an rbd device (libaio or rbd)
-fio_rw_mix - Mixture of direct reads and writes to/from an rbd device (libaio or rbd)
-fio_test_file_read - Reads from a mounted rbd device with an xfs file system.
-fio_test_file_write - Writes to a mounted rbd device with an xfs file system.
+ebs_direct_bench - Sequential read, write and rw mix tests using 1M blocks against an nbd-rbd blockdev
+ebs_file_bench   - Random read and write tests using 16k blocks against a mounted nbd-rbd blockdev
+osa_file_bench   - Random read and write tests using 4k blocks against a mounted nbd-rbd blockdev
+ebs_rbd_bench    - Direct random read and write tests using 16k blocks and ioengine=rbd (DEFAULT)
+osa_rbd_bench    - Direct random read and write tests using 4k blocks and ioengine=rbd
+
+By default only the ebs_rbd_bench will run.  To run another test simply set it to true.
+
+Example:
+
+`osa_rbd_bench: true`
 
 Additional tests, with different blocksizes, numjobs and iodepth can be added
 using the ``fio_bench_list_extras`` var, and specifying a different vars for the
@@ -56,30 +62,6 @@ will be in ``/opt/ceph_bench/logs/my_custom_direct_read_test.date_time.log``.
 Additionally, settings can be overridden using config_template overrides. The
 specific overrides var for each benchmark in ``fio_bench_list`` is specified by
 the ``override`` var for each item.
-
-### Running EBS tests
-There are 5 test scenarios based on the document linked above. These are
-meant to represent tests for SSDs and SATA devices. By default all 5 tests will
-run in serial, and output logs to /opt/ceph_bench/<test>.<timestamp>.log.
-This means multiple test runs will generate multiple logs. Additionally, the log
-will store an output of "fio --version" as well as the config used in the test.
-If you would like to run only the sata tests set "ssd_bench=False", or for only
-ssd tests set "sata_bench=False".
-
-SATA tests:
-fio_rw_mix
-fio_direct_read_test
-fio_direct_write_test
-
-SSD Tests:
-fio_test_file_read
-fio_test_file_write
-
-Alternatively, you could adjust the ``fio_bench_list`` vars to set the
-``run_bench`` var to be on/off, or have a different criteria as needed.
-
-For librbd based tests set ssd_bench=false and sata_bench=false and rbd_bench=true
-to run the SATA tests with ioengine=rbd instead of libaio.
 
 ### Benchmark log output
 The output of all FIO runs are stored in ``/opt/ceph_bench/logs``, with the name
