@@ -34,6 +34,8 @@ rm -rf /tmp/ceph-ansible_rpc-ceph
 
 ## Download the site.yml.sample and group_vars.yml.sample files
 wget https://raw.githubusercontent.com/ceph/ceph-ansible/$LATEST_TAG/site.yml.sample -O ${PWD}/${PATH_TO_PLAYBOOKS}playbooks/deploy-ceph.yml
+wget https://raw.githubusercontent.com/ceph/ceph-ansible/$LATEST_TAG/infrastructure-playbooks/rolling_update.yml -O ${PWD}/${PATH_TO_PLAYBOOKS}playbooks/rolling_update.yml
+wget https://raw.githubusercontent.com/ceph/ceph-ansible/$LATEST_TAG/infrastructure-playbooks/osd-configure.yml -O ${PWD}/${PATH_TO_PLAYBOOKS}playbooks/osd-configure.yml
 git add ${PATH_TO_PLAYBOOKS}playbooks/deploy-ceph.yml
 for vars_file in mons mgrs rgws osds all; do
   wget https://raw.githubusercontent.com/ceph/ceph-ansible/$LATEST_TAG/group_vars/$vars_file.yml.sample -O ${PWD}/${PATH_TO_PLAYBOOKS}playbooks/group_vars/$vars_file/$vars_file.yml.sample
