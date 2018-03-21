@@ -1,6 +1,7 @@
 ---
 force_containers_destroy: True
 force_containers_data_destroy: False
+bootstrap_host_data_disk_device_force: False
 ansible_addr_prefix: "172.29.236"
 storage_addr_prefix: "172.29.244"
 bridges:
