@@ -1,0 +1,8 @@
+---
+osd_objectstore: bluestore
+osd_scenario: collocated
+dedicated_devices: []
+devices:
+  - /dev/sda
+  - /dev/sdb
+  - /dev/sdc

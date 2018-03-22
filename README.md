@@ -134,7 +134,9 @@ export PUBCLOUD_API_KEY=<api_key>
 
 ### AIO Scenarios
 
-To run an AIO scenario for Ceph you can pick from the following:
+To run an AIO scenario for Ceph you can run the following export on a general1-8
+or perf2-15 flavor instance, unless otherwise noted:
+#export RE_JOB_SCENARIO="name of scenario from below"
 
 **functional**:
 This is a base AIO for Ceph, includes MaaS testing, this runs on each
@@ -148,6 +150,10 @@ commit, with the following components:
 * HAproxy configured on localhost
 
 This job does not run the benchmarking playbooks.
+
+**bluestore**:
+This is the same as the functional job but runs using bluestore, and
+3 collocated OSD devices per osd host.
 
 **rpco_newton**:
 An RPC-O newton-rc integration test, that will deploy an RPC-O AIO, and
@@ -165,6 +171,8 @@ a long time to build.
 * 3 x osd hosts
 * 3 x mon hosts
 * 3 x mgr hosts
+
+NB: This requires a perf2-15 instance.
 
 **keystone_rgw**:
 A basic keystone integration test, that will run on each commit.

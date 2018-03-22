@@ -26,6 +26,7 @@ export RPC_MAAS_DIR=${RPC_MAAS_DIR:-/etc/ansible/ceph_roles/rpc-maas}
 export TEST_RPC_MAAS=${TEST_RPC_MAAS:-True}
 export BOOTSTRAP_OPTS=${BOOTSTRAP_OPTS:-""}
 export DATA_DISK_MIN_SIZE_GB=${DATA_DISK_MIN_SIZE_GB:-50}
+export ANSIBLE_ADDITIONAL_VARS=${ANSIBLE_ADDITIONAL_VARS:-""}
 
 # Install python2 for Ubuntu 16.04 and CentOS 7
 if which apt-get; then
@@ -98,7 +99,8 @@ function _configure_rpco {
   popd
   ## Set the binary and inventory back to ceph's version.
   export ANSIBLE_BINARY="ceph-ansible-playbook"
-  export ANSIBLE_INVENTORY="${CLONE_DIR}/tests/inventory_rpco -e @tests/test-vars-openstack.yml"
+  export ANSIBLE_INVENTORY="${CLONE_DIR}/tests/inventory_rpco"
+  export ANSIBLE_ADDITIONAL_VARS="-e @tests/test-vars-openstack.yml"
 }
 
 function _deploy_rpco {
@@ -126,45 +128,46 @@ function _get_data_disk {
   fi
 }
 
-if [ "${RE_JOB_SCENARIO}" = "functional" ] || [ "${RE_JOB_SCENARIO}" = "keystone_rgw" ] || [ "${RE_JOB_SCENARIO}" = "rpco_newton" ]; then
-  export CLONE_DIR="$(pwd)"
-  export ANSIBLE_INVENTORY="${CLONE_DIR}/tests/inventory"
-  export ANSIBLE_OVERRIDES="${CLONE_DIR}/tests/test-vars.yml"
-  export ANSIBLE_BINARY="${ANSIBLE_BINARY:-ceph-ansible-playbook}"
-  bash scripts/bootstrap-ansible.sh
-  # Clone the test repos when not integrating with RPC-O
-  # RPC-O has existing lxc roles that will conflict
-  if [ "${RE_JOB_SCENARIO}" != "rpco_newton" ]; then
-    ${ANSIBLE_BINARY} playbooks/git-clone-repos.yml \
-                     -i ${ANSIBLE_INVENTORY} \
-                     -e role_file=../tests/ansible-role-test-requirements.yml
-  fi
-  ## Clone RPC-O directory into /opt
-  if [ "${RE_JOB_SCENARIO}" == "rpco_newton" ]; then
-    _configure_rpco
-    _set_rpco_vars
-  fi
-  ## Set the inventory and include the additional overrides vars file
-  if [ "${RE_JOB_SCENARIO}" = "keystone_rgw" ]; then
-    export ANSIBLE_INVENTORY="${CLONE_DIR}/tests/inventory_rgw -e @tests/test-vars-rgw.yml"
-  fi
-  if [[ ! -d tests/common ]]; then
-    git clone https://github.com/openstack/openstack-ansible-tests -b stable/pike tests/common
-  fi
-  _get_data_disk
-  ${ANSIBLE_BINARY} tests/setup-ceph-aio.yml \
+export CLONE_DIR="$(pwd)"
+export ANSIBLE_INVENTORY="${CLONE_DIR}/tests/inventory"
+export ANSIBLE_OVERRIDES="${CLONE_DIR}/tests/test-vars.yml"
+export ANSIBLE_BINARY="${ANSIBLE_BINARY:-ceph-ansible-playbook}"
+bash scripts/bootstrap-ansible.sh
+# Clone the test repos when not integrating with RPC-O
+# RPC-O has existing lxc roles that will conflict
+if [ "${RE_JOB_SCENARIO}" != "rpco_newton" ]; then
+  ${ANSIBLE_BINARY} playbooks/git-clone-repos.yml \
                    -i ${ANSIBLE_INVENTORY} \
-                   -e @tests/test-vars.yml ${BOOTSTRAP_OPTS}
-  if [ "${RE_JOB_SCENARIO}" == "rpco_newton" ]; then
-    _deploy_rpco
-  fi
-  # Use the rpc-maas deploy to test MaaS
-  if [ "${TEST_RPC_MAAS}" != "False" ] && [ "${RE_JOB_SCENARIO}" == "functional" ]; then
-    pushd ${RPC_MAAS_DIR}
-      export RE_JOB_SCENARIO="ceph"
-      bash tests/test-ansible-functional.sh
-    popd
-  fi
-else
-  echo "Implement tox bits if necessary"
+                   -e role_file=../tests/ansible-role-test-requirements.yml
+fi
+## Clone RPC-O directory into /opt
+if [ "${RE_JOB_SCENARIO}" == "rpco_newton" ]; then
+  _configure_rpco
+  _set_rpco_vars
+fi
+## Set the inventory and include the additional overrides vars file
+if [ "${RE_JOB_SCENARIO}" = "keystone_rgw" ]; then
+  export ANSIBLE_INVENTORY="${CLONE_DIR}/tests/inventory_rgw"
+  export ANSIBLE_ADDITIONAL_VARS="-e @tests/test-vars-rgw.yml"
+fi
+if [ "${RE_JOB_SCENARIO}" = "bluestore" ]; then
+  export ANSIBLE_ADDITIONAL_VARS="-e @tests/test-vars-bluestore.yml"
+fi
+if [[ ! -d tests/common ]]; then
+  git clone https://github.com/openstack/openstack-ansible-tests -b stable/pike tests/common
+fi
+_get_data_disk
+${ANSIBLE_BINARY} tests/setup-ceph-aio.yml \
+                 -i ${ANSIBLE_INVENTORY} \
+                 -e @tests/test-vars.yml \
+                 ${ANSIBLE_ADDITIONAL_VARS} ${BOOTSTRAP_OPTS}
+if [ "${RE_JOB_SCENARIO}" == "rpco_newton" ]; then
+  _deploy_rpco
+fi
+# Use the rpc-maas deploy to test MaaS
+if [ "${TEST_RPC_MAAS}" != "False" ] && [ "${RE_JOB_SCENARIO}" == "functional" ]; then
+  pushd ${RPC_MAAS_DIR}
+    export RE_JOB_SCENARIO="ceph"
+    bash tests/test-ansible-functional.sh
+  popd
 fi
