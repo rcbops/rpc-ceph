@@ -21,12 +21,11 @@ env
 echo "+-------------------- START ENV VARS --------------------+"
 
 export RE_JOB_SCENARIO=${RE_JOB_SCENARIO:-"functional"}
-export RPC_OPENSTACK_DIR=${RPC_OPENSTACK_DIR:-/opt/rpc-openstack}
+export RPCO_DIR=${RPCO_DIR:-/opt/rpc-openstack}
 export RPC_MAAS_DIR=${RPC_MAAS_DIR:-/etc/ansible/ceph_roles/rpc-maas}
 export TEST_RPC_MAAS=${TEST_RPC_MAAS:-True}
-export BOOTSTRAP_OPTS=${BOOTSTRAP_OPTS:-""}
+export CEPH_BOOTSTRAP_OPTS=${CEPH_BOOTSTRAP_OPTS:-""}
 export DATA_DISK_MIN_SIZE_GB=${DATA_DISK_MIN_SIZE_GB:-50}
-export ANSIBLE_ADDITIONAL_VARS=${ANSIBLE_ADDITIONAL_VARS:-""}
 
 # Install python2 for Ubuntu 16.04 and CentOS 7
 if which apt-get; then
@@ -56,7 +55,7 @@ fi
 function _set_rpco_vars {
   ## Copy over the keystone_auth_admin_password from OSA --> Ceph
   if ! grep -q keystone_auth_admin_password ${CLONE_DIR}/tests/test-vars-openstack.yml; then
-    grep keystone_auth_admin_password /etc/openstack_deploy/user_osa_secrets.yml >> ${CLONE_DIR}/tests/test-vars-openstack.yml
+    grep keystone_auth_admin_password ${SECRETS_FILE} >> ${CLONE_DIR}/tests/test-vars-openstack.yml
   fi
   ## Add the rsyslog_container into the inventory
   if ! grep -q rsyslog_container ${CLONE_DIR}/tests/inventory_rpco; then
@@ -70,10 +69,18 @@ function _set_rpco_vars {
 }
 
 function _configure_rpco {
-  if [[ ! -d /opt/rpc-openstack ]]; then
-    git clone https://github.com/rcbops/rpc-openstack -b newton-rc --recursive ${RPC_OPENSTACK_DIR}
+  export RPCO_VERSION="${RE_JOB_SCENARIO#rpco_}-rc"
+  export CINDER_ENVD="inventory/env.d/cinder.yml"
+  export SECRETS_FILE="/etc/openstack_deploy/user_secrets.yml"
+  export OSA_DIR="/opt/openstack-ansible"
+  if [ "${RE_JOB_SCENARIO}" = "rpco_newton" ]; then
+    export OSA_DIR="${RPCO_DIR}/openstack-ansible"
+    export SECRETS_FILE="/etc/openstack_deploy/user_osa_secrets.yml"
   fi
-  pushd ${RPC_OPENSTACK_DIR}
+  if [[ ! -d /opt/rpc-openstack ]]; then
+    git clone https://github.com/rcbops/rpc-openstack -b ${RPCO_VERSION} --recursive ${RPCO_DIR}
+  fi
+  pushd ${RPCO_DIR}
     ## Dont use the specified Ceph inventory
     unset ANSIBLE_INVENTORY
     ## Set the RPC_ARTIFACT_MODE vars
@@ -82,13 +89,23 @@ function _configure_rpco {
     ## Use the openstack-ansible binary
     export ANSIBLE_BINARY="openstack-ansible"
     ## Bootstrap RPC-O's ansible
-    bash scripts/bootstrap-ansible.sh
-    cp ${CLONE_DIR}/tests/rpco_vars/user_rpc_ceph_vars.yml /etc/openstack_deploy/user_rpc_ceph_vars.yml
-    bash scripts/bootstrap-aio.sh
+    if [ "${RE_JOB_SCENARIO}" = "rpco_newton" ]; then
+      bash scripts/bootstrap-ansible.sh
+      cp ${CLONE_DIR}/tests/rpco_vars/user_rpc_ceph_vars.yml /etc/openstack_deploy/user_rpc_ceph_vars.yml
+      bash scripts/bootstrap-aio.sh
+    else
+      bash scripts/deploy.sh
+      pushd ${OSA_DIR}
+        export BOOTSTRAP_OPTS="@/etc/openstack_deploy/user_rpc_ceph_vars.yml ${CEPH_BOOTSTRAP_OPTS}"
+        bash scripts/bootstrap-ansible.sh
+        cp ${CLONE_DIR}/tests/rpco_vars/user_rpc_ceph_vars.yml /etc/openstack_deploy/user_rpc_ceph_vars.yml
+        bash scripts/bootstrap-aio.sh
+      popd
+    fi
     ## Build out the hosts, infrastructure and keystone only.
-    pushd ${RPC_OPENSTACK_DIR}/openstack-ansible/playbooks
+    pushd ${OSA_DIR}/playbooks
       cp ${CLONE_DIR}/tests/rpco_vars/cinder.yml.ceph /etc/openstack_deploy/conf.d/cinder.yml
-      cp inventory/env.d/cinder.yml /etc/openstack_deploy/env.d/cinder.yml
+      cp ${CINDER_ENVD} /etc/openstack_deploy/env.d/cinder.yml
       sed -i 's/is_metal: true/is_metal: false/g' /etc/openstack_deploy/env.d/cinder.yml
       sed -i "s/aio1/$(hostname)/" /etc/openstack_deploy/openstack_user_config.yml
       sed -i "s/aio1/$(hostname)/" /etc/openstack_deploy/conf.d/*.yml
@@ -100,13 +117,13 @@ function _configure_rpco {
   ## Set the binary and inventory back to ceph's version.
   export ANSIBLE_BINARY="ceph-ansible-playbook"
   export ANSIBLE_INVENTORY="${CLONE_DIR}/tests/inventory_rpco"
-  export ANSIBLE_ADDITIONAL_VARS="-e @tests/test-vars-openstack.yml"
+  export CEPH_BOOTSTRAP_OPTS="-e @tests/test-vars-openstack.yml ${CEPH_BOOTSTRAP_OPTS}"
 }
 
 function _deploy_rpco {
   unset ANSIBLE_INVENTORY
   export ANSIBLE_BINARY="openstack-ansible"
-  pushd ${RPC_OPENSTACK_DIR}/openstack-ansible/playbooks
+  pushd ${OSA_DIR}/playbooks
     ${ANSIBLE_BINARY} os-glance-install.yml
     ${ANSIBLE_BINARY} os-cinder-install.yml
     ${ANSIBLE_BINARY} os-nova-install.yml
@@ -124,7 +141,7 @@ function _get_data_disk {
 
   # Only set the secondary disk device option if there is one
   if [ -n "${DATA_DISK_DEVICE}" ]; then
-    export BOOTSTRAP_OPTS="-e bootstrap_host_data_disk_device=${DATA_DISK_DEVICE}"
+    export CEPH_BOOTSTRAP_OPTS="-e bootstrap_host_data_disk_device=${DATA_DISK_DEVICE} ${CEPH_BOOTSTRAP_OPTS}"
   fi
 }
 
@@ -133,35 +150,34 @@ export ANSIBLE_INVENTORY="${CLONE_DIR}/tests/inventory"
 export ANSIBLE_PARAMETERS="-e @${CLONE_DIR}/tests/test-vars.yml -e @${RPC_MAAS_DIR}/tests/user_rpcm_secrets.yml"
 export ANSIBLE_BINARY="${ANSIBLE_BINARY:-ceph-ansible-playbook}"
 bash scripts/bootstrap-ansible.sh
+if [ "${RE_JOB_SCENARIO}" != "rpco_newton" ]; then
+  _get_data_disk
+fi
 # Clone the test repos when not integrating with RPC-O
 # RPC-O has existing lxc roles that will conflict
-if [ "${RE_JOB_SCENARIO}" != "rpco_newton" ]; then
+if [[ "${RE_JOB_SCENARIO}" =~ ^rpco_ ]]; then
+  _configure_rpco
+  _set_rpco_vars
+else
   ${ANSIBLE_BINARY} playbooks/git-clone-repos.yml \
                    -i ${ANSIBLE_INVENTORY} \
                    -e role_file=../tests/ansible-role-test-requirements.yml
 fi
-## Clone RPC-O directory into /opt
-if [ "${RE_JOB_SCENARIO}" == "rpco_newton" ]; then
-  _configure_rpco
-  _set_rpco_vars
-fi
 ## Set the inventory and include the additional overrides vars file
 if [ "${RE_JOB_SCENARIO}" = "keystone_rgw" ]; then
   export ANSIBLE_INVENTORY="${CLONE_DIR}/tests/inventory_rgw"
-  export ANSIBLE_ADDITIONAL_VARS="-e @tests/test-vars-rgw.yml"
+  export CEPH_BOOTSTRAP_OPTS="-e @tests/test-vars-rgw.yml ${CEPH_BOOTSTRAP_OPTS}"
 fi
 if [ "${RE_JOB_SCENARIO}" = "bluestore" ]; then
-  export ANSIBLE_ADDITIONAL_VARS="-e @tests/test-vars-bluestore.yml"
+	export CEPH_BOOTSTRAP_OPTS="-e @tests/test-vars-bluestore.yml ${CEPH_BOOTSTRAP_OPTS}"
 fi
 if [[ ! -d tests/common ]]; then
   git clone https://github.com/openstack/openstack-ansible-tests -b stable/pike tests/common
 fi
-_get_data_disk
 ${ANSIBLE_BINARY} tests/setup-ceph-aio.yml \
                  -i ${ANSIBLE_INVENTORY} \
-                 -e @tests/test-vars.yml \
-                 ${ANSIBLE_ADDITIONAL_VARS} ${BOOTSTRAP_OPTS}
-if [ "${RE_JOB_SCENARIO}" == "rpco_newton" ]; then
+                 -e @tests/test-vars.yml ${CEPH_BOOTSTRAP_OPTS}
+if [[ "${RE_JOB_SCENARIO}" =~ ^rpco_ ]]; then
   _deploy_rpco
 fi
 # Use the rpc-maas deploy to test MaaS
