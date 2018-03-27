@@ -130,7 +130,7 @@ function _get_data_disk {
 
 export CLONE_DIR="$(pwd)"
 export ANSIBLE_INVENTORY="${CLONE_DIR}/tests/inventory"
-export ANSIBLE_OVERRIDES="${CLONE_DIR}/tests/test-vars.yml"
+export ANSIBLE_PARAMETERS="-e @${CLONE_DIR}/tests/test-vars.yml -e @${RPC_MAAS_DIR}/tests/user_rpcm_secrets.yml"
 export ANSIBLE_BINARY="${ANSIBLE_BINARY:-ceph-ansible-playbook}"
 bash scripts/bootstrap-ansible.sh
 # Clone the test repos when not integrating with RPC-O
