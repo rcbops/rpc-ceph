@@ -68,13 +68,14 @@ ceph-ansible-playbook -i <link to your inventory file> playbooks/ceph-keystone-r
 ## Load Balancers and SSL Certs
 A load balancer should be deployed prior to ceph rgw install and you have VIP.  Currently RPC terminates SSL in the load balancer so the Ceph Object Store does not need anything for SSL set.
 
-F5:  ?
+F5: Liaise with Network Security to configure the F5.
 
 HAProxy:
-This is a bit tricky since we don't have IP/containers to point to. I'd advise against creating the swift group and then just not deploying it, because we (a) don't want the containers for swift at all, and (b) don't want them in the inventory. The haproxy group would have to be slightly different anyway (healthcheck wise etc).
-In the last deploy we created a dummy group for ceph in /etc/openstack_deploy/env.d/ and then added some "cephrgw" hosts to a group, for the purposes of haproxy - this is probably the best way to go about it for haproxy right now, I've put a patch upstream to allow us to manually specify ip address info for haproxy endpoints (https://review.openstack.org/#/c/527847/) but I'm trying to get that backported.
-Lastly, create the appropriate vars for Ceph:
-Something like this: https://review.openstack.org/#/c/517856/8/group_vars/ceph-rgw.yml
-
-
-
+You can deploy to a new or existing haproxy server by adding it to the ``[haproxy_all]`` group in your inventory and then running the ceph-rgw-haproxy.yml playbook:
+```bash
+[haproxy_all]
+myhaproxyhost
+```
+```bash
+ceph-ansible-playbook -i <link to your inventory file> playbooks/ceph-rgw-haproxy.yml -e@<link to your vars file>
+```

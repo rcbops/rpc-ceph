@@ -19,8 +19,17 @@ radosgw_keystone_admin_tenant: service
 ## Use this to override existing RGW specific config template settings,
 ## whilst keeping the defaults.
 ceph_conf_overrides_rgw_extra: {}
-ceph_conf_overrides_rgw: "{{ (radosgw_keystone | bool) | ternary(ceph_conf_overrides_rgw_keystone, {}) | combine(ceph_conf_overrides_rgw_extra, recursive = True) }}"
+ceph_conf_overrides_rgw: "{{ (radosgw_keystone | bool) | ternary(ceph_conf_overrides_rgw_keystone, ceph_conf_overrides_rgw_default) | combine(ceph_conf_overrides_rgw_extra, recursive = True) }}"
+ceph_conf_overrides_rgw_default:
+  client:
+    rgw_cache_lru_size: 250000
+    rgw_thread_pool_size: 8192
+    rgw_num_rados_handles: 8
 ceph_conf_overrides_rgw_keystone:
+  client:
+    rgw_cache_lru_size: 250000
+    rgw_thread_pool_size: 8192
+    rgw_num_rados_handles: 8
   "client.rgw.{{ hostvars[inventory_hostname]['ansible_hostname'] }}":
     # OpenStack integration with Keystone
     rgw_keystone_url: "{{ keystone_service_adminurl }}"
