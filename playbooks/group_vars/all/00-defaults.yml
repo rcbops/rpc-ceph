@@ -99,7 +99,7 @@ os_tuning_params:
   - { name: net.ipv4.tcp_rmem, value: 4096 87380 56623104 }
   - { name: net.ipv4.tcp_wmem, value: 4096 87380 56623104 }
   - { name: net.netfilter.nf_conntrack_max, value: 1048576 }
-  - { name: net.core.somaxconn, value: 8192 }d
+  - { name: net.core.somaxconn, value: 8192 }
   - { name: kernel.pid_max, value: 4194303 }
   - { name: fs.file-max, value: 262144 }
   - { name: vm.vfs_cache_pressure, value: 20 }
