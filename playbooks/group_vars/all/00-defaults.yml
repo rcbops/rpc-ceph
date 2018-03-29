@@ -24,18 +24,56 @@ osd_mount_options_xfs: noatime,largeio,inode64,swalloc
 osd_objectstore: filestore
 
 
-radosgw_civetweb_num_threads: 4096
+radosgw_civetweb_num_threads: 8192
 ceph_conf_overrides_all:
    global:
-     osd_pool_default_pg_num: 128
-     osd_pool_default_pgp_num: 128
+     debug_lockdep: "0/0"
+     debug_context: "0/0"
+     debug_crush: "0/0"
+     debug_buffer: "0/0"
+     debug_timer: "0/0"
+     debug_filer: "0/0"
+     debug_objecter: "0/0"
+     debug_rados: "0/0"
+     debug_rbd: "0/0"
+     debug_journaler: "0/0"
+     debug_objectcacher: "0/0"
+     debug_client: "0/0"
+     debug_osd: "0/0"
+     debug_optracker: "0/0"
+     debug_objclass: "0/0"
+     debug_filestore: "0/0"
+     debug_bluestore: "0/0"
+     debug_journal: "0/0"
+     debug_ms: "0/0"
+     debug_tp: "0/0"
+     debug_auth: "0/0"
+     debug_finisher: "0/0"
+     debug_heartbeatmap: "0/0"
+     debug_perfcounter: "0/0"
+     debug_asok: "0/0"
+     debug_throttle: "0/0"
+     debug_paxos: "0/0"
+     debug_rgw: "0/0"
+     debug_monc: "0/0"
+     debug_mon: "0/0"
+     max open files: 262144
+     osd_pool_default_pg_num: 32
+     osd_pool_default_pgp_num: 32
      mon_osd_down_out_interval: 900
-     osd_heartbeat_min_size: 9000
    client:
      rbd_cache_size: 134217728
      rbd_cache_max_dirty: 50331648
      rbd_cache_max_dirty_age: 15
      rbd_cache_target_dirty: 33554432
+   osd:
+     osd_scrub_load_threshold: 10.0
+     osd_scrub_min_interval: 129600
+     osd_deep_scrub_interval: 1209600
+     osd_scrub_sleep: 0.1
+     filestore_merge_threshold: 40
+     filestore_split_multiple: 8
+     filestore_max_sync_interval: 10
 
 ceph_conf_overrides_extra: {}
 # This allows us to have ceph_conf_overrides per group without overwriting the
@@ -46,21 +84,27 @@ ceph_conf_overrides: "{{ ceph_conf_overrides_all | combine((ceph_conf_overrides_
 
 os_tuning_params:
   - { name: kernel.pid_max, value: 4194303 }
-  - { name: fs.file-max, value: 26234859 }
-  - { name: vm.swappiness, value: 10 }
-  - { name: net.ipv4.tcp_tw_recycle, value: 1 }
-  - { name: net.ipv4.tcp_tw_reuse, value: 1 }
-  - { name: net.ipv4.tcp_fin_timeout, value: 10 }
+  - { name: fs.file-max, value: 262144 }
+  - { name: vm.vfs_cache_pressure, value: 20 }
+  - { name: vm.dirty_background_ratio, value: 3}
+  - { name: vm.dirty_ratio, value: 10 }
+  - { name: vm.swappiness, value: 0 }
   - { name: net.ipv4.tcp_slow_start_after_idle, value: 0 }
   - { name: net.ipv4.tcp_max_syn_backlog, value: 4096 }
-  - { name: net.core.rmem_max, value: 33554432 }
-  - { name: net.core.wmem_max, value: 33554432 }
-  - { name: net.core.rmem_default, value: 33554432 }
-  - { name: net.core.wmem_default, value: 33554432 }
+  - { name: net.core.rmem_max, value: 56623104 }
+  - { name: net.core.wmem_max, value: 56623104 }
+  - { name: net.core.rmem_default, value: 56623104 }
+  - { name: net.core.wmem_default, value: 56623104 }
   - { name: net.core.optmem_max, value: 40960 }
-  - { name: net.ipv4.tcp_rmem, value: 4096 87380 33554432 }
-  - { name: net.ipv4.tcp_wmem, value: 4096 65536 33554432 }
-  - { name: net.netfilter.nf_conntrack_max, value: 1000000 }
+  - { name: net.ipv4.tcp_rmem, value: 4096 87380 56623104 }
+  - { name: net.ipv4.tcp_wmem, value: 4096 87380 56623104 }
+  - { name: net.netfilter.nf_conntrack_max, value: 1048576 }
+  - { name: net.core.somaxconn, value: 8192 }
+  - { name: kernel.pid_max, value: 4194303 }
+  - { name: fs.file-max, value: 262144 }
+  - { name: vm.vfs_cache_pressure, value: 20 }
+  - { name: vm.swappiness, value: 0 }
+  - { name: vm.dirty_background_ratio, value: 3}
 
 disable_transparent_hugepage: false
 containerized_deployment: false
