@@ -1,0 +1,23 @@
+---
+- name: Check the value of mon_allow_pool_delete
+  shell: "ceph daemon mon.{{ ansible_hostname }} config get mon_allow_pool_delete | grep -q false"
+  register: allow_pool_delete
+  when: fiobench_pool_name is not defined
+  ignore_errors: true
+- name: Set to mon_allow_pool_delete if it isn't already
+  command: "ceph daemon mon.{{ ansible_hostname }} config set mon_allow_pool_delete true"
+  when:
+    - fiobench_pool_name is not defined
+    - allow_pool_delete.rc == 0
+- name: Delete fiobench pool
+  command: "ceph osd pool delete {{ _pool_name }} {{ _pool_name }} --yes-i-really-really-mean-it"
+  when: fiobench_pool_name is not defined
+  run_once: true
+- name: Set the mon_allow_pool_delete to false if it was before
+  command: "ceph daemon mon.{{ ansible_hostname }} config set mon_allow_pool_delete false"
+  when:
+    - fiobench_pool_name is not defined
+    - allow_pool_delete.rc == 0
+- name: Remove client.fiobench user
+  command: "ceph auth del client.fiobench"
+  run_once: true

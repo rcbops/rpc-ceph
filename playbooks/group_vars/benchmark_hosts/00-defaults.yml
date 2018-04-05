@@ -106,6 +106,24 @@ fio_bench_list_default:
     numjobs: 1
     run_bench: "{{ osa_rbd_bench | default(false) }}"
   - src: "fio_direct_test.cfg.j2"
+    name: "fio_rbd_4k_randwrite_test_OSA"
+    override: "{{ fio_rbd_write_test_4k_overrides | default({}) }}"
+    blocksize: "4k"
+    ioengine: rbd
+    rw: randwrite
+    iodepth: 16
+    numjobs: 1
+    run_bench: "{{ osa_rbd_bench | default(false) }}"
+  - src: "fio_direct_test.cfg.j2"
+    name: "fio_rbd_4k_randread_test_OSA"
+    override: "{{ fio_rbd_read_test_4k_overrides | default({}) }}"
+    blocksize: "4k"
+    ioengine: rbd
+    rw: randread
+    iodepth: 16 
+    numjobs: 1
+    run_bench: "{{ osa_rbd_bench | default(false) }}"
+  - src: "fio_direct_test.cfg.j2"
     name: "fio_rbd_16k_randwrite_test_OSA"
     override: "{{ fio_rbd_write_test_16k_overrides | default({}) }}"
     blocksize: "16k"
