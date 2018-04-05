@@ -10,8 +10,8 @@ pool={{ fiobench_pool_name | default('fiobench') }}
 rbdname=bench_direct_RBD-{{ inventory_hostname_short }}
 {% else %}
 filename={{ bench_direct_device_name }}
-direct=1
 {% endif %}
+direct=1
 rw={{ item.rw | default("write") }}
 ioengine={{ ioengine }}
 bs={{ item.blocksize | default("1024k") }}
