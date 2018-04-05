@@ -1,0 +1,11 @@
+---
+- name: Set CPU Governor
+  import_playbook: tune-cpufreq.yml
+  when: "{{ cpu_performance | default(true) }}"
+
+- name: Deploy Ceph
+  import_playbook: deploy-ceph.yml
+
+- name: Configure RGW HAProxy
+  import_playbook: ceph-rgw-haproxy.yml
+  when: "{{ rgw_haproxy | default(true) }}"
