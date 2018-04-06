@@ -1,13 +1,20 @@
 ---
 - name: Playbook for configuring the LXC host
-  hosts: lxc_hosts
   become: true
+  hosts: "{{ nspawn_host_group | default('hosts') }}"
+  gather_facts: true
+  user: root
   roles:
-    - role: "lxc_hosts"
-      lxc_net_address: 10.100.100.1
-      lxc_net_dhcp_range: 10.100.100.8,10.100.100.253
-      lxc_net_bridge: lxcbr0
-  post_tasks:
+    - role: "nspawn_host"
+  environment: "{{ deployment_environment_variables | default({}) }}"
+  tags:
+    - nspawn-hosts
+  pre_tasks:
+    - name: Install bridge-utils
+      package:
+        name: bridge-utils
+        state: present
+        use: "{{ ansible_pkg_mgr }}"
     - name: Ensure that /etc/network/interfaces.d/ exists (Debian)
       file:
         path: /etc/network/interfaces.d/
@@ -156,7 +163,5 @@
     - name: Add iptables rule to provide internet connectivity to instances
       command: "{{ _iptables_path.stdout }} -t nat -A POSTROUTING -o eth0 -j MASQUERADE"
 
-    - name: Add iptables rules for lxc natting
-      command: /usr/local/bin/lxc-system-manage iptables-create
   vars_files:
     - test-vars.yml

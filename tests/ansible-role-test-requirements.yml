@@ -1,11 +1,3 @@
-- name: lxc_hosts
-  src: https://git.openstack.org/openstack/openstack-ansible-lxc_hosts
-  scm: git
-  version: stable/pike
-- name: lxc_container_create
-  src: https://git.openstack.org/openstack/openstack-ansible-lxc_container_create
-  scm: git
-  version: stable/pike
 - name: apt_package_pinning
   src: https://git.openstack.org/openstack/openstack-ansible-apt_package_pinning
   scm: git
@@ -50,3 +42,11 @@
   src: https://git.openstack.org/openstack/openstack-ansible-memcached_server
   scm: git
   version: stable/pike
+- name: nspawn_container_create
+  src: https://github.com/openstack/openstack-ansible-nspawn_container_create
+  scm: git
+  version: master
+- name: nspawn_host
+  src: https://github.com/openstack/openstack-ansible-nspawn_hosts
+  scm: git
+  version: master
