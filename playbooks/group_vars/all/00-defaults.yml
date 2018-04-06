@@ -17,12 +17,7 @@ ceph_stable_release: luminous
 # Let's round that up to 20GB as a lazy/safe option
 journal_size: "{{ osd_journal_size | default('20480') }}"
 
-# Set osd filesystem settings
-osd_mkfs_type: xfs
-osd_mkfs_options_xfs: -f -i size=2048
-osd_mount_options_xfs: noatime,largeio,inode64,swalloc
 osd_objectstore: filestore
-
 
 radosgw_civetweb_num_threads: 8192
 ceph_conf_overrides_all:
@@ -108,7 +103,6 @@ os_tuning_params:
 
 disable_transparent_hugepage: false
 containerized_deployment: false
-cephx: true
 
 # rgw_bench defaults
 bench_rgw_user_password:
@@ -122,6 +116,8 @@ radosgw_keystone: false
 # Set to true if using PKI keys
 radosgw_keystone_ssl: false
 
+# Default this to ceph-ansible default so VIPs can be configured
+radosgw_civetweb_port: 8080
 radosgw_service_publicurl: "https://{{ external_lb_vip_address }}:{{ radosgw_civetweb_port }}/swift/v1"
 radosgw_service_adminurl: "http://{{ internal_lb_vip_address }}:{{ radosgw_civetweb_port }}/swift/v1"
 radosgw_service_internalurl: "http://{{ internal_lb_vip_address }}:{{ radosgw_civetweb_port }}/swift/v1"
@@ -133,7 +129,7 @@ haproxy_default_services:
   - service:
       haproxy_service_name: ceph_rgw
       haproxy_backend_nodes: "{{ groups['rgws'] | default([]) }}"
-      haproxy_port: 8080
+      haproxy_port: "{{ radosgw_civetweb_port }}"
       haproxy_balance_type: "http"
       haproxy_backend_options:
         - "httpchk HEAD /"
