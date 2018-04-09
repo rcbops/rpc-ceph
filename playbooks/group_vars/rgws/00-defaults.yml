@@ -4,7 +4,6 @@
 ## in this directory, e.g. "overrides.yml" which will take precedence.
 radosgw_address_block: "{{ public_network }}"
 radosgw_civetweb_bind_ip: "{{ hostvars[inventory_hostname]['ansible_all_ipv4_addresses'] | ipaddr(radosgw_address_block) | first }}"
-radosgw_civetweb_port: 8080
 internal_lb_vip_address: "127.0.0.1"
 keystone_service_adminurl: "http://{{ internal_lb_vip_address }}:35357"
 ## RadosGW Integration vars
