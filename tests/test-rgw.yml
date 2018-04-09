@@ -19,6 +19,7 @@
 
     - name: Set pool application
       command: "ceph osd pool application enable scbench rbd"
+      when: "ceph_release_num.{{ ceph_stable_release }} >= ceph_release_num.luminous"
 
     - name: Execute a standard rados bench test and save the output to stdout
       shell: rados bench -p scbench 10 write
@@ -29,6 +30,7 @@
     - name: Check the value of mon_allow_pool_delete
       shell: "ceph daemon mon.{{ ansible_hostname }} config get mon_allow_pool_delete | grep -q false"
       register: allow_pool_delete
+      ignore_errors: true
     - name: Set to mon_allow_pool_delete if it isn't already
       command: "ceph daemon mon.{{ ansible_hostname }} config set mon_allow_pool_delete true"
       when:

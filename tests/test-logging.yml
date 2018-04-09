@@ -31,6 +31,7 @@
      until: (ceph_mgr_log.stat.isreg is defined) and (ceph_mgr_log.stat.isreg == True)
      retries: 10
      delay: 2
+     when: "ceph_release_num.{{ ceph_stable_release }} >= ceph_release_num.luminous"
 
 - hosts: osds
   tasks:
