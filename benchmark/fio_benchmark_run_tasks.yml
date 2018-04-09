@@ -23,6 +23,7 @@
   command: "fio_generate_plots {{ fio_job_name | regex_replace('_','-') }}"
   args:
     chdir: "/opt/ceph_bench/logs/{{ run_id }}/{{ inventory_hostname_short }}/{{ fio_job_name }}"
+  when: fio_bench_graph_results | default(true)
   delegate_to: localhost
 - name: fetch results log file
   fetch:
