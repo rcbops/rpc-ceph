@@ -1,16 +1,25 @@
 ---
 - hosts: utility_all[0]
   tasks:
-    - name: Install python-swiftclient
+    - name: Install required pip packages
       pip:
-        name: "python-swiftclient"
+        name: "{{ item }}"
         state: "present"
       register: install_packages
       until: install_packages|success
       retries: 5
       delay: 2
-    - name: Run a swift stat
-      shell: ". /root/openrc && swift stat"
+      with_items:
+        - python-swiftclient
+        - shade
+    - name: Upload a file to swift
+      os_object:
+        cloud: "default"
+        endpoint_type: internal
+        state: present
+        name: etc_hosts
+        filename: /etc/hosts
+        container: test_cont
 
 - hosts: mons[0]
   tasks:
