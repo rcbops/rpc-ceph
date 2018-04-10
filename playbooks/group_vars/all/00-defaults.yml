@@ -101,7 +101,6 @@ os_tuning_params:
   - { name: vm.swappiness, value: 0 }
   - { name: vm.dirty_background_ratio, value: 3}
 
-disable_transparent_hugepage: false
 containerized_deployment: false
 
 # rgw_bench defaults
