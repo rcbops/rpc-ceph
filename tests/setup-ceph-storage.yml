@@ -103,3 +103,10 @@
     - name: Remount /proc/sys rw
       command: "mount -o remount rw /proc/sys"
       when: ansible_os_family | lower == "redhat"
+
+# For transparent_hugepage disable we need this for the AIO
+- name: Fix /sys perms for OSDs
+  hosts: osds
+  tasks:
+    - name: Remount /proc/sys rw
+      command: "mount -o remount rw /sys"
