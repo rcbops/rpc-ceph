@@ -67,7 +67,7 @@
         validate_certs: false
         cloud: phobos
       register: client_server_group
-      when: client_count > 0
+      when: client_count|int > 0
 
     - name: Deploy Client Nodes
       os_server:
@@ -124,7 +124,7 @@
       retries: 300
       delay: 5
       with_items: "{{ client_nodes.results }}"
-      when: client_count > 0
+      when: client_count|int > 0
 
     - name: Wait for SSH
       command: >
@@ -198,7 +198,7 @@
         ansible_python_interpreter: /usr/bin/python3
         host_id: "{{ item.server.id }}"
       with_items: "{{ client_nodes.results }}"
-      when: client_count > 0
+      when: client_count|int > 0
 
     - name: Add haproxy_all host group
       add_host:
