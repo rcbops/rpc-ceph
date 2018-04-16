@@ -1,0 +1,12 @@
+---
+#
+# Extra Vars to disable ceph-ansible service restarts
+#
+# example: ceph-ansible-playbook -i <inventory> -e @disable-restart.yml -e <additional-vars> playbooks/deploy-ceph.yml
+#
+
+_mon_handler_called: False
+_osd_handler_called: False
+_mds_handler_called: False
+_rgw_handler_called: False
+_mgr_handler_called: False
