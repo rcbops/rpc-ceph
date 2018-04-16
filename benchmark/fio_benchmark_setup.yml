@@ -110,14 +110,10 @@
       register: nbd_mapped_before
     - name: Map nbd direct device
       command: "rbd-nbd {{ _ceph_args }} map {{ _pool_name }}/bench_direct_EBS-{{ inventory_hostname_short }}"
-      when:
-        - "'bench_direct_EBS-' + inventory_hostname_short not in nbd_mapped_before.stdout"
-        - ebs_direct_bench
+      when: "'bench_direct_EBS-' + inventory_hostname_short not in nbd_mapped_before.stdout"
     - name: Map nbd file device
       command: "rbd-nbd {{ _ceph_args }} map {{ _pool_name }}/bench_file-{{ inventory_hostname_short }}"
-      when:
-        - "'bench_file-' + inventory_hostname_short not in nbd_mapped_before.stdout"
-        - ebs_file_bench
+      when: "'bench_file-' + inventory_hostname_short not in nbd_mapped_before.stdout"
     - name: Get mapped rbd-nbd devices
       command: "rbd-nbd {{ _ceph_args }} list-mapped"
       register: nbd_mapped_after
@@ -135,7 +131,6 @@
       filesystem:
         fstype: xfs
         device: "{{ bench_file_device_name }}"
-      when: ebs_file_bench
     - name: Create benchmark directories
       file:
         state: directory
@@ -160,7 +155,6 @@
         fstype: "xfs"
         name: "/mnt/fio_bench"
         state: mounted
-      when: ebs_file_bench
   roles:
     - ceph-defaults
     - ceph-common
