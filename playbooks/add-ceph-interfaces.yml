@@ -1,0 +1,28 @@
+---
+- hosts:
+    - osds
+  become: true
+
+  vars:
+    starting_ip: 40
+
+  tasks:
+    - name: install dependencies
+      apt:
+        name: "{{ item }}"
+        update_cache: true
+      with_items:
+        - bridge-utils
+        - vlan
+        - ifenslave
+        - ifenslave-2.6
+
+    - name: Write interface config
+      template:
+        src: interface.cfg.j2
+        dest: "/etc/network/interfaces.d/{{ item.name }}.cfg"
+      with_items: "{{ ceph_interfaces }}"
+
+    - name: Bring interfaces online
+      command: "ifup {{ item.name }}"
+      with_items: "{{ ceph_interfaces }}"

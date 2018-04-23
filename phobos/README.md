@@ -104,6 +104,10 @@ $ SSH_AGENT_PID=11512; export SSH_AGENT_PID;
 $ ssh-add my-ssh-key
 ```
 
+## Configuration
+
+Example config files can be found in the phobos dir. If you want to use dedicated VLANs in your deployment look [here](VLANS.md)
+
 ## Deployment
 
 The `cluster_deploy_version` must be unique to each deployment.  If you reuse `cluster_deploy_version` you will simply
