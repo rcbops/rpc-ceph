@@ -2,6 +2,10 @@
   src: https://git.openstack.org/openstack/openstack-ansible-lxc_hosts
   scm: git
   version: stable/pike
+- name: ../ceph_plugins
+  scm: git
+  src: https://git.openstack.org/openstack/openstack-ansible-plugins
+  version: 587eea909c0a27a9f6015b31d14077dcc14943bb
 - name: lxc_container_create
   src: https://git.openstack.org/openstack/openstack-ansible-lxc_container_create
   scm: git
