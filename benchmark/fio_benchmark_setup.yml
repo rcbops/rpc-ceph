@@ -60,6 +60,7 @@
     - name: Set application for benchmark pool
       command: "ceph osd pool application enable {{ _pool_name }} rbd"
       run_once: True
+      when: "ceph_release_num.{{ ceph_stable_release }} >= ceph_release_num.luminous"
     - name: Set benchmark_client fact
       set_fact:
         ceph_benchmark_client: "{{ _ceph_benchmark_client }}"

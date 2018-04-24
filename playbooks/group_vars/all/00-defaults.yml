@@ -2,10 +2,26 @@
 ## This is a defaults file, it's likely to be changed during repo updates
 ## To override, or update settings, or configuration, create a new file
 ## in this directory, e.g. "overrides.yml" which will take precedence.
+
+# We need to set these to the defaults because they are used in some playbooks.
 mon_group_name: mons
 osd_group_name: osds
 rgw_group_name: rgws
 mgr_group_name: mgrs
+
+# We need to mirror the ceph-ansible default for releases <-> number conversion.
+# This allows this var to be used without having to call the ceph-defaults role.
+ceph_release_num:
+  dumpling: 0.67
+  emperor: 0.72
+  firefly: 0.80
+  giant: 0.87
+  hammer: 0.94
+  infernalis: 9
+  jewel: 10
+  kraken: 11
+  luminous: 12
+  mimic: 13
 
 ceph_origin: 'repository' # or 'distro' or 'local'
 ceph_stable: true # use ceph stable branch
