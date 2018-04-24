@@ -125,8 +125,8 @@ From the root of the rpc-ceph repo clone:
 * Optionally set `rpc_ceph_version` to a specific version of rpc-ceph or a pull request ref you would like to test
 
 ```bash
-$ pip install -r requirements.txt ansible==2.4.4.0
-$ ansible-playbook -e cluster_deploy_version=example-v01 \
+$ pip install -r requirements.txt ansible==2.5.7.0
+$ ansible-playbook -e cluster_deploy_version=perf-v01 \
                    -e ssh_keyname=mykey \
                    -e stor_count=3 \
                    -e client_count=1 \

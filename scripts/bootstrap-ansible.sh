@@ -1,6 +1,6 @@
 set -e -u -x
 
-export ANSIBLE_PACKAGE=${ANSIBLE_PACKAGE:-"ansible==2.4.4.0"}
+export ANSIBLE_PACKAGE=${ANSIBLE_PACKAGE:-"ansible==2.5.7.0"}
 export SSH_DIR=${SSH_DIR:-"/root/.ssh"}
 export ANSIBLE_ROLE_FILE=${ANSIBLE_ROLE_FILE:-"ansible-role-requirements.yml"}
 # Set the role fetch mode to any option [git-clone]
