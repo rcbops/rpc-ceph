@@ -4,3 +4,9 @@
 ## in this directory, e.g. "overrides.yml" which will take precedence.
 ceph_conf_overrides_mgr_extra: {}
 ceph_conf_overrides_mgr: "{{ ceph_conf_overrides_mgr_extra }}"
+
+ceph_mgr_modules:
+  - restful
+  - status
+  - balancer
+  - dashboard
