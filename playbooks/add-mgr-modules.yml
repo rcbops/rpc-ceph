@@ -1,0 +1,10 @@
+---
+# Remove after ceph-ansible > v3.1 is released
+- name: add modules to ceph-mgr
+  hosts: mgrs[0]
+  become: true
+  tasks:
+    - name: add mgr modules
+      command: "ceph mgr module enable {{ item }} --force"
+      with_items: "{{ ceph_mgr_modules }}"
+      when: ceph_release_num[ceph_stable_release] >= ceph_release_num['luminous']
