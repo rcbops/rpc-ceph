@@ -14,6 +14,8 @@ networks:
 fiobench_pgnum: 2048
 fiobench_size: 100G
 
+install_ssacli: true
+
 bench_rgw_user_password: rgwbenchsecret
 
 monitor_interface: bond0
