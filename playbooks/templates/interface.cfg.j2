@@ -1,0 +1,20 @@
+{% set octet = inventory_hostname.split("-")[-1] %}
+{% if item.network is defined %}
+{% set type = "static" %}
+{% else %}
+{% set type = "manual" %}
+{% endif %}
+auto {{ item.name }}
+iface {{ item.name }} inet {{ type }}
+{% if type == "static" %}
+address {{ item.network | regex_replace('0$', "") }}{{ octet|int + starting_ip|int }}
+netmask {{ item.netmask }}
+{% endif %}
+{% if item.bridge is defined %}
+{% if item.bridge_ports is defined %}
+bridge_ports {{ item.bridge_ports }}
+{% endif %}
+bridge_stp off
+bridge_fd 0
+bridge_maxwait 0
+{% endif %}

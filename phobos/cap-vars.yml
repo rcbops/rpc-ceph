@@ -10,15 +10,16 @@ security_group: 58753c65-1804-4eee-8349-77f1c5573001
 external_network: ironic
 networks:
   - net-name: "{{ external_network }}"
+  - net-name: dev5-private
 
 fiobench_pgnum: 2048
 fiobench_size: 100G
 
 bench_rgw_user_password: rgwbenchsecret
 
-monitor_interface: bond0
-public_network: 172.20.40.0/22
-cluster_network: 172.20.40.0/22
+monitor_interface: bond0.271
+public_network: 172.20.56.0/24
+cluster_network: 172.20.57.0/24
 osd_scenario: non-collocated
 devices:
   - /dev/sdd
@@ -39,3 +40,11 @@ dedicated_devices:
   - /dev/sdc
   - /dev/sdc
   - /dev/sdc
+
+ceph_interfaces:
+  - name: bond0.271
+    netmask: 255.255.255.0
+    network: 172.20.56.0
+  - name: bond0.279
+    netmask: 255.255.255.0
+    network: 172.20.57.0

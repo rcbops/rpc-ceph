@@ -13,6 +13,7 @@
         - ssh_keyname
         - stor_count
         - client_count
+        - external_network
       loop_control:
         label: "Assert {{ item }} is defined"
 
@@ -23,7 +24,8 @@
         image: "{{ stor_image }}"
         flavor: "{{ stor_flavor }}"
         key_name: "{{ ssh_keyname }}"
-        nics: "{{ networks }}"
+        nics:
+          - net-name: "{{ external_network }}"
         meta: "instance_role=ceph-{{ cluster_deploy_version }}-storage"
         timeout: 720
         validate_certs: false
@@ -43,6 +45,12 @@
         timeout: 720
         validate_certs: false
         cloud: phobos
+        userdata: |
+          {%- raw -%}#!/bin/bash
+          echo "auto ens4" >> /etc/network/interfaces.d/ens4.cfg
+          echo "iface ens4 inet dhcp" >> /etc/network/interfaces.d/ens4.cfg
+          ifdown ens4 && ifup ens4
+          {% endraw %}
       register: rsyslog_nodes
 
     - name: Deploy Haproxy Nodes
@@ -57,6 +65,12 @@
         timeout: 720
         validate_certs: false
         cloud: phobos
+        userdata: |
+          {%- raw -%}#!/bin/bash
+          echo "auto ens4" >> /etc/network/interfaces.d/ens4.cfg
+          echo "iface ens4 inet dhcp" >> /etc/network/interfaces.d/ens4.cfg
+          ifdown ens4 && ifup ens4
+          {% endraw %}
       register: haproxy_nodes
 
     - name: Create Client Server Group
@@ -82,6 +96,12 @@
         timeout: 720
         validate_certs: false
         cloud: phobos
+        userdata: |
+          {%- raw -%}#!/bin/bash
+          echo "auto ens4" >> /etc/network/interfaces.d/ens4.cfg
+          echo "iface ens4 inet dhcp" >> /etc/network/interfaces.d/ens4.cfg
+          ifdown ens4 && ifup ens4
+          {% endraw %}
       with_sequence: count={{ client_count }}
       register: client_nodes
 
@@ -97,6 +117,12 @@
         timeout: 720
         validate_certs: false
         cloud: phobos
+        userdata: |
+          {%- raw -%}#!/bin/bash
+          echo "auto ens4" >> /etc/network/interfaces.d/ens4.cfg
+          echo "iface ens4 inet dhcp" >> /etc/network/interfaces.d/ens4.cfg
+          ifdown ens4 && ifup ens4
+          {% endraw %}
       with_sequence: count={{ log_count }}
       register: admin_nodes
 
@@ -317,3 +343,6 @@
       with_items:
         - playbooks
         - benchmark
+
+- name: Add Ceph Networks
+  import_playbook: add-ceph-interfaces.yml
