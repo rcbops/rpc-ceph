@@ -14,3 +14,7 @@
 - name: Configure RGW HAProxy
   import_playbook: ceph-rgw-haproxy.yml
   when: "{{ rgw_haproxy | default(true) }}"
+
+- name: Install ssacli
+  import_playbook: ssacli-install.yml
+  when: "{{ install_ssacli | default(false) }}"

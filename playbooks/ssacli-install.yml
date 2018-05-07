@@ -1,0 +1,30 @@
+---
+- hosts: osds
+  become: true
+  gather_facts: false
+  tasks:
+
+    - name: Add apt-keys
+      apt_key:
+        url: "http://downloads.linux.hpe.com/SDR/{{ item }}"
+      with_items:
+        - hpPublicKey1024.pub
+        - hpPublicKey2048.pub
+        - hpPublicKey2048_key1.pub
+        - hpePublicKey2048_key1.pub
+
+    - name: Add apt source
+      copy:
+        src: downloads_linux_hpe_com_SDR_repo_mcp.list
+        dest: /etc/apt/sources.list.d/downloads_linux_hpe_com_SDR_repo_mcp.list
+
+    - name: Get ssacli version to install
+      set_fact:
+        ssacli_name: "ssacli={{ ssacli_version }}"
+      when: ssacli_version is defined
+
+    - name: install ssacli
+      apt:
+        name: "{{ ssacli_name | default('ssacli') }}"
+        state: present
+        update_cache: true
