@@ -174,6 +174,14 @@ a long time to build.
 
 NB: This requires a perf2-15 instance.
 
+**rpco_master**
+This is the same as the rpco_newton job but built against the master-rc branch
+of RPC-O.
+
+**rpco_pike**
+This is the same as the rpco_newton job but built against the pike-rc branch
+of RPC-O.
+
 **keystone_rgw**:
 A basic keystone integration test, that will run on each commit.
 Utilizing the swift client to ensure Keystone integration is working.
