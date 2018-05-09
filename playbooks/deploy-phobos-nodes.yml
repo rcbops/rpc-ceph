@@ -346,3 +346,4 @@
 
 - name: Add Ceph Networks
   import_playbook: add-ceph-interfaces.yml
+  when: ceph_interfaces is defined

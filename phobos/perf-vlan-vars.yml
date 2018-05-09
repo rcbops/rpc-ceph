@@ -10,6 +10,7 @@ security_group: 58753c65-1804-4eee-8349-77f1c5573001
 external_network: ironic
 networks:
   - net-name: "{{ external_network }}"
+  - net-name: dev7-private
 
 fiobench_pgnum: 4096
 fiobench_size: 100G
@@ -18,9 +19,9 @@ install_ssacli: true
 
 bench_rgw_user_password: rgwbenchsecret
 
-monitor_interface: bond0
-public_network: 172.20.41.0/22
-cluster_network: 172.20.41.0/22
+monitor_interface: bond0.280
+public_network: 172.20.58.0/24
+cluster_network: 172.20.59.0/24
 osd_scenario: collocated
 devices:
   - /dev/sdb
@@ -47,3 +48,11 @@ devices:
   - /dev/sdw
   - /dev/sdx
   - /dev/sdy
+
+ceph_interfaces:
+  - name: bond0.280
+    netmask: 255.255.255.0
+    network: 172.20.58.0
+  - name: bond0.286
+    netmask: 255.255.255.0
+    network: 172.20.59.0
