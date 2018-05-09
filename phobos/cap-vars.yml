@@ -19,8 +19,8 @@ install_ssacli: true
 bench_rgw_user_password: rgwbenchsecret
 
 monitor_interface: bond0
-public_network: 172.20.41.0/22
-cluster_network: 172.20.41.0/22
+public_network: 172.20.40.0/22
+cluster_network: 172.20.40.0/22
 osd_scenario: non-collocated
 devices:
   - /dev/sdd
