@@ -1,0 +1,27 @@
+---
+## Overrides file for hosts in the benchmark_hosts group.
+## NB These settings apply to benchmark_hosts hosts only.
+## If the setting should be changed for ALL host groups, instead edit
+## playbooks/group_vars/all/overrides.yml.
+dummy:
+## To override rpc-ceph variables specify them in overrides.yml
+## Regular vars can be specified as needed.
+## Look in group_vars/benchmark_hosts/00-defaults.yml to see the default
+## rpc-ceph group_vars for benchmark_hosts.
+## For example to change fio_types
+# fio_types:
+#   - bw
+#   - iops
+#   - my_new_type
+
+## To add to the list of benchmarks that are run you can specify:
+# fio_bench_list_extras:
+#   - src: "fio_direct_test_cfg.j2"
+#     name: "my_fio_randwrite_with_1k_blocks"
+#     override: {}
+#     blocksize: 1k
+#     ioengine: rbd
+#     rw: randwrite
+#     iodepth: 8
+#     numjobs: 1
+#     run_bench: true
