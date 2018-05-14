@@ -68,7 +68,7 @@ ceph_conf_overrides_all:
      debug_rgw: "0/0"
      debug_monc: "0/0"
      debug_mon: "0/0"
-     max open files: 262144
+     max open files: 26234859
      osd_pool_default_pg_num: 32
      osd_pool_default_pgp_num: 32
      mon_osd_down_out_interval: 900
@@ -101,7 +101,7 @@ ceph_conf_overrides: "{{ ceph_conf_overrides_all | combine((ceph_conf_overrides_
 
 os_tuning_params:
   - { name: kernel.pid_max, value: 4194303 }
-  - { name: fs.file-max, value: 262144 }
+  - { name: fs.file-max, value: 26234859 }
   - { name: vm.vfs_cache_pressure, value: 20 }
   - { name: vm.dirty_background_ratio, value: 3}
   - { name: vm.dirty_ratio, value: 10 }
