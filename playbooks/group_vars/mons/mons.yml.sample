@@ -12,17 +12,11 @@ dummy:
 ###########
 # GENERAL #
 ###########
-
 #mon_group_name: mons
 
 # ACTIVATE BOTH FSID AND MONITOR_SECRET VARIABLES FOR NON-VAGRANT DEPLOYMENT
 #monitor_secret: "{{ monitor_keyring.stdout }}"
 #admin_secret: 'admin_secret'
-
-# CephFS
-#cephfs_data: cephfs_data
-#cephfs_metadata: cephfs_metadata
-#cephfs: cephfs
 
 # Secure your cluster
 # This will set the following flags on all the pools:
@@ -43,16 +37,28 @@ dummy:
 #calamari_debug: false
 
 
-#############
-# crush rules
-#############
+##########
+# CEPHFS #
+##########
+#cephfs: cephfs # name of the ceph filesystem
+#cephfs_data: cephfs_data # name of the data pool for a given filesystem
+#cephfs_metadata: cephfs_metadata # name of the metadata pool for a given filesystem
+
+#cephfs_pools:
+#  - { name: "{{ cephfs_data }}", pgs: "" }
+#  - { name: "{{ cephfs_metadata }}", pgs: "" }
+
+
+###############
+# CRUSH RULES #
+###############
 #crush_rule_config: false
 
 #crush_rule_hdd:
 #  name: HDD
 #  root: HDD
-#  type: rack
-#  default: true
+#  type: host
+#  default: false
 
 #crush_rule_ssd:
 #  name: SSD
@@ -63,31 +69,63 @@ dummy:
 #crush_rules:
 #  - "{{ crush_rule_hdd }}"
 #  - "{{ crush_rule_ssd }}"
+
+# Caution: this will create crush roots and racks according to hostvars {{ osd_crush_location }}
+# and will move hosts into them which might lead to significant data movement in the cluster!
+#
+# In order for the playbook to create CRUSH hierarchy, you have to setup your Ansible inventory file like so:
+#
+# [osds]
+# ceph-osd-01 osd_crush_location="{ 'root': 'mon-roottt', 'rack': 'mon-rackkkk', 'pod': 'monpod', 'host': 'ceph-osd-01' }"
+#
+# Note that 'host' is mandatory and that you need to submit at least two bucket type (including the host)
+#create_crush_tree: false
+
+
 #############
 # OPENSTACK #
 #############
-
 #openstack_config: false
 #openstack_glance_pool:
-#  name: images
+#  name: "images"
 #  pg_num: "{{ osd_pool_default_pg_num }}"
-#  rule_name: ""
+#  pgp_num: "{{ osd_pool_default_pg_num }}"
+#  rule_name: "replicated_rule"
+#  type: 1
+#  erasure_profile: ""
+#  expected_num_objects: ""
 #openstack_cinder_pool:
-#  name: volumes
+#  name: "volumes"
 #  pg_num: "{{ osd_pool_default_pg_num }}"
-#  rule_name: ""
+#  pgp_num: "{{ osd_pool_default_pg_num }}"
+#  rule_name: "replicated_rule"
+#  type: 1
+#  erasure_profile: ""
+#  expected_num_objects: ""
 #openstack_nova_pool:
-#  name: vms
+#  name: "vms"
 #  pg_num: "{{ osd_pool_default_pg_num }}"
-#  rule_name: ""
+#  pgp_num: "{{ osd_pool_default_pg_num }}"
+#  rule_name: "replicated_rule"
+#  type: 1
+#  erasure_profile: ""
+#  expected_num_objects: ""
 #openstack_cinder_backup_pool:
-#  name: backups
+#  name: "backups"
 #  pg_num: "{{ osd_pool_default_pg_num }}"
-#  rule_name: ""
+#  pgp_num: "{{ osd_pool_default_pg_num }}"
+#  rule_name: "replicated_rule"
+#  type: 1
+#  erasure_profile: ""
+#  expected_num_objects: ""
 #openstack_gnocchi_pool:
-#  name: metrics
+#  name: "metrics"
 #  pg_num: "{{ osd_pool_default_pg_num }}"
-#  rule_name: ""
+#  pgp_num: "{{ osd_pool_default_pg_num }}"
+#  rule_name: "replicated_rule"
+#  type: 1
+#  erasure_profile: ""
+#  expected_num_objects: ""
 
 #openstack_pools:
 #  - "{{ openstack_glance_pool }}"
@@ -101,14 +139,13 @@ dummy:
 # e.g key: "AQDC2UxZH4yeLhAAgTaZb+4wDUlYOsr1OfZSpQ=="
 # By default, keys will be auto-generated.
 #
-# To have have ansible setfacl the generated key, set the acls var like so:
-# acls: ["u:nova:r--", "u:cinder:r--", "u:glance:r--", "u:gnocchi:r--"]
 #openstack_keys:
-#  - { name: client.glance, key: "$(ceph-authtool --gen-print-key)", mon_cap: "allow r", osd_cap: "allow class-read object_prefix rbd_children, allow rwx pool={{ openstack_glance_pool.name }}", mode: "0600", acls: [] }
-#  - { name: client.cinder, key: "$(ceph-authtool --gen-print-key)", mon_cap: "allow r", osd_cap: "allow class-read object_prefix rbd_children, allow rwx pool={{ openstack_cinder_pool.name }}, allow rwx pool={{ openstack_nova_pool.name }}, allow rx pool={{ openstack_glance_pool.name }}", mode: "0600", acls: []  }
-#  - { name: client.cinder-backup, key: "$(ceph-authtool --gen-print-key)", mon_cap: "allow r", osd_cap: "allow class-read object_prefix rbd_children, allow rwx pool={{ openstack_cinder_backup_pool.name }}", mode: "0600", acls: [] }
-#  - { name: client.gnocchi, key: "$(ceph-authtool --gen-print-key)", mon_cap: "allow r", osd_cap: "allow class-read object_prefix rbd_children, allow rwx pool={{ openstack_gnocchi_pool.name }}", mode: "0600", acls: [] }
-#  - { name: client.openstack, key: "$(ceph-authtool --gen-print-key)", mon_cap: "allow r", osd_cap: "allow class-read object_prefix rbd_children, allow rwx pool={{ openstack_glance_pool.name }}, allow rwx pool={{ openstack_nova_pool.name }}, allow rwx pool={{ openstack_cinder_pool.name }}, allow rwx pool={{ openstack_cinder_backup_pool.name }}", mode: "0600", acls: [] }
+#  - { name: client.glance, caps: { mon: "profile rbd", osd: "profile rbd pool=volumes, profile rbd pool={{ openstack_glance_pool.name }}"}, mode: "0600" }
+#  - { name: client.cinder, caps: { mon: "profile rbd", osd: "profile rbd pool={{ openstack_cinder_pool.name }}, profile rbd pool={{ openstack_nova_pool.name }}, profile rbd pool={{ openstack_glance_pool.name }}"}, mode: "0600" }
+#  - { name: client.cinder-backup, caps: { mon: "profile rbd", osd: "profile rbd pool={{ openstack_cinder_backup_pool.name }}"}, mode: "0600" }
+#  - { name: client.gnocchi, caps: { mon: "profile rbd", osd: "profile rbd pool={{ openstack_gnocchi_pool.name }}"}, mode: "0600", }
+#  - { name: client.openstack, caps: { mon: "profile rbd", osd: "profile rbd pool={{ openstack_glance_pool.name }}, profile rbd pool={{ openstack_nova_pool.name }}, profile rbd pool={{ openstack_cinder_pool.name }}, profile rbd pool={{ openstack_cinder_backup_pool.name }}"}, mode: "0600" }
+
 
 ##########
 # DOCKER #
