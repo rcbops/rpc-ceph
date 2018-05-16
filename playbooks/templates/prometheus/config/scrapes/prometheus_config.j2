@@ -1,0 +1,10 @@
+  - job_name: 'node'
+    file_sd_configs:
+      - files:
+        - node_targets.yml
+
+  - job_name: 'ceph'
+    honor_labels: true
+    file_sd_configs:
+      - files:
+        - ceph_targets.yml

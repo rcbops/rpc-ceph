@@ -1,0 +1,10 @@
+[
+{% for host in play_hosts %}
+    {
+        "targets": [ "{{ hostvars[host]['ansible_host'] }}:9100" ],
+        "labels": {
+            "instance": "{{ host }}"
+        }
+    }{{ "," if not loop.last else "" }}
+{% endfor %}
+]

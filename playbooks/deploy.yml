@@ -18,3 +18,10 @@
 - name: Install ssacli
   import_playbook: ssacli-install.yml
   when: "{{ install_ssacli | default(false) }}"
+
+- name: Deploy prometheus
+  import_playbook: prometheus.yml
+
+- name: Deploy node_exporter
+  import_playbook: node_exporter.yml
+  when: "{{ install_node_exporter | default(false) }}"

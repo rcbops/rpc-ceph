@@ -159,3 +159,20 @@ haproxy_default_services:
           ##- "httpchk HEAD /"
           ##haproxy_backend_httpcheck_options:
           ##- "expect ! status 302"
+
+node_exporter_version: 0.15.2
+node_exporter_options:
+  - "-collector.textfile.directory {{ node_exporter_textfile_collector }}"
+  - "-collector.textfile"
+  - "-collector.diskstats"
+  - "-collector.filesystem"
+  - "-collector.loadavg"
+  - "-collector.meminfo"
+  - "-collector.netdev"
+  - "-collector.stat"
+  - "-collector.diskstats.ignored-devices '^(ram|dm|rootfs|loop|fd|(h|s|v|xv)d[a-z]|nvme\\d+n\\d+p)\\d+$'"
+  - "-collector.filesystem.ignored-fs-types '^(sys|proc|rootfs|rpc_pipefs|tmpfs)fs$'"
+  - "-web.listen-address :{{ node_exporter_port }}"
+  - "-web.telemetry-path '/{{ node_exporter_path }}'"
+
+prometheus_version: 2.2.1

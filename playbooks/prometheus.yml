@@ -1,0 +1,41 @@
+---
+- hosts: prometheus
+  become: true
+
+  roles:
+    - name: prometheus_server
+
+  post_tasks:
+
+    - name: get enabled modules from ceph-mgr
+      command: "{{ docker_exec_cmd_mgr | default('') }} ceph --format json mgr module ls"
+      register: enabled_ceph_mgr_modules
+      delegate_to: "{{ groups[mon_group_name][0] }}"
+      when:
+        - ceph_release_num[ceph_stable_release] >= ceph_release_num['luminous']
+
+    - name: set _ceph_mgr_modules fact
+      set_fact:
+        _ceph_mgr_modules: "{{ enabled_ceph_mgr_modules.get('stdout', '{}') | from_json }}"
+
+    - name: write ceph_targets.yml
+      template:
+        src: ceph_targets.j2
+        dest: /etc/prometheus/ceph_targets.yml
+        owner: prometheus
+        group: prometheus
+      when: "'prometheus' in _ceph_mgr_modules.enabled_modules"
+      notify: restart prometheus
+
+    - name: Check for prometheus module
+      debug:
+        msg: "The prometheus module for ceph mgr is not enabled.  Use ceph_mgr_modules to enabled it"
+      when:
+        - "'prometheus' not in _ceph_mgr_modules.enabled_modules"
+        - ceph_release_num[ceph_stable_release] >= ceph_release_num['luminous']
+
+  handlers:
+    - name: restart prometheus
+      service:
+        name: prometheus
+        state: restarted
