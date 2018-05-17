@@ -1,0 +1,53 @@
+---
+- hosts: grafana
+  become: true
+
+  roles:
+    - name: grafana
+
+  post_tasks:
+    - name: Bootstrap dirs
+      file:
+        state: directory
+        path: "{{ item }}"
+        owner: grafana
+        group: grafana
+      with_items:
+        - "/usr/share/grafana/dashboards"
+        - "/usr/share/grafana/datasources"
+        - "/etc/grafana/dashboards"
+
+    - name: Write dashboard provisoning config
+      copy:
+        src: grafana/dashboards.yaml
+        dest: /usr/share/grafana/dashboards/dashboards.yaml
+        owner: grafana
+        group: grafana
+      notify: restart grafana-server
+
+    - name: Write dashboard provisoning config
+      template:
+        src: grafana/datasources.yaml.j2
+        dest: /usr/share/grafana/datasources/datasources.yaml
+        owner: grafana
+        group: grafana
+      notify: restart grafana-server
+
+    - name: Write dashboards
+      copy:
+        src: "grafana/dashboards/{{ item }}"
+        dest: "/etc/grafana/dashboards/{{ item }}"
+        owner: grafana
+        group: grafana
+      notify: restart grafana-server
+      with_items:
+        - ceph_cluster.json
+        - ceph_pools.json
+        - node-exporter-full.json
+        - node-exporter-server-metrics.json
+
+  handlers:
+    - name: restart grafana-server
+      service:
+        name: grafana-server
+        state: restarted

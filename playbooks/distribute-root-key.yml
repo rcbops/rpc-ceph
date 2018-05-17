@@ -1,0 +1,76 @@
+---
+- hosts:
+    - mons
+
+  become: true
+
+  vars:
+    _key_type: "{{ ssh_key_type | default('rsa') }}"
+    _key_bits: "{{ ssh_key_bits | default('2048') }}"
+    _key_pass: "{{ ssh_key_pass | default('') }}"
+
+  tasks:
+    - name: Check for first SSH key
+      stat:
+        path: "/root/.ssh/id_{{ _key_type }}"
+      register: _ssh_key
+      run_once: true
+
+    - name: Check for all SSH keys
+      stat:
+        path: "/root/.ssh/id_{{ _key_type }}"
+      register: _ssh_keys
+
+    - name: Fail if mon keys do not match
+      fail:
+        msg: "Key /root/.ssh/id_{{ _key_type }} is out of sync on mon nodes"
+      when:
+        - hostvars[groups.mons[0]]._ssh_key.stat.exists
+        - _ssh_keys.stat.exists
+        - hostvars[groups.mons[0]]._ssh_key.stat.checksum != _ssh_keys.stat.checksum
+
+    - name: Generate SSH key
+      command: "ssh-keygen -t {{ _key_type }} -f /root/.ssh/id_{{ _key_type }} -N '{{ _key_pass }}'"
+      args:
+        creates: "/root/.ssh/id_{{ _key_type }}"
+      run_once: true
+
+    - name: Get keys
+      synchronize:
+        mode: pull
+        src: "/root/.ssh/"
+        dest: /tmp/ssh_ansible_deleteme
+      run_once: true
+
+- hosts:
+    - mons
+    - mgrs
+    - osds
+    - rgws
+
+  become: true
+
+  vars:
+    _key_type: "{{ ssh_key_type | default('rsa') }}"
+
+  tasks:
+    - name: Write authorized_key
+      authorized_key:
+        user: root
+        key: "{{ lookup('file', '/tmp/ssh_ansible_deleteme/id_{{ _key_type }}.pub') }}"
+
+    - name: Copy Private key
+      copy:
+        src: "/tmp/ssh_ansible_deleteme/id_{{ _key_type }}"
+        dest: "/root/.ssh/id_{{ _key_type }}"
+        owner: root
+        group: root
+        mode: 0600
+
+    - name: Copy Public key
+      copy:
+        src: "/tmp/ssh_ansible_deleteme/id_{{ _key_type }}.pub"
+        dest: "/root/.ssh/id_{{ _key_type }}.pub"
+        owner: root
+        group: root
+        mode: 0600
