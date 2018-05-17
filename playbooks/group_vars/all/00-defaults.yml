@@ -149,12 +149,13 @@ haproxy_default_services:
       haproxy_balance_type: "http"
       haproxy_backend_options:
         - "httpchk HEAD /"
-  - service:
-      haproxy_service_name: ceph_dashboard
-      haproxy_backend_nodes: "{{ groups['mgrs'] | default([]) }}"
-      haproxy_port: 7000
-      haproxy_balance_type: "http"
-      haproxy_backend_options:
-        - "httpchk HEAD /"
-      haproxy_backend_httpcheck_options:
-        - "expect ! status 302"
+## Holding off on default dashboard to enabled until we have auth for it
+          ##- service:
+          ##haproxy_service_name: ceph_dashboard
+          ##haproxy_backend_nodes: "{{ groups['mgrs'] | default([]) }}"
+          ##haproxy_port: 7000
+          ##haproxy_balance_type: "http"
+          ##haproxy_backend_options:
+          ##- "httpchk HEAD /"
+          ##haproxy_backend_httpcheck_options:
+          ##- "expect ! status 302"
