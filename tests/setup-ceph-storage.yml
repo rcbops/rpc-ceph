@@ -13,9 +13,9 @@
   become: true
   tasks:
   - include: cleanup-ceph-storage.yml
-  - name: Ensure xfsprogs is installed on localhost
+  - name: Ensure xfsprogs and parted are installed on localhost
     package:
-      name: xfsprogs
+      name: [ "xfsprogs", "parted" ]
       state: present
       use: "{{ ansible_pkg_mgr }}"
     delegate_to: "{{ physical_host }}"
