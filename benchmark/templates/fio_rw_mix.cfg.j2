@@ -23,9 +23,9 @@ rw=write
 rwmixread=0
 rwmixwrite=100
 per_job_logs=0
-write_bw_log=/opt/ceph_bench/logs/{{ item.name }}.${TIMESTAMP}
-write_iops_log=/opt/ceph_bench/logs/{{ item.name }}.${TIMESTAMP}
-write_lat_log=/opt/ceph_bench/logs/{{ item.name }}.${TIMESTAMP}
+write_bw_log=/opt/ceph_bench/logs/{{ item.name }}.${TIMESTAMP}/{{ item.name }}
+write_iops_log=/opt/ceph_bench/logs/{{ item.name }}.${TIMESTAMP}/{{ item.name }}
+write_lat_log=/opt/ceph_bench/logs/{{ item.name }}.${TIMESTAMP}/{{ item.name }}
 
 [{{ item.name }}-sequential-read]
 bs={{ item.blocksize | default("1M") }}
@@ -45,6 +45,6 @@ rw=read
 rwmixread=100
 rwmixwrite=0
 per_job_logs=0
-write_bw_log=/opt/ceph_bench/logs/{{ item.name }}.${TIMESTAMP}
-write_iops_log=/opt/ceph_bench/logs/{{ item.name }}.${TIMESTAMP}
-write_lat_log=/opt/ceph_bench/logs/{{ item.name }}.${TIMESTAMP}
+write_bw_log=/opt/ceph_bench/logs/{{ item.name }}.${TIMESTAMP}/{{ item.name }}
+write_iops_log=/opt/ceph_bench/logs/{{ item.name }}.${TIMESTAMP}/{{ item.name }}
+write_lat_log=/opt/ceph_bench/logs/{{ item.name }}.${TIMESTAMP}/{{ item.name }}
