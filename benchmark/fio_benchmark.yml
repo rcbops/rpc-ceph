@@ -1,4 +1,4 @@
 ---
-- include: fio_benchmark_setup.yml
-- include: fio_benchmark_run.yml
-- include: fio_benchmark_cleanup.yml
+- include: fio_bench/fio_benchmark_setup.yml
+- include: fio_bench/fio_benchmark_run.yml
+- include: fio_bench/fio_benchmark_cleanup.yml
