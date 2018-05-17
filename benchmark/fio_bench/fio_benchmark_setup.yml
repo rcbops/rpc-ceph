@@ -1,6 +1,6 @@
 ---
 - name: Build FIO
-  hosts: benchmark_hosts
+  hosts: localhost,benchmark_hosts
   become: true
   tasks:
   - name: Install dependencies
@@ -9,8 +9,6 @@
       state: present
       update_cache: true
     with_items:
-      - git
-      - gnuplot
       - make
       - gcc
       - librbd-dev
@@ -78,6 +76,15 @@
     _size: "{{ fiobench_size | default('2048') }}"
     _ceph_args: "--id {{ fiobench_client_name | default('fiobench') }}"
   post_tasks:
+    - name: Bootstrap Graphing node
+      package:
+        name: "{{ item }}"
+        state: present
+        use: "{{ ansible_pkg_mgr }}"
+      with_items:
+        - fio
+        - gnuplot
+      delegate_to: localhost
     - name: Install benchmark package
       package:
         name: "{{ item }}"

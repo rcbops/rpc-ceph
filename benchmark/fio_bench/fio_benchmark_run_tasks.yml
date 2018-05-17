@@ -1,0 +1,37 @@
+---
+- name: set log_path fact
+  set_fact:
+    job_name: "{{ fio_job_name }}.{{ run_id }}"
+    log_path: "/opt/ceph_bench/logs/{{ run_id }}/{{ inventory_hostname_short }}"
+- name: "Run fio job {{ fio_job_name }} and record version/config info"
+  shell: >
+    echo "FIO Version: `fio --version`\n
+          FIO Config Used:\n`cat /opt/ceph_bench/{{ fio_job_name }}.cfg `\n\n
+          FIO Test Output:\n`TIMESTAMP={{ run_id }} fio /opt/ceph_bench/{{ fio_job_name }}.cfg`" \
+            | tee /opt/ceph_bench/logs/{{ job_name }}.log
+  register: fio_output
+- name: Debug fio outputs
+  debug:
+    var: fio_output.stdout_lines
+- name: fetch log files
+  fetch:
+    src: "/opt/ceph_bench/logs/{{ job_name }}_{{ item }}.log"
+    dest: "/opt/ceph_bench/logs/{{ run_id }}/{{ inventory_hostname_short }}/{{ fio_job_name }}/{{ fio_job_name }}_{{ item }}.log"
+    flat: true
+  with_items: "{{ fio_types }}"
+- name: graph results
+  command: "fio_generate_plots {{ fio_job_name | regex_replace('_','-') }}"
+  args:
+    chdir: "/opt/ceph_bench/logs/{{ run_id }}/{{ inventory_hostname_short }}/{{ fio_job_name }}"
+  when: fio_bench_graph_results | default(true)
+  delegate_to: localhost
+- name: fetch results log file
+  fetch:
+    src: "/opt/ceph_bench/logs/{{ job_name }}.log"
+    dest: "/opt/ceph_bench/logs/{{ run_id }}/{{ inventory_hostname_short }}/{{ fio_job_name }}.log"
+    flat: true
+- name: Write README.md
+  template:
+    src: README_fio.md.j2
+    dest: "{{ log_path }}/{{ fio_job_name }}/README.md"
+  delegate_to: localhost
