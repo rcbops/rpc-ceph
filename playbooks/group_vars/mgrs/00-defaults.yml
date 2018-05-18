@@ -9,4 +9,5 @@ ceph_mgr_modules:
   - restful
   - status
   - balancer
-  - dashboard
+## Holding off on defaulting dashboard on until we have authentication for it
+    #- dashboard
