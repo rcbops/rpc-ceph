@@ -15,6 +15,13 @@
   gather_facts: True
   become: True
   post_tasks:
+    - name: set log_path fact
+      set_fact:
+        log_path: "/opt/ceph_bench/logs"
+    - name: "Make benchmark directory"
+      file:
+        state: directory
+        path: "{{ log_path }}"
     ### Using the bench command of Hummingbird for benchmarking it's a single binary with no dependencies or additional libraries.
     - name: Install the benchmark software
       get_url:
