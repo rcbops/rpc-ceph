@@ -5,45 +5,6 @@
     _pool_name: "{{ fiobench_pool_name | default('fiobench') }}"
     _ceph_args: "--id {{ fiobench_client_name | default('fiobench') }}"
   tasks:
-    - name: Get bench_direct_device_name
-      shell: "rbd-nbd list-mapped | grep ' {{ _pool_name }} ' \
-                | grep ' bench_direct_EBS-{{ inventory_hostname_short }} ' \
-                | awk '{ print $5 }'"
-      register: _find_bench_direct_device_name
-      when: bench_direct_device_name is not defined
-    - name: Get bench_file_device_name
-      shell: "rbd-nbd list-mapped \
-                | grep ' {{ _pool_name }} ' \
-                | grep ' bench_file-{{ inventory_hostname_short }} ' \
-                | awk '{ print $5 }'"
-      register: _find_bench_file_device_name
-      when: bench_file_device_name is not defined
-    - name: Set bench_device_name vars
-      set_fact:
-        _bench_direct_device_name: "{{ bench_direct_device_name | default(_find_bench_direct_device_name.stdout) }}"
-        _bench_file_device_name: "{{ bench_file_device_name | default(_find_bench_file_device_name.stdout) }}"
-    - name: Unmount device
-      mount:
-        src: "{{ _bench_file_device_name }}"
-        fstype: xfs
-        state: unmounted
-        path: "/mnt/fio_bench"
-    - name: Ensure mount is removed from fstab
-      mount:
-        src: "{{ _bench_file_device_name }}"
-        fstype: xfs
-        state: absent
-        path: "/mnt/fio_bench"
-    - name: Remove /mnt/fio_bench directory
-      file:
-        state: absent
-        path: "/mnt/fio_bench"
-    - name: Unmap rbd-nbd direct device
-      command: "rbd-nbd unmap {{ _bench_direct_device_name }}"
-      when: _bench_direct_device_name|length > 0
-    - name: Unmap rbd-nbd file device
-      command: "rbd-nbd unmap {{ _bench_file_device_name }}"
-      when: _bench_file_device_name|length > 0
     - name: Check for fiobench.keyring
       stat:
         path: /etc/ceph/ceph.client.fiobench.keyring
@@ -51,8 +12,6 @@
     - name: Delete image
       command: "rbd {{ _ceph_args }} remove {{ _pool_name }}/{{ item }}"
       with_items:
-        - "bench_file-{{ inventory_hostname_short }}"
-        - "bench_direct_EBS-{{ inventory_hostname_short }}"
         - "bench_direct_RBD-{{ inventory_hostname_short }}"
       when: keyring.stat.exists
       register: rbd_rm_result
