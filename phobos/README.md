@@ -124,7 +124,7 @@ From the root of the rpc-ceph repo clone:
 * set `client_count` to the number of clients desired.
 
 ```bash
-$ pip install -r requirements.txt ansible==2.4.3.0
+$ pip install -r requirements.txt ansible==2.5.2.0
 $ ansible-playbook -e cluster_deploy_version=perf-v01 \
                    -e ssh_keyname=mykey \
                    -e stor_count=3 \
