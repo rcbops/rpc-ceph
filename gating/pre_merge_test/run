@@ -81,8 +81,8 @@ function _configure_rpco {
     git clone https://github.com/rcbops/rpc-openstack -b ${RPCO_VERSION} --recursive ${RPCO_DIR}
   fi
   pushd ${RPCO_DIR}
-    # Install parted for the integrated build.
-    apt-get install -y parted
+    # Install required packages for the integrated build.
+    apt-get install -y parted iptables util-linux
     ## Dont use the specified Ceph inventory
     unset ANSIBLE_INVENTORY
     ## Set the RPC_ARTIFACT_MODE vars
