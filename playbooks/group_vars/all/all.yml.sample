@@ -60,15 +60,6 @@ dummy:
 # want to set this to False to skip those checks.
 #check_firewall: False
 
-# Open ports on corresponding nodes if firewall is installed on it
-#ceph_mon_firewall_zone: public
-#ceph_osd_firewall_zone: public
-#ceph_rgw_firewall_zone: public
-#ceph_mds_firewall_zone: public
-#ceph_nfs_firewall_zone: public
-#ceph_restapi_firewall_zone: public
-#ceph_rbdmirror_firewall_zone: public
-#ceph_iscsi_firewall_zone: public
 
 ############
 # PACKAGES #
@@ -86,12 +77,6 @@ dummy:
 
 #redhat_package_dependencies:
 #  - python-pycurl
-#  - hdparm
-#  - python-setuptools
-
-#suse_package_dependencies:
-#  - python-pycurl
-#  - python-xml
 #  - hdparm
 #  - python-setuptools
 
@@ -131,7 +116,7 @@ dummy:
 # ORIGIN SOURCE
 #
 # Choose between:
-# - 'repository' means that you will get ceph installed through a new repository. Later below choose between 'community', 'rhcs', 'dev' or 'obs'
+# - 'repository' means that you will get ceph installed through a new repository. Later below choose between 'community', 'rhcs' or 'dev'
 # - 'distro' means that no separate repo file will be added
 #  you will get whatever version of Ceph is included in your Linux distro.
 # 'local' means that the ceph binaries will be copied over from the local machine
@@ -149,7 +134,6 @@ dummy:
 #  - dev
 #  - uca
 #  - custom
-#  - obs
 
 
 # REPOSITORY: COMMUNITY VERSION
@@ -217,15 +201,6 @@ dummy:
 #ceph_stable_openstack_release_uca: liberty
 #ceph_stable_release_uca: "{{ansible_lsb.codename}}-updates/{{ceph_stable_openstack_release_uca}}"
 
-# REPOSITORY: openSUSE OBS
-#
-# Enabled when ceph_repository == 'obs'
-#
-# This allows the install of Ceph from the openSUSE OBS repository. The OBS repository
-# usually has newer Ceph releases than the normal distro repository.
-#
-#
-#ceph_obs_repo: "https://download.opensuse.org/repositories/filesystems:/ceph:/luminous/openSUSE_Leap_{{ ansible_distribution_version }}/"
 
 # REPOSITORY: DEV
 #
@@ -364,10 +339,13 @@ dummy:
 ## MDS options
 #
 #mds_use_fqdn: false # if set to true, the MDS name used will be the fqdn in the ceph.conf
+#mds_allow_multimds: false
 #mds_max_mds: 3
 
 ## Rados Gateway options
 #
+#radosgw_dns_name: your.subdomain.tld # subdomains used by radosgw. See http://ceph.com/docs/master/radosgw/config/#enabling-subdomain-s3-calls
+#radosgw_resolve_cname: false # enable for radosgw to resolve DNS CNAME based bucket names
 #radosgw_civetweb_port: 8080
 #radosgw_civetweb_num_threads: 100
 # For additional civetweb configuration options available such as SSL, logging,
@@ -473,6 +451,7 @@ dummy:
 
 #disable_transparent_hugepage: true
 #os_tuning_params:
+#  - { name: kernel.pid_max, value: 4194303 }
 #  - { name: fs.file-max, value: 26234859 }
 #  - { name: vm.zone_reclaim_mode, value: 0 }
 #  - { name: vm.swappiness, value: 10 }
@@ -517,9 +496,9 @@ dummy:
 # do not ever change this here
 #rolling_update: false
 
+
 #####################
 # Docker pull retry #
 #####################
 #docker_pull_retry: 3
 #docker_pull_timeout: "300s"
-
