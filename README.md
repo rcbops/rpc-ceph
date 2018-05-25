@@ -138,6 +138,10 @@ To run an AIO scenario for Ceph you can run the following export on a general1-8
 or perf2-15 flavor instance, unless otherwise noted:
 #export RE_JOB_SCENARIO="name of scenario from below"
 
+**build_docs**
+This will build the project documentation using sphinx and place it in
+the directory `rpc-ceph/_build/html/index.html`  
+
 **functional**:
 This is a base AIO for Ceph, includes MaaS testing, this runs on each
 commit, with the following components:

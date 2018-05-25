@@ -174,9 +174,13 @@ fi
 if [[ ! -d tests/common ]]; then
   git clone https://github.com/openstack/openstack-ansible-tests -b stable/pike tests/common
 fi
-${ANSIBLE_BINARY} tests/setup-ceph-aio.yml \
-                 -i ${ANSIBLE_INVENTORY} \
-                 -e @tests/test-vars.yml ${CEPH_BOOTSTRAP_OPTS}
+if [ "${RE_JOB_SCENARIO}" = "build_docs" ]; then
+  ${CLONE_DIR}/docs/make docs
+else 
+  ${ANSIBLE_BINARY} tests/setup-ceph-aio.yml \
+                   -i ${ANSIBLE_INVENTORY} \
+                   -e @tests/test-vars.yml ${CEPH_BOOTSTRAP_OPTS}
+fi
 if [[ "${RE_JOB_SCENARIO}" =~ ^rpco_ ]]; then
   _deploy_rpco
 fi
