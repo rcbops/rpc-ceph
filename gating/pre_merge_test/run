@@ -189,4 +189,9 @@ if [ "${TEST_RPC_MAAS}" != "False" ] && [ "${RE_JOB_SCENARIO}" == "functional" ]
     apt-get install -y apt-transport-https
     bash tests/test-ansible-functional.sh
   popd
+  ## Test purge-cluster
+  ${ANSIBLE_BINARY} playbooks/purge-cluster.yml \
+                   -i ${ANSIBLE_INVENTORY} \
+                   -e @tests/test-vars.yml ${CEPH_BOOTSTRAP_OPTS} \
+                   -e ireallymeanit=yes
 fi

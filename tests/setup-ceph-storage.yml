@@ -108,5 +108,7 @@
 - name: Fix /sys perms for OSDs
   hosts: osds
   tasks:
-    - name: Remount /proc/sys rw
+    - name: Remount /sys rw
       command: "mount -o remount rw /sys"
+    - name: Remount /proc/sys rw
+      command: "mount -o remount rw /proc/sys"
