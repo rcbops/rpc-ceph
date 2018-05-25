@@ -1,0 +1,135 @@
+---
+- hosts: mons
+  become: True
+
+  roles:
+    - ceph-defaults
+    - ceph-fetch-keys
+
+- hosts:
+  - mons
+  - agents
+  - osds
+  - mdss
+  - rgws
+  - nfss
+  - restapis
+  - rbdmirrors
+  - clients
+  - mgrs
+  - iscsi-gws
+
+  gather_facts: false
+
+  vars:
+    delegate_facts_host: True
+
+  roles:
+    - role: ceph-defaults
+
+  pre_tasks:
+
+    - name: gather facts
+      setup:
+      when:
+        - not delegate_facts_host | bool
+
+    - name: gather and delegate facts
+      setup:
+      delegate_to: "{{ item }}"
+      delegate_facts: True
+      with_items: "{{ groups['all'] }}"
+      run_once: true
+      when:
+        - delegate_facts_host | bool
+
+  post_tasks:
+
+    - name: get the name of the existing ceph cluster
+      shell: |
+        basename $(grep --exclude '*.bak' -R fsid /etc/ceph/ | egrep -o '^[^.]*' | head -n 1)
+      changed_when: false
+      register: cluster_name
+
+    - name: "stat {{ cluster_name.stdout }}.conf"
+      stat:
+        path: "/etc/ceph/{{ cluster_name.stdout }}.conf"
+      register: ceph_conf_stat
+
+    # Creates a backup of original ceph conf file in 'cluster_name-YYYYMMDDTHHMMSS.conf.bak' format
+    - name: "make a backup of original {{ cluster }}.conf"
+      copy:
+        src: "/etc/ceph/{{ cluster }}.conf"
+        dest: "/etc/ceph/{{ cluster }}-{{ ansible_date_time.iso8601_basic_short }}.conf.bak"
+        remote_src: true
+        owner: "{{ ceph_conf_stat.stat.pw_name }}"
+        group: "{{ ceph_conf_stat.stat.gr_name }}"
+        mode: "{{ ceph_conf_stat.stat.mode }}"
+
+    - name: generate ceph configuration file
+      action: config_template
+      args:
+        src: "/etc/ansible/ceph_roles/ceph-ansible/roles/ceph-config/templates/ceph.conf.j2"
+        dest: "/tmp/check-ceph.conf"
+        owner: "{{ ceph_conf_stat.stat.pw_name }}"
+        group: "{{ ceph_conf_stat.stat.gr_name }}"
+        mode: "{{ ceph_conf_stat.stat.mode }}"
+        config_overrides: "{{ ceph_conf_overrides }}"
+        config_type: ini
+
+    - name: compare ceph configs
+      ini_diff:
+        first: /etc/ceph/ceph.conf
+        second: /tmp/check-ceph.conf
+      register: ceph_comp
+
+    - debug:
+        var: ceph_comp.changes
+
+
+    - block:
+      - name: Write tmp sysctl file
+        template:
+          src: sysctl.j2
+          dest: /tmp/sysctl-new
+
+      - name: Copy sysctl tuning
+        copy:
+          src: /etc/sysctl.d/ceph-tuning.conf
+          dest: /tmp/sysctl-current
+          remote_src: true
+
+      - name: Write sysctl header for parsing
+        lineinfile:
+          line: "[sysctl]"
+          insertbefore: BOF
+          path: /tmp/sysctl-current
+
+      - name: compare sysctl configs
+        ini_diff:
+          first: /tmp/sysctl-current
+          second: /tmp/sysctl-new
+        register: sysctl_comp
+
+      - name: Check transparent hugepage
+        stat:
+          path: /etc/tmpfiles.d/ceph_transparent_hugepage.conf
+        register: huge_page
+
+      - debug:
+          var: sysctl_comp.changes
+
+      - name: Transparent hugepages was enabled
+        debug:
+          msg: "Your config will change transparent_hugepage to disabled.  Set disable_transparent_hugepage: false"
+        when:
+          - disable_transparent_hugepage
+          - not huge_page.stat.exists
+
+      - name: Transparent hugepages was disabled
+        debug:
+          msg: "Your config will change  trasparent_hugepage to enabled.  Set disable_transparent_hugepage: true"
+        when:
+          - not disable_transparent_hugepage
+          - huge_page.stat.exists
+      when: inventory_hostname in groups['osds']

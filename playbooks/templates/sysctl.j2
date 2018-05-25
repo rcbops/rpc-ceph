@@ -1,0 +1,4 @@
+[sysctl]
+{% for sysctl in os_tuning_params %}
+{{ sysctl.name }}={{ sysctl.value }}
+{% endfor %}
