@@ -82,7 +82,7 @@ function _configure_rpco {
   fi
   pushd ${RPCO_DIR}
     # Install required packages for the integrated build.
-    apt-get install -y parted iptables util-linux
+    apt-get install -y parted iptables util-linux uuid-runtime
     ## Dont use the specified Ceph inventory
     unset ANSIBLE_INVENTORY
     ## Set the RPC_ARTIFACT_MODE vars
