@@ -1,0 +1,7 @@
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://{{ hostvars[groups.prometheus[0]].ansible_default_ipv4.address | default('localhost') }}:9090

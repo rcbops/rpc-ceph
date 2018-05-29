@@ -1,0 +1,16 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: remove hosts file entries
+      lineinfile:
+        dest: /etc/hosts
+        regexp: '^.* {{ item }}$'
+        state: absent
+      with_items: "{{ play_hosts }}"
+    - name: Add hosts file entries
+      lineinfile:
+        dest: /etc/hosts
+        regexp: '^{{ hostvars[item]["ansible_"+monitor_interface].ipv4.address }} {{ item }}$'
+        line: '{{ hostvars[item]["ansible_"+monitor_interface].ipv4.address }} {{ item }}'
+      with_items: "{{ play_hosts }}"

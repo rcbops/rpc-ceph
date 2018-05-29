@@ -25,3 +25,6 @@
 - name: Deploy node_exporter
   import_playbook: node_exporter.yml
   when: "{{ install_node_exporter | default(false) }}"
+
+- name: Install grafana
+  import_playbook: grafana.yml
