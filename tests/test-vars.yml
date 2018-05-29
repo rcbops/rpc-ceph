@@ -180,3 +180,5 @@ maas_notification_plan: npTechnicalContactsEmail
 maas_entity_name: "{{ ansible_hostname }}{{ maas_fqdn_extension }}"
 # Allow ceph services to be inside containers.
 maas_rpc_legacy_ceph: True
+
+ceph_origin: "{{ (hostvars['localhost']['ansible_distribution_version'] == '18.04') | ternary('distro', 'repository') }}"
