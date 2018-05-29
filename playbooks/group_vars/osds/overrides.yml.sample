@@ -1,0 +1,27 @@
+---
+## Overrides file for hosts in the osds group.
+## NB These settings apply to osds hosts only.
+## If the setting should be changed for ALL host groups, instead edit
+## playbooks/group_vars/all/overrides.yml.
+dummy:
+## To override rpc-ceph or ceph-ansible variables specify them in overrides.yml
+## Regular vars can be specified as needed.
+## Look in group_vars/osds/osds.yml.sample to see ceph-ansible defaults,
+## and group_vars/osds/00-defaults.yml to see rpc-ceph specified osds settings.
+## For example to change osd_auto_discovery to true
+# osd_auto_discovery: true
+
+## To change settings in ceph_conf_overrides that are specific to osds hosts
+## only, utilise "ceph_conf_overrides_osd_extra"
+## Using the "omit" keyword will remove this from ceph_conf_overrides and the
+## setting will not appear in the ceph.conf.
+## For example to add a new setting 'global/my_mgr_setting' to only osds hosts,
+## change client/rbd_cache_size use the Ceph default for
+## client/rbd_cache_max_dirty, but keep all other RPC-ceph defaults,
+## set the following:
+# ceph_conf_overrides_osd_extra:
+#   global:
+#     my_osd_setting: my_osd_value
+#   client:
+#     rbd_cache_size: 25165824
+#     rbd_cache_max_dirty: "{{ omit }}"

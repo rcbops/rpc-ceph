@@ -1,0 +1,27 @@
+---
+## Overrides file for hosts in the rgws group.
+## NB These settings apply to rgws hosts only.
+## If the setting should be changed for ALL host groups, instead edit
+## playbooks/group_vars/all/overrides.yml.
+dummy:
+## To override rpc-ceph or ceph-ansible variables specify them in overrides.yml
+## Regular vars can be specified as needed.
+## Look in group_vars/rgws/rgws.yml.sample to see ceph-ansible defaults,
+## and group_vars/rgws/00-defaults.yml to see rpc-ceph specified rgws settings.
+## For example to change radosgw_address_block to '172.0.0.0/24'
+# radosgw_address_block: '172.0.0.0/24'
+
+## To change settings in ceph_conf_overrides that are specific to rgws hosts
+## only, utilise "ceph_conf_overrides_rgw_extra"
+## Using the "omit" keyword will remove this from ceph_conf_overrides and the
+## setting will not appear in the ceph.conf.
+## For example to add a new setting 'global/my_rgw_setting' to only rgws hosts,
+## change client/rgw_cache_lru_size use the Ceph default for
+## client/rgw_num_rados_handles, but keep all other RPC-ceph defaults,
+## set the following:
+# ceph_conf_overrides_rgw_extra:
+#   global:
+#     my_rgw_setting: my_rgw_value
+#   client:
+#     rgw_cache_lru_size: 500000
+#     rgw_num_rados_handles: "{{ omit }}"

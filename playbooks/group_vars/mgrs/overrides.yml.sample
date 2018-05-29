@@ -1,0 +1,32 @@
+---
+## Overrides file for hosts in the mgrs group.
+## NB These settings apply to mgrs hosts only.
+## If the setting should be changed for ALL host groups, instead edit
+## playbooks/group_vars/all/overrides.yml.
+dummy:
+## To override rpc-ceph or ceph-ansible variables specify them in overrides.yml
+## Regular vars can be specified as needed.
+## Look in group_vars/mgrs/mgrs.yml.sample to see ceph-ansible defaults,
+## and group_vars/mgrs/00-defaults.yml to see rpc-ceph specified mgrs settings.
+## For example to change ceph_mgr_modules to include a new module
+# ceph_mgr_modules:
+#   - restful
+#   - status
+#   - balancer
+#   - dashboard
+#   - my_new_module
+
+## To change settings in ceph_conf_overrides that are specific to mgrs hosts
+## only, utilise "ceph_conf_overrides_mgr_extra"
+## Using the "omit" keyword will remove this from ceph_conf_overrides and the
+## setting will not appear in the ceph.conf.
+## For example to add a new setting 'global/my_mgr_setting' to only mgrs hosts,
+## change client/rbd_cache_size use the Ceph default for
+## client/rbd_cache_max_dirty, but keep all other RPC-ceph defaults,
+## set the following:
+# ceph_conf_overrides_mgr_extra:
+#   global:
+#     my_mgr_setting: my_mgr_value
+#   client:
+#     rbd_cache_size: 25165824
+#     rbd_cache_max_dirty: "{{ omit }}"
