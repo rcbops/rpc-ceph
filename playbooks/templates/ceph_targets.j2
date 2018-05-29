@@ -1,0 +1,12 @@
+[
+    {
+        "targets": [
+{% for host in groups['mgrs'] %}
+                     "{{ hostvars[host]['ansible_host'] }}:9283"{{ "," if not loop.last else "" }}
+{% endfor %}
+                   ],
+        "labels": {
+            "instance": "{{ cluster | default('ceph') }}"
+        }
+    }
+]
