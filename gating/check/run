@@ -175,7 +175,8 @@ if [[ ! -d tests/common ]]; then
   git clone https://github.com/openstack/openstack-ansible-tests -b stable/pike tests/common
 fi
 if [ "${RE_JOB_SCENARIO}" = "build_docs" ]; then
-  ${CLONE_DIR}/docs/make docs
+  cd ${CLONE_DIR}/docs
+  make docs
 else 
   ${ANSIBLE_BINARY} tests/setup-ceph-aio.yml \
                    -i ${ANSIBLE_INVENTORY} \

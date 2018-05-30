@@ -42,7 +42,8 @@ case ${DISTRO_ID} in
           git python-all python-dev curl python2.7-dev build-essential \
           libssl-dev libffi-dev netcat python-requests python-openssl python-pyasn1 \
           python-netaddr python-prettytable python-crypto python-yaml \
-          python-virtualenv docker 
+          python-virtualenv make
+        DEBIAN_FRONTEND=noninteractive sudo apt -y install docker.io
         ;;
 esac
 
