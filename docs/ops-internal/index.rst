@@ -19,6 +19,8 @@ Support who have questions about Rackspace RPC rpc-ceph.
    :maxdepth: 1
 
    ../common/rpc-common-front.rst
+   what-is-rpc-ceph.md
+   bootstrap-as-non-root-user.md
    deploy-internal/index.rst
    support.md
    network-policies.md
@@ -29,6 +31,6 @@ Support who have questions about Rackspace RPC rpc-ceph.
    architecture-overview.md
    ceph-node-addition.md
    ceph-node-addition-jewel.md
-   rollingupdates.md
+   rolling-updates.md
    ../common/rpc-common-end.rst
    ../common/disclaimer.rst

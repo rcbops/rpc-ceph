@@ -14,4 +14,4 @@ recent releases are listed in the following table:
    * - Revision Date
      - Release information
    * - 2018-05-31
-     - Rackspace Kubernetes-as-a-Service 1.0.x GA
+     - Rackspace rpc-ceph Installation Wrapper 1.x.x GA

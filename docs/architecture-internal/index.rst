@@ -18,6 +18,6 @@ This section covers the design and architecture.
    :maxdepth: 2
 
    ../common/rpc-common-front.rst
-   design/ui/index.md
+   rpc-ceph-architecture.md
    ../common/rpc-common-end.rst
    ../common/disclaimer.rst

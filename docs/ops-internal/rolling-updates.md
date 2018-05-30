@@ -1,3 +1,37 @@
-# Rolling Updates
+# Rolling update procedure:
 
-TODO:   Convert document from text to Markdown
+## Verify that the ansible inventory file is accurate and complete.
+```bash
+ceph-ansible -i ceph_inventory -m ping
+```
+
+## Verify and document the current health and ceph versions in use throughout the cluster.
+```bash
+ceph -s
+ceph tell mon.* version
+ceph tell osd.* version
+```
+
+## Run the playbook.
+```bash
+ceph-ansible-playbook -i ceph_inventory playbooks/rolling_update.yml
+```
+
+## Verify the health of the cluster.
+```bash
+ceph -s
+```
+ **verify status returns to `HEALTH_OK`**
+ **verify that the expected number of mons are present**
+ **verify that the expected number of osds are present, "up", and "in"**
+ **verify that all placement groups are "active+clean" (a few may be "scrubbing" or "deep_scrubbing". This is okay.)**
+
+```bash
+ceph tell mon.* version
+ceph tell osd.* version
+```
+
+**Verify all daemons report the expected new version.**
+
+
+Adapted from https://one.rackspace.com/pages/viewpage.action?title=Ceph+-+Rolling+Updates+using+Ceph-Ansible&spaceKey=PPAGES

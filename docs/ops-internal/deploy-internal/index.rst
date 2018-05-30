@@ -14,5 +14,9 @@ This section provides informtion on deploying a Ceph Cluster using rpc-ceph
    :maxdepth: 2
 
    rpc-ceph-deployments.md
+   rpc-ceph-install.md
    ceph-standalone-install.md
-   rgw-setup.md
+   rgw-setup-https.md
+   rgw-setup-http.md
+   rgw-setup-s3.md
+

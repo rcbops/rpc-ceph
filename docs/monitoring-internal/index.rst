@@ -14,3 +14,4 @@ rpc-ceph Monitoring
    :glob:
 
    monitoring.md
+   dashboards.md
