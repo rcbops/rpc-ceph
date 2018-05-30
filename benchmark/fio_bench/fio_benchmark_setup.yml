@@ -90,41 +90,69 @@
       copy:
         content: "{{ [hostvars[groups['mons'][0]]['ceph_benchmark_client']['stdout'], '\n'] | join('') }}"
         dest: "/etc/ceph/ceph.client.fiobench.keyring"
-    - name: Create a ceph device for benchmarking
-      command: "rbd {{ _ceph_args }} create {{ _pool_name }}/{{ item }} -s {{ _size }}"
-      with_items:
-        - "bench_direct_EBS-{{ inventory_hostname_short }}"
-        - "bench_direct_RBD-{{ inventory_hostname_short }}"
-        - "bench_file-{{ inventory_hostname_short }}"
-      register: create_result
-      failed_when: create_result.rc not in [0,17]
-      changed_when: create_result.rc == 0
-    - name: Get mapped rbd-nbd devices
-      command: "rbd-nbd {{ _ceph_args }} list-mapped"
-      register: nbd_mapped_before
-    - name: Map nbd direct device
-      command: "rbd-nbd {{ _ceph_args }} map {{ _pool_name }}/bench_direct_EBS-{{ inventory_hostname_short }}"
-      when: "'bench_direct_EBS-' + inventory_hostname_short not in nbd_mapped_before.stdout"
-    - name: Map nbd file device
-      command: "rbd-nbd {{ _ceph_args }} map {{ _pool_name }}/bench_file-{{ inventory_hostname_short }}"
-      when: "'bench_file-' + inventory_hostname_short not in nbd_mapped_before.stdout"
-    - name: Get mapped rbd-nbd devices
-      command: "rbd-nbd {{ _ceph_args }} list-mapped"
-      register: nbd_mapped_after
-    - name: Set bench_direct_device_name
-      set_fact:
-        bench_direct_device_name: "{{ nbd_mapped_after.stdout | regex_search(regexp, '\\1') | join('') }}"
-      vars:
-        regexp: 'bench_direct_EBS-{{ inventory_hostname_short }}.*(\/dev\/nbd[0-9]+)'
-    - name: Set bench_file_device_name
-      set_fact:
-        bench_file_device_name: "{{ nbd_mapped_after.stdout | regex_search(regexp, '\\1') | join('') }}"
-      vars:
-        regexp: 'bench_file-{{ inventory_hostname_short }}.*(\/dev\/nbd[0-9]+)'
-    - name: Create xfs file system on device
-      filesystem:
-        fstype: xfs
-        device: "{{ bench_file_device_name }}"
+    - block:
+        - name: Create a ceph device for benchmarking
+          command: "rbd {{ _ceph_args }} create {{ _pool_name }}/{{ item }} -s {{ _size }}"
+          with_items:
+            - "bench_direct_EBS-{{ inventory_hostname_short }}"
+          register: create_result
+          failed_when: create_result.rc not in [0,17]
+          changed_when: create_result.rc == 0
+        - name: Get mapped rbd-nbd devices
+          command: "rbd-nbd {{ _ceph_args }} list-mapped"
+          register: nbd_mapped_before
+        - name: Map nbd direct device
+          command: "rbd-nbd {{ _ceph_args }} map {{ _pool_name }}/bench_direct_EBS-{{ inventory_hostname_short }}"
+          when: "'bench_direct_EBS-' + inventory_hostname_short not in nbd_mapped_before.stdout"
+        - name: Get mapped rbd-nbd devices
+          command: "rbd-nbd {{ _ceph_args }} list-mapped"
+          register: nbd_mapped_after
+        - name: Set bench_direct_device_name
+          set_fact:
+            bench_direct_device_name: "{{ nbd_mapped_after.stdout | regex_search(regexp, '\\1') | join('') }}"
+          vars:
+            regexp: 'bench_direct_EBS-{{ inventory_hostname_short }}.*(\/dev\/nbd[0-9]+)'
+      when: bench_direct_EBS|default(false)
+
+    - block:
+        - name: Create a ceph device for benchmarking
+          command: "rbd {{ _ceph_args }} create {{ _pool_name }}/{{ item }} -s {{ _size }}"
+          with_items:
+            - "bench_file-{{ inventory_hostname_short }}"
+          register: create_result
+          failed_when: create_result.rc not in [0,17]
+          changed_when: create_result.rc == 0
+        - name: Map nbd file device
+          command: "rbd-nbd {{ _ceph_args }} map {{ _pool_name }}/bench_file-{{ inventory_hostname_short }}"
+          when: "'bench_file-' + inventory_hostname_short not in nbd_mapped_before.stdout"
+        - name: Get mapped rbd-nbd devices
+          command: "rbd-nbd {{ _ceph_args }} list-mapped"
+          register: nbd_mapped_after
+        - name: Set bench_file_device_name
+          set_fact:
+            bench_file_device_name: "{{ nbd_mapped_after.stdout | regex_search(regexp, '\\1') | join('') }}"
+          vars:
+            regexp: 'bench_file-{{ inventory_hostname_short }}.*(\/dev\/nbd[0-9]+)'
+        - name: Create xfs file system on device
+          filesystem:
+            fstype: xfs
+            device: "{{ bench_file_device_name }}"
+        - name: Mount image
+          mount:
+            src: "{{ bench_file_device_name }}"
+            fstype: "xfs"
+            name: "/mnt/fio_bench"
+            state: mounted
+      when: bench_file|default(false)
+    - block:
+        - name: Create a ceph device for benchmarking
+          command: "rbd {{ _ceph_args }} create {{ _pool_name }}/{{ item }} -s {{ _size }}"
+          with_items:
+            - "bench_direct_RBD-{{ inventory_hostname_short }}"
+          register: create_result
+          failed_when: create_result.rc not in [0,17]
+          changed_when: create_result.rc == 0
+      when: bench_direct_RBD|default(false)
     - name: Create benchmark directories
       file:
         state: directory
@@ -143,12 +171,6 @@
     # In py2 ConfigParser cant strip spaces around delimiters FIO needs that.
     - name: Manually strip spaces around delimiters
       shell: "sed -i 's/ = /=/g' /opt/ceph_bench/*.cfg"
-    - name: Mount image
-      mount:
-        src: "{{ bench_file_device_name }}"
-        fstype: "xfs"
-        name: "/mnt/fio_bench"
-        state: mounted
   roles:
     - ceph-defaults
     - ceph-common
