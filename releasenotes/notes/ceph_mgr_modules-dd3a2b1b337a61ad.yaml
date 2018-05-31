@@ -1,0 +1,10 @@
+---
+features:
+  - Add ``playbooks/add-mgr-modules.yml`` optional playbook
+    to configure and enable Ceph mgr modules. This is a temporary
+    playbook backported from ceph-ansible v3.1, and will be
+    removed once ceph-ansible v3.1.0 is released and rpc-ceph
+    moves to consume it.
+    Specify the modules to utilise with the ``ceph_mgr_modules``
+    variable, which by default contains ``restful``, ``status``,
+    ``balancer``, and ``dashboard``.

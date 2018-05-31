@@ -1,0 +1,8 @@
+{
+    "contentIDBase": "https://github.com/rcbops/rpc-ceph/master/",
+    "githubUrl": "https://github.com/rcbops/rpc-ceph/",
+    "githubBranch": "master",
+    "meta": {
+        "preferGithubIssues": true
+    }
+}

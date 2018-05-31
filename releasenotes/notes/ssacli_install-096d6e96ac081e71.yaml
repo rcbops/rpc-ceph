@@ -1,0 +1,4 @@
+---
+features:
+  - Add ``playbooks/ssacli-install.yml`` optional playbook
+    to install the HP ``ssacli`` took against osd hosts.
