@@ -43,7 +43,6 @@ case ${DISTRO_ID} in
           libssl-dev libffi-dev netcat python-requests python-openssl python-pyasn1 \
           python-netaddr python-prettytable python-crypto python-yaml \
           python-virtualenv make
-        DEBIAN_FRONTEND=noninteractive sudo apt -y install docker.io
         ;;
 esac
 
