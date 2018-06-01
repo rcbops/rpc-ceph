@@ -197,7 +197,7 @@ they work, but does not run the MaaS playbooks.
 
 ### Currently not supported for AIO
 
-* Trusty deployments - due to changes in losetup trusty will not work with
+* Trusty deployments - due to changes in losetup Trusty will not work with
   the current method.
 * Different Ceph versions.
 * Upgrade testing.
