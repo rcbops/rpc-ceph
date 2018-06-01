@@ -1,0 +1,9 @@
+chios
+doc8
+recommonmark
+restructuredtext-lint
+sphinxcontrib-pandoc-markdown
+sphinxcontrib-versioning
+sphinx_rtd_theme>=0.1.9
+six
+tox

@@ -1,7 +1,6 @@
 # Installation Procedures for Ceph in an RPC Customer Environment using rpc-ceph
 
 
-
 This process assumes that all servers already have Ubuntu installed, all network configuration (incl bonding) is complete, and the servers are accessible via ssh. The servers involved in the deployment must be identified and the role(s) of each server clearly defined.  Every deployment needs "mons", "mgrs" and "osds".  The RadosGW "rgws" service is optional.  In a small deployment, a server may have all of these roles assigned.  In larger deployments, each server will typically be assigned fewer, or just a single role.
 In most cases, it is preferable to have separate networks for "Storage Front-end" (client access to the storage) and "Storage Back-end" (replication traffic within the cluster), but the "Storage Back-end" network is not required.
 The host from which the deployment will be managed must be identified.  This MAY be an "admin" server or simply the first of the ceph storage servers, but it is USUALLY the first ceph storage server.  ALL of the following steps are to be performed on this deployment host.

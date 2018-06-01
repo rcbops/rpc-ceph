@@ -24,6 +24,10 @@ doc/build/
 *.tar
 *.zip
 
+# Sphinx Document Builds
+######################
+docs/_build
+
 # Logs and databases #
 ######################
 *.log
