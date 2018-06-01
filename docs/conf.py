@@ -113,8 +113,8 @@ release = version
 # process.
 
 rst_epilog = """
-.. |os-release| replace:: Newton
-.. |os-prev-release| replace:: Mitaka
+.. |os-release| replace:: luminous
+.. |os-prev-release| replace:: jewel
 """
 
 # sphinxcontrib-versioning options
@@ -124,7 +124,7 @@ scv_root_ref = 'master'
 scv_overflow = ('-q', )
 scv_show_banner = True
 scv_banner_main_ref = 'master'
-scv_whitelist_branches = ("master", '0.10.x')
+scv_whitelist_branches = 'master'
 scv_whitelist_tags = ('')
 scv_push_remote = 'internal'
 scv_grm_exclude = ('.nojekyll', '.gitignore')
@@ -266,7 +266,7 @@ html_context = {
 # html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'rpc-mk8s-docs'
+htmlhelp_basename = 'rpc-ceph-docs'
 
 # this will change the 'paragraph' character to '#'
 html_add_permalinks = '#'

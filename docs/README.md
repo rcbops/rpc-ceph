@@ -49,25 +49,11 @@ All the previous documentation is still available as it was simply moved to a di
 | deployment-scenarios/Ceph_Standalone_Install.md | ops-internal/ceph-standalone-install.md |
 | deployment-scenarios/RollingUpdates.yml | ops-internal/rollingUpdates.md |
 
-# Sphinx Docker Image
-
-## Building sphinx
-Build the Sphinx Docker image:
-```
-docker build -t quay.io/rackspace/sphinx .
-```
-
-## Push the newly created sphinx to quay.io
-Assuming you have access to the `quay.io/rackspace` repository you can push the image by executing the following:
-```
-docker push quay.io/rackspace/sphinx
-```
-
 # Unsure about this section 
 
 ## Publish the documentation
 
-The Rackspace Kubernetes-as-a-Service (KaaS) documentation is published in the
+The Rackspace RPC rpc-ceph documentation is published in the
 following locations:
 
 * Internal documentation is published at [pages.github.rackspace.com](https://pages.github.rackspace.com/rpc-internal/docs-rpc-mk8s).
