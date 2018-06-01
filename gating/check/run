@@ -175,7 +175,7 @@ if [[ ! -d tests/common ]]; then
   git clone https://github.com/openstack/openstack-ansible-tests -b stable/pike tests/common
 fi
 if [ "${RE_JOB_SCENARIO}" = "build_docs" ]; then
-  DEBIAN_FRONTEND=noninteractive sudo apt -y install docker.io
+  DEBIAN_FRONTEND=noninteractive sudo apt -y install docker.io make
   cd ${CLONE_DIR}/docs
   make docs
 else 
