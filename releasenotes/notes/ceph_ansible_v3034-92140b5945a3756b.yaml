@@ -1,0 +1,4 @@
+---
+upgrade:
+  - Moved to use ``ceph-ansible`` version 3.0.34.
+    For more info please see `v3.0.34 ChangeLog <https://github.com/ceph/ceph-ansible/releases/tag/v3.0.34>`_

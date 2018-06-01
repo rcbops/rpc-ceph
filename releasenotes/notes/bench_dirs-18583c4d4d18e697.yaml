@@ -1,0 +1,6 @@
+---
+upgrade:
+  - Restructure the ``benchmark`` directory to contain
+    a sub-directory for each benchmark type. Currently
+    ``fio_bench`` and ``rgw_bench``, which each contain
+    the playbooks for that type of benchmark.

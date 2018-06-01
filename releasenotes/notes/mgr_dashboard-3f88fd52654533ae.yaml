@@ -1,0 +1,3 @@
+---
+features:
+  - Add an haproxy VIP for the Ceph ``mgr`` dashboard.

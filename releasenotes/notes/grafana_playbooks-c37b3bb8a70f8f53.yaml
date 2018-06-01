@@ -1,0 +1,11 @@
+---
+features:
+  - Add ``playbooks/grafana.yml`` optional playbook to
+    configure grafana against hosts specified in the
+    ``grafana`` group in the inventory.
+  - Add ``playbooks/add_hosts.yml`` optional playbook to
+    populate ``/etc/hosts`` on all hosts in the current
+    play.
+  - Add ``playbooks/distribute-root-key.yml`` optional
+    playbook to create and distribute root ssh keys as
+    non-root user.

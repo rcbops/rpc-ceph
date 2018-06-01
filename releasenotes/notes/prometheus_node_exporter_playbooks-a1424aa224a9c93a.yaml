@@ -1,0 +1,8 @@
+---
+features:
+  - Add ``playbooks/prometheus.yml`` optional playbook to
+    configure prometheus server on hosts in the
+    ``prometheus`` hosts group.
+  - Add ``playbooks/node_exporter.yml`` optional playbook
+    to configure Prometheus node exporter on all Ceph
+    hosts.

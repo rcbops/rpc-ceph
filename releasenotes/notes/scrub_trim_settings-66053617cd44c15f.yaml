@@ -1,0 +1,10 @@
+---
+upgrade:
+  - Add serveral osd settings to match current deployment
+    defaults.
+    ``osd_snap_trim_priority 1``
+    ``osd_snap_trim_sleep 0.1``
+    ``osd_pg_max_concurrent_snap_trims 1``
+    ``osd_scrub_priority 1``
+    ``osd_scrub_chunk_min 1``
+    ``osd_scrub_chunk_max 5``

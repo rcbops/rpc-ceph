@@ -1,0 +1,6 @@
+---
+upgrade:
+  - Update the ``max open files`` Ceph setting and the
+    ``fs.file-max`` sysctl setting to be inline with
+    current deployment defaults. Changing from ``262144``
+    to ``26234859``

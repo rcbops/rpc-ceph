@@ -1,0 +1,6 @@
+---
+features:
+  - Add sample group_vars overrides files inside
+    ``group_vars/<group_name>/overrides.yml.sample``.
+    These can be used as examples when considering how
+    to override existing variables.
