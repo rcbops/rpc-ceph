@@ -31,8 +31,6 @@ osa_file_bench   - Random read and write tests using 4k blocks against a mounted
 ebs_rbd_bench    - Direct random read and write tests using 16k blocks and ioengine=rbd (DEFAULT)
 osa_rbd_bench    - Direct random read and write tests using 4k blocks and ioengine=rbd
 
-By default only the ebs_rbd_bench will run.  To run another test simply set it to true.
-
 Example:
 
 `osa_rbd_bench: true`

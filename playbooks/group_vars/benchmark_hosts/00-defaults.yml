@@ -69,7 +69,7 @@ fio_bench_list_default:
     rw: write
     iodepth: 8
     numjobs: 1
-    run_bench: "{{ ebs_rbd_bench | default(true) }}"
+    run_bench: "{{ ebs_rbd_bench | default(false) }}"
   - src: "fio_direct_test.cfg.j2"
     name: "fio_rbd_1M_read_test_EBS"
     override: "{{ fio_rbd_read_test_1024k_overrides | default({}) }}"
@@ -78,7 +78,7 @@ fio_bench_list_default:
     rw: read
     iodepth: 8
     numjobs: 1
-    run_bench: "{{ ebs_rbd_bench | default(true) }}"
+    run_bench: "{{ ebs_rbd_bench | default(false) }}"
   - src: "fio_rw_mix.cfg.j2"
     name: "fio_rbd_1M_rw_mix_EBS"
     override: "{{ fio_rbd_rw_mix_1024k_overrides | default({}) }}"
@@ -86,7 +86,7 @@ fio_bench_list_default:
     ioengine: rbd
     iodepth: 8
     numjobs: 1
-    run_bench: "{{ osa_rbd_bench | default(true) }}"
+    run_bench: "{{ osa_rbd_bench | default(false) }}"
   - src: "fio_direct_test.cfg.j2"
     name: "fio_rbd_4k_randwrite_test_OSA"
     override: "{{ fio_rbd_write_test_4k_overrides | default({}) }}"
@@ -131,7 +131,7 @@ fio_bench_list_default:
     rw: randwrite
     iodepth: 8
     numjobs: 1
-    run_bench: "{{ ebs_rbd_bench | default(true) }}"
+    run_bench: "{{ ebs_rbd_bench | default(false) }}"
   - src: "fio_direct_test.cfg.j2"
     name: "fio_rbd_16k_randread_test_OSA"
     override: "{{ fio_rbd_read_test_16k_overrides | default({}) }}"
@@ -140,7 +140,7 @@ fio_bench_list_default:
     rw: randread
     iodepth: 8
     numjobs: 1
-    run_bench: "{{ ebs_rbd_bench | default(true) }}"
+    run_bench: "{{ ebs_rbd_bench | default(false) }}"
 
 fio_bench_list: "{{ (fio_bench_list_default | union(fio_bench_list_extras)) }}"
 fio_bench_list_extras: []

@@ -90,6 +90,18 @@
       copy:
         content: "{{ [hostvars[groups['mons'][0]]['ceph_benchmark_client']['stdout'], '\n'] | join('') }}"
         dest: "/etc/ceph/ceph.client.fiobench.keyring"
+    - name: Set default bench_direct_device_name
+      set_fact:
+        bench_direct_device_name: ""
+    - block:
+        - name: Create a ceph device for benchmarking
+          command: "rbd {{ _ceph_args }} create {{ _pool_name }}/{{ item }} -s {{ _size }}"
+          with_items:
+            - "bench_direct_RBD-{{ inventory_hostname_short }}"
+          register: create_result
+          failed_when: create_result.rc not in [0,17]
+          changed_when: create_result.rc == 0
+      when: (ebs_rbd_bench|default(false)) or (osa_rbd_bench|default(false))
     - block:
         - name: Create a ceph device for benchmarking
           command: "rbd {{ _ceph_args }} create {{ _pool_name }}/{{ item }} -s {{ _size }}"
@@ -112,7 +124,7 @@
             bench_direct_device_name: "{{ nbd_mapped_after.stdout | regex_search(regexp, '\\1') | join('') }}"
           vars:
             regexp: 'bench_direct_EBS-{{ inventory_hostname_short }}.*(\/dev\/nbd[0-9]+)'
-      when: bench_direct_EBS|default(false)
+      when: ebs_direct_bench|default(false)
 
     - block:
         - name: Create a ceph device for benchmarking
@@ -122,7 +134,10 @@
           register: create_result
           failed_when: create_result.rc not in [0,17]
           changed_when: create_result.rc == 0
-        - name: Map nbd file device
+        - name: Get mapped rbd-nbd devices
+          command: "rbd-nbd {{ _ceph_args }} list-mapped"
+          register: nbd_mapped_before
+        - name: Map nbd direct device
           command: "rbd-nbd {{ _ceph_args }} map {{ _pool_name }}/bench_file-{{ inventory_hostname_short }}"
           when: "'bench_file-' + inventory_hostname_short not in nbd_mapped_before.stdout"
         - name: Get mapped rbd-nbd devices
@@ -143,16 +158,7 @@
             fstype: "xfs"
             name: "/mnt/fio_bench"
             state: mounted
-      when: bench_file|default(false)
-    - block:
-        - name: Create a ceph device for benchmarking
-          command: "rbd {{ _ceph_args }} create {{ _pool_name }}/{{ item }} -s {{ _size }}"
-          with_items:
-            - "bench_direct_RBD-{{ inventory_hostname_short }}"
-          register: create_result
-          failed_when: create_result.rc not in [0,17]
-          changed_when: create_result.rc == 0
-      when: bench_direct_RBD|default(false)
+      when: (ebs_file_bench|default(false)) or (osa_file_bench|default(false))
     - name: Create benchmark directories
       file:
         state: directory
@@ -160,6 +166,7 @@
       with_items:
         - /opt/ceph_bench/logs
         - /mnt/fio_bench
+    
     - name: Template out fio_bench files
       config_template:
         src: "templates/{{ item.src }}"
