@@ -134,9 +134,9 @@ radosgw_keystone_ssl: false
 
 # Default this to ceph-ansible default so VIPs can be configured
 radosgw_civetweb_port: 8080
-radosgw_service_publicurl: "https://{{ external_lb_vip_address }}:{{ radosgw_civetweb_port }}/swift/v1"
-radosgw_service_adminurl: "http://{{ internal_lb_vip_address }}:{{ radosgw_civetweb_port }}/swift/v1"
-radosgw_service_internalurl: "http://{{ internal_lb_vip_address }}:{{ radosgw_civetweb_port }}/swift/v1"
+radosgw_service_publicurl: "https://{{ external_lb_vip_address }}:{{ radosgw_civetweb_port }}/swift/v1/%(tenant_id)s"
+radosgw_service_adminurl: "http://{{ internal_lb_vip_address }}:{{ radosgw_civetweb_port }}/swift/v1/%(tenant_id)s"
+radosgw_service_internalurl: "http://{{ internal_lb_vip_address }}:{{ radosgw_civetweb_port }}/swift/v1/%(tenant_id)s"
 
 ## RadosGW VIP for HAProxy
 external_lb_vip_address: 127.0.0.1

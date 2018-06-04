@@ -1,0 +1,9 @@
+---
+upgrade:
+  - Adjust the defaults for Rados Gateway and Keystone
+    integration. The RGW endpoint URLs now include the
+    tenant_id, and the Rados Gateway settings include the
+    ``rgw_swift_account_in_url`` and
+    ``rgw_keystone_implicit_tenants`` options which are
+    now both set to ``true`` when integrating with
+    OpenStack and Keystone.

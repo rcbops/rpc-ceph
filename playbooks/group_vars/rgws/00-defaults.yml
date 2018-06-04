@@ -39,3 +39,5 @@ ceph_conf_overrides_rgw_keystone:
     rgw_keystone_admin_domain: default
     rgw_keystone_accepted_roles: 'Member, _member_, admin'
     rgw_s3_auth_use_keystone: true
+    rgw_swift_account_in_url: true
+    rgw_keystone_implicit_tenants: true
