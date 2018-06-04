@@ -12,6 +12,14 @@ networks:
   - net-name: "{{ external_network }}"
   - net-name: dev7-private
 
+ceph_mgr_modules:
+  - restful
+  - status
+  - balancer
+  - prometheus
+
+install_node_exporter: true
+
 fiobench_pgnum: 4096
 fiobench_size: 100G
 

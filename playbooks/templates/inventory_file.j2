@@ -1,6 +1,3 @@
-[local]
-localhost ansible_connection=local
-
 {% for group in groups %}
 [{{ group }}]
 {% for host in groups[group] %}
@@ -9,7 +6,7 @@ localhost ansible_connection=local
 
 {% endfor %}
 [all:vars]
-ansible_user={{ hostvars[play_hosts|first]['ansible_user'] }}
-ansible_become={{ hostvars[play_hosts|first]['ansible_become'] }}
-ansible_ssh_extra_args={{ hostvars[play_hosts|first]['ansible_ssh_extra_args'] }}
-ansible_python_interpreter={{ hostvars[play_hosts|first]['ansible_python_interpreter'] }}
+ansible_user={{ hostvars[groups['mons']|first]['ansible_user'] }}
+ansible_become={{ hostvars[groups['mons']|first]['ansible_become'] }}
+ansible_ssh_extra_args={{ hostvars[groups['mons']|first]['ansible_ssh_extra_args'] }}
+ansible_python_interpreter={{ hostvars[groups['mons']|first]['ansible_python_interpreter'] }}
