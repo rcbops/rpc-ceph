@@ -1,4 +1,15 @@
 ---
+- name: Run pre-check
+  hosts:
+    - localhost
+  tasks:
+    - name: fail when none of the benchmarks are chosen
+      fail:
+        msg: "Set atleast one of the benchmark options to true.
+              Options are: ebs_direct_bench, ebs_file_bench, osa_file_bench, ebs_rbd_bench, osa_rbd_bench"
+      when: not ((ebs_direct_bench | default(false)) or (ebs_file_bench | default(false)) or (osa_file_bench | default(false)) or
+                 (ebs_rbd_bench | default(false)) or (osa_rbd_bench | default(false)))
+
 - include: fio_bench/fio_benchmark_setup.yml
 - include: fio_bench/fio_benchmark_run.yml
 - include: fio_bench/fio_benchmark_cleanup.yml

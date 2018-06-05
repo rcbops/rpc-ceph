@@ -36,11 +36,17 @@
     src: README_fio.md.j2
     dest: "{{ log_path }}/README.md"
 
+- name: lookup the user running benchmark
+  set_fact:
+    bench_user:  "{{ lookup('env', 'USER') }}"
+
 - name: "Make local benchmark directory"
   local_action:
     module: file
     state: directory
     path: "/opt/ceph_bench/logs/{{ run_id }}/{{ inventory_hostname_short }}"
+    owner: "{{ bench_user }}"
+    group: "{{ bench_user }}"
 
 - name: fetch log files
   local_action:
