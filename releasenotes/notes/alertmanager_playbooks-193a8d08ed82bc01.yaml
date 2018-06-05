@@ -1,0 +1,5 @@
+---
+features:
+  - Add alertmanager playbook to install alertmanager based on an upstream
+    alertmanager role.
+  - Add basic prometheus alerting rules for ceph

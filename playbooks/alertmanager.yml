@@ -1,0 +1,6 @@
+---
+- hosts: alertmanager
+  become: true
+
+  roles:
+    - name: alertmanager
