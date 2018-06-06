@@ -122,19 +122,18 @@ From the root of the rpc-ceph repo clone:
 * set `cluster_deploy_version` to the version you wish to deploy or manage
 * set `stor_count` to the number of storage nodes to deploy
 * set `client_count` to the number of clients desired.
+* Optionally set `rpc_ceph_version` to a specific version of rpc-ceph or a pull request ref you would like to test
 
 ```bash
-$ pip install -r requirements.txt ansible==2.4.3.0
-$ ansible-playbook -e cluster_deploy_version=perf-v01 \
+$ pip install -r requirements.txt ansible==2.4.4.0
+$ ansible-playbook -e cluster_deploy_version=example-v01 \
                    -e ssh_keyname=mykey \
                    -e stor_count=3 \
                    -e client_count=1 \
-                   -e @phobos/perf-vars.yml \
-                   playbooks/deploy-phobos-nodes.yml
+                   -e @phobos/vm-vars.yml \
+                   playbooks/phobos-deploy.yml
 $ ssh ubuntu@admin-node-ip
 $ cd /opt/rpc-ceph
-$ ./scripts/bootstrap-ansible.sh
-$ ceph-ansible-playbook -i inventory -e @phobos/perf-vars.yml playbooks/deploy-ceph.yml
-$ ceph-ansible-playbook -i inventory -e @phobos/perf-vars.yml playbooks/ceph-rgw-haproxy.yml
+$ ceph-ansible-playbook -i inventory -e @phobos/vm-vars.yml playbooks/deploy.yml
 ```
 

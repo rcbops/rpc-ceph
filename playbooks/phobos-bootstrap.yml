@@ -1,0 +1,70 @@
+---
+
+- name: Bootstrap deploy nodes
+  hosts: mons
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Add rpc group
+      group:
+        name: rpc
+        system: true
+
+    - name: Add rpc to ubuntu
+      user:
+        name: ubuntu
+        groups: rpc
+        append: true
+
+    - name: Set /opt Permissions
+      file:
+        path: /opt
+        group: rpc
+        mode: 0775
+        state: directory
+
+    - name: Clone rpc-ceph
+      git:
+        repo: 'https://github.com/rcbops/rpc-ceph.git'
+        dest: /opt/rpc-ceph
+        version: "{{ rpc_ceph_version | default('master') }}"
+        update: false
+
+    - name: Install python-pip
+      apt:
+        name: python-pip
+        state: present
+        update_cache: true
+
+    - name: Ensure permissions on clone
+      file:
+        path: /opt/rpc-ceph
+        state: directory
+        recurse: true
+        owner: ubuntu
+        group: rpc
+
+    - name: Ensure permissions on fetch
+      file:
+        path: "/opt/rpc-ceph/{{ item }}/fetch"
+        state: directory
+        owner: ubuntu
+        group: rpc
+      with_items:
+        - playbooks
+        - benchmark
+
+    - name: Write inventory file
+      template:
+        src: inventory_file.j2
+        dest: "/opt/rpc-ceph/inventory"
+
+    - name: Run bootstrap script
+      shell: scripts/bootstrap-ansible.sh
+      args:
+        chdir: /opt/rpc-ceph/
+        executable: /bin/bash
+
+- name: Add Ceph Networks
+  import_playbook: add-ceph-interfaces.yml
+  when: ceph_interfaces is defined
