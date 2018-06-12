@@ -7,6 +7,7 @@
   vars:
     log_count: 0
     haproxy_count: 0
+    ironic: false
 
   tasks:
     - name: Check for required variables

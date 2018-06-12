@@ -2,8 +2,8 @@
 - name: Deploy infrastructure
   import_playbook: phobos-deploy-nodes.yml
 
-- name: Add hosts
-  import_playbook: write-hosts-file.yml
-
 - name: Bootstrap
   import_playbook: phobos-bootstrap.yml
+
+- name: Add hosts
+  import_playbook: write-hosts-file.yml
