@@ -145,11 +145,31 @@ function _get_data_disk {
   fi
 }
 
+function _download_dependent_components {
+  # Install python3 for Ubuntu 16.04 and CentOS 7
+  if which apt-get; then
+    sudo apt-get install -y python3-virtualenv
+    virtualenv --python python3 .rpc_component_venv
+  fi
+
+  if which yum; then
+    sudo yum install -y python34-virtualenv.noarch
+    virtualenv-3 .rpc_component_venv
+  fi
+
+  .rpc_component_venv/bin/pip install "git+https://github.com/rcbops/rpc_component@85f152ece9eee3c9cd7d68bd2ecc5982e17400ae#egg=rpc_component"
+  .rpc_component_venv/bin/component dependency download-requirements --download-dir /etc/ansible/ceph_roles/
+}
+
 export CLONE_DIR="$(pwd)"
 export ANSIBLE_INVENTORY="${CLONE_DIR}/tests/inventory"
 export ANSIBLE_PARAMETERS="-e @${CLONE_DIR}/tests/test-vars.yml -e @${RPC_MAAS_DIR}/tests/user_rpcm_secrets.yml"
 export ANSIBLE_BINARY="${ANSIBLE_BINARY:-ceph-ansible-playbook}"
+
 bash scripts/bootstrap-ansible.sh
+
+_download_dependent_components
+
 if [ "${RE_JOB_SCENARIO}" != "rpco_newton" ]; then
   _get_data_disk
 fi
