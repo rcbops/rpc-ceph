@@ -1,10 +1,11 @@
 ---
 log_flavor: vm-osa-aio
 log_image: a4a9bc69-de27-4cec-903a-cf57be693738
-log_count: 1
 
 stor_flavor: ironic-rpc-storage-cap
 stor_image: 78856fa6-1de4-42d3-b545-466f6501e21f
+
+ironic: true
 
 security_group: 58753c65-1804-4eee-8349-77f1c5573001
 external_network: ironic

@@ -6,7 +6,5 @@
 
 {% endfor %}
 [all:vars]
-ansible_user={{ hostvars[groups['mons']|first]['ansible_user'] }}
-ansible_become={{ hostvars[groups['mons']|first]['ansible_become'] }}
 ansible_ssh_extra_args={{ hostvars[groups['mons']|first]['ansible_ssh_extra_args'] }}
 ansible_python_interpreter={{ hostvars[groups['mons']|first]['ansible_python_interpreter'] }}

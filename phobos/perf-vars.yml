@@ -6,6 +6,8 @@ log_count: 1
 stor_flavor: ironic-rpc-storage-perf
 stor_image: 78856fa6-1de4-42d3-b545-466f6501e21f
 
+ironic: true
+
 security_group: 58753c65-1804-4eee-8349-77f1c5573001
 external_network: ironic
 networks:
