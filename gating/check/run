@@ -15,6 +15,8 @@
 
 set -xeuo pipefail
 
+source scripts/scripts-libs.sh
+
 echo "Gate job started"
 echo "+-------------------- START ENV VARS --------------------+"
 env
@@ -149,16 +151,25 @@ function _download_dependent_components {
   # Install python3 for Ubuntu 16.04 and CentOS 7
   if which apt-get; then
     sudo apt-get install -y python3-virtualenv
-    virtualenv --python python3 .rpc_component_venv
+    virtualenv --python python3 --no-pip --no-setuptools --no-wheel .rpc_component_venv
   fi
 
   if which yum; then
     sudo yum install -y python34-virtualenv.noarch
-    virtualenv-3 .rpc_component_venv
+    virtualenv-3 --no-pip --no-setuptools --no-wheel .rpc_component_venv
   fi
 
-  .rpc_component_venv/bin/pip install "git+https://github.com/rcbops/rpc_component@85f152ece9eee3c9cd7d68bd2ecc5982e17400ae#egg=rpc_component"
-  .rpc_component_venv/bin/component dependency download-requirements --download-dir /etc/ansible/ceph_roles/
+  get_pip .rpc_component_venv/bin/python
+
+  # NOTE(mattt): We use a subshell here to unset PYTHONPATH only for the
+  #              duration of the subshell itself. When rpc-maas's tox runs, it
+  #              forces a PYTHONPATH to tox's virtualenv, which breaks our
+  #              ability to use the python3 venv below.
+  (
+    unset PYTHONPATH
+    .rpc_component_venv/bin/pip3 install "git+https://github.com/rcbops/rpc_component@85f152ece9eee3c9cd7d68bd2ecc5982e17400ae#egg=rpc_component"
+    .rpc_component_venv/bin/component dependency download-requirements --download-dir /etc/ansible/ceph_roles/
+  )
 }
 
 export CLONE_DIR="$(pwd)"
