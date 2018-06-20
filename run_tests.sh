@@ -1,1 +1,1 @@
-gating/pre_merge_test/run
+gating/check/run
