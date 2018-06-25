@@ -38,7 +38,7 @@ Create a remote reference named **upstream**
 git remote add upstream git@github.com:rcbops/privatecloud-docs.git
 ```
 
-Verifiy the repository and references are correct
+Verify the repository and references are correct
 ```bash
 cd privatecloud-docs
 git checkout master
