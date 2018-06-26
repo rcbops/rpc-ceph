@@ -28,8 +28,10 @@ is the list of default benchmarks. There are 5 main test scenarios:
 ebs_direct_bench - Sequential read, write and rw mix tests using 1M blocks against an nbd-rbd blockdev
 ebs_file_bench   - Random read and write tests using 16k blocks against a mounted nbd-rbd blockdev
 osa_file_bench   - Random read and write tests using 4k blocks against a mounted nbd-rbd blockdev
-ebs_rbd_bench    - Direct random read and write tests using 16k blocks and ioengine=rbd (DEFAULT)
+ebs_rbd_bench    - Direct random read and write tests using 16k blocks and ioengine=rbd
 osa_rbd_bench    - Direct random read and write tests using 4k blocks and ioengine=rbd
+
+Set atleast one of these options to `true` to run a benchmark.
 
 Example:
 
