@@ -1,8 +1,0 @@
-{
-    "contentIDBase": "https://github.com/rcbops/rpc-ceph/master/",
-    "githubUrl": "https://github.com/rackerlabs/docs-rackspace/",
-    "githubBranch": "master",
-    "meta": {
-        "preferGithubIssues": true
-    }
-}
