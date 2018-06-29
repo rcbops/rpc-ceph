@@ -1,0 +1,27 @@
+groups:
+- name: ceph
+  rules:
+  - alert: HealthWarn
+    expr: ceph_health_status == 1
+    for: 5m
+    annotations:
+      summary: "Ceph Health Warning"
+      description: "Cluster {{ $labels.instance }} is in Warning state."
+  - alert: HealthError
+    expr: ceph_health_status == 2
+    for: 5m
+    annotations:
+      summary: "Ceph Health Error"
+      description: "Cluster {{ $labels.instance }} is in Error state."
+  - alert: OSDsDown
+    expr: ceph_osd_up == 0
+    for: 5m
+    annotations:
+      summary: "Ceph OSD {{ $labels.ceph_daemon }} is Down."
+      description: "Ceph OSD {{ $labels.ceph_daemon }} is Down."
+  - alert: OSDsOut
+    expr: ceph_osd_in == 0
+    for: 5m
+    annotations:
+      summary: "Ceph OSD {{ $labels.ceph_daemon }} is Out."
+      description: "Ceph OSD {{ $labels.ceph_daemon }} is Out."

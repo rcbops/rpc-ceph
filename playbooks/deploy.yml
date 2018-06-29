@@ -19,6 +19,9 @@
   import_playbook: ssacli-install.yml
   when: "{{ install_ssacli | default(false) }}"
 
+- name: Install alertmanager
+  import_playbook: alertmanager.yml
+
 - name: Deploy prometheus
   import_playbook: prometheus.yml
 

@@ -25,6 +25,26 @@ fiobench_size: 1G
 
 install_ssacli: true
 
+#alertmanager_receivers:
+#- name: slack
+  #slack_configs:
+  #- send_resolved: true
+    #api_url: https://hooks.slack.com/services/XXXXXXXXX/XXXXXXXXX/XXXXXXXXXXXXXXXXXXXXXXXX
+    #channel: '#alerts'
+    #icon_emoji: ':ceph:'
+    #text: '{{ "{{" }} range .Alerts {{ "}}" }}{{ "{{" }} .Annotations.description {{ "}}" }}{{ "{{" }} end {{ "}}" }}'
+    #title: '{{ "{{" }} range .Alerts {{ "}}" }}{{ "{{" }} .Annotations.summary {{ "}}" }}{{ "{{" }} end {{ "}}" }}'
+    #username: ceph-am
+
+#alertmanager_route:
+  #receiver: slack
+  #group_by:
+  #- alertname
+  #- cluster
+  #group_interval: 5m
+  #group_wait: 30s
+  #repeat_interval: 4h
+
 bench_rgw_user_password: rgwbenchsecret
 
 journal_size: 1024
