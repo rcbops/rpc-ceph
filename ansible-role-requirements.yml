@@ -2,22 +2,18 @@
   scm: git
   src: https://github.com/ceph/ceph-ansible
   version: v3.0.34
-- name: ../ceph_plugins
-  scm: git
-  src: https://git.openstack.org/openstack/openstack-ansible-plugins
-  version: 17.0.0.0b3
 - name: rsyslog_client
   scm: git
   src: https://git.openstack.org/openstack/openstack-ansible-rsyslog_client
-  version: stable/pike
+  version: 17.0.4
 - name: haproxy_server
   scm: git
   src: https://git.openstack.org/openstack/openstack-ansible-haproxy_server
-  version: stable/pike
+  version: 17.0.4
 - name: rsyslog_server
   scm: git
   src: https://git.openstack.org/openstack/openstack-ansible-rsyslog_server
-  version: stable/pike
+  version: 17.0.4
 - name: prometheus_server
   scm: git
   src: https://github.com/idealista/prometheus_server-role
