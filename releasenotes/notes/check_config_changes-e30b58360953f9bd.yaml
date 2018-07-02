@@ -1,0 +1,7 @@
+---
+features:
+  - Add ``playbooks/check-for-config-changes.yml`` to check for changes to
+    ceph configuration, sysctl tuning or transparent_hugepage enablement
+    before running ceph-ansible.  The playbook will output a list of
+    differences from the current configuration so adjustments can be made
+    to avoid unwanted changes and restarts.

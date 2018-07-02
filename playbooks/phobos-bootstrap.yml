@@ -25,16 +25,16 @@
 
     - name: Clone rpc-ceph
       git:
-        repo: 'https://github.com/rcbops/rpc-ceph.git'
-        dest: /opt/rpc-ceph
+        repo: "{{ rpc_ceph_repo | default('https://github.com/rcbops/rpc-ceph.git') }}"
         version: "{{ rpc_ceph_version | default('master') }}"
+        dest: /opt/rpc-ceph
         update: false
 
-    - name: Install python-pip
-      apt:
-        name: python-pip
-        state: present
-        update_cache: true
+        #- name: Install python-pip
+        #apt:
+        #name: python-pip
+        #state: present
+        #update_cache: true
 
     - name: Ensure permissions on clone
       file:
