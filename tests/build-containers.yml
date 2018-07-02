@@ -22,3 +22,13 @@
         timeout: "{{ lxc_container_wait_params.timeout | default(omit) }}"
   vars_files:
     - test-vars.yml
+
+# We need pip on openstack containers
+- name: Execute the openstack-host role on containers
+  hosts: keystone_all:galera_all
+  become: true
+  gather_facts: true
+  roles:
+    - role: "openstack_hosts"
+  vars_files:
+    - test-vars.yml
