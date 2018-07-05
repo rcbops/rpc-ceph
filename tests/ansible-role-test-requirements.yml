@@ -46,7 +46,3 @@
   src: https://git.openstack.org/openstack/openstack-ansible-memcached_server
   scm: git
   version: stable/queens
-- name: ../ceph_plugins
-  scm: git
-  src: https://git.openstack.org/openstack/openstack-ansible-plugins
-  version: stable/queens
