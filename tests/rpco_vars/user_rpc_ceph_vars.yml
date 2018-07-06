@@ -1,11 +1,16 @@
 ---
 # Ensure only the required services are built
+# From Queens onward haproxy is a separate file.
+# Prior to Queens use nova.yml.aio twice as a way to
+# not fail, but not do anything.
 openstack_confd_entries:
   - name: cinder.yml.aio
   - name: glance.yml.aio
   - name: keystone.yml.aio
   - name: neutron.yml.aio
   - name: nova.yml.aio
+  - name: "{{ (lookup('env','RE_JOB_SCENARIO') in ['rpco_newton', 'rpco_pike']) | ternary('nova.yml.aio', 'haproxy.yml.aio') }}"
+
 bootstrap_host_loopback_swift: false
 
 ceph_mons:
