@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+set -x
+
+## For use when updating the ceph-ansible version inside rpc-ceph repo.
+## NB This will NOT upgrade a deployed environment, and should not be used in
+## production.
+
+
+## Clone ceph-ansible master
+git clone https://github.com/ceph/ceph-ansible /tmp/ceph-ansible_rpc-ceph
+pushd /tmp/ceph-ansible_rpc-ceph
+## Get the latest tag and save that
+git fetch --tags
+LATEST_TAG=$(git describe --tags `git rev-list --tags` | grep "v3.0" -m 1)
+popd
+## Cleanup ceph-ansible dir
+rm -rf /tmp/ceph-ansible_rpc-ceph
+
+## Download the site.yml.sample and group_vars.yml.sample files
+wget https://raw.githubusercontent.com/ceph/ceph-ansible/$LATEST_TAG/site.yml.sample -O ${PWD}/playbooks/deploy-ceph.yml
+wget https://raw.githubusercontent.com/ceph/ceph-ansible/$LATEST_TAG/infrastructure-playbooks/rolling_update.yml -O ${PWD}/playbooks/rolling_update.yml
+wget https://raw.githubusercontent.com/ceph/ceph-ansible/$LATEST_TAG/infrastructure-playbooks/osd-configure.yml -O ${PWD}/playbooks/osd-configure.yml
+wget https://raw.githubusercontent.com/ceph/ceph-ansible/$LATEST_TAG/infrastructure-playbooks/purge-cluster.yml -O ${PWD}/playbooks/purge-cluster.yml
+for vars_file in mons mgrs rgws osds all; do
+  wget https://raw.githubusercontent.com/ceph/ceph-ansible/$LATEST_TAG/group_vars/$vars_file.yml.sample -O ${PWD}/playbooks/group_vars/$vars_file/$vars_file.yml.sample
+done
+
+## Update the role requirements file
+./scripts/ansible-role-requirements-editor.py -f ansible-role-requirements.yml -n "ceph-ansible" -v "${LATEST_TAG}"
+
+## Update the supported ceph-ansible version in the README.md
+current_version=$(grep "ceph-ansible version:" ${PWD}/README.md | cut -d " " -f4)
+## On a Mac we need to work around the terrible Mac sed
+if $(uname | grep -iq darwin); then
+  sed -i " " "s/$current_version/$LATEST_TAG/" ${PWD}/README.md
+else
+  sed -i "s/$current_version/$LATEST_TAG/" ${PWD}/README.md
+fi
