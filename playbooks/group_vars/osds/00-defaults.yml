@@ -2,5 +2,9 @@
 ## This is a defaults file, it's likely to be changed during repo updates
 ## To override, or update settings, or configuration, create a new file
 ## in this directory, e.g. "overrides.yml" which will take precedence.
+disable_cpuidle_states: [ 2, 3, 4 ]
+# To enable cpuidle states add enable_cpuidle_states to your overrides file
+# Specifying the ids to enable.
+enable_cpuidle_states: []
 ceph_conf_overrides_osd_extra: {}
 ceph_conf_overrides_osd: "{{ ceph_conf_overrides_osd_extra }}"
