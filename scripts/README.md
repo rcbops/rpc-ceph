@@ -17,6 +17,11 @@ This script is designed to setup Ansible and other requirements for RPC-Ceph:
 
 ## ceph-ansible_increment_release.sh
 
+### This has been moved to gating/update_dependencies/run
+
+This script will be run automatically by the Release Engineering scripts and
+should not need to be run manually.
+
 This script is designed to update the version of ceph-ansible in use in the
 rpc-ceph repo itself. The aim is to keep rpc-ceph playbooks and sample
 group_vars 100% in line with ceph-ansible itself.
