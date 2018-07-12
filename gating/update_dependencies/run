@@ -1,39 +1,65 @@
 #!/usr/bin/env bash
 
 set -x
-
-## For use when updating the ceph-ansible version inside rpc-ceph repo.
+## For use when updating the versions of upstream projects inside rpc-ceph.
 ## NB This will NOT upgrade a deployed environment, and should not be used in
-## production.
+## production
+CEPH_MAJOR_VERSION="v3\.0"
+OSA_MAJOR_VERSION="17\."
 
+function update_ceph_ansible {
+  ## Get the latest tag and save that
+  LATEST_TAG=$(git ls-remote --tags https://github.com/ceph/ceph-ansible | grep "${CEPH_MAJOR_VERSION}" | grep -v '{}' | cut -d/ -f 3 | sort --version-sort | tail -n 1)
 
-## Clone ceph-ansible master
-git clone https://github.com/ceph/ceph-ansible /tmp/ceph-ansible_rpc-ceph
-pushd /tmp/ceph-ansible_rpc-ceph
-## Get the latest tag and save that
-git fetch --tags
-LATEST_TAG=$(git describe --tags `git rev-list --tags` | grep "v3.0" -m 1)
-popd
-## Cleanup ceph-ansible dir
-rm -rf /tmp/ceph-ansible_rpc-ceph
+  ## Download the site.yml.sample and group_vars.yml.sample files
+  wget https://raw.githubusercontent.com/ceph/ceph-ansible/$LATEST_TAG/site.yml.sample -O ${PWD}/playbooks/deploy-ceph.yml
+  wget https://raw.githubusercontent.com/ceph/ceph-ansible/$LATEST_TAG/infrastructure-playbooks/rolling_update.yml -O ${PWD}/playbooks/rolling_update.yml
+  wget https://raw.githubusercontent.com/ceph/ceph-ansible/$LATEST_TAG/infrastructure-playbooks/osd-configure.yml -O ${PWD}/playbooks/osd-configure.yml
+  wget https://raw.githubusercontent.com/ceph/ceph-ansible/$LATEST_TAG/infrastructure-playbooks/purge-cluster.yml -O ${PWD}/playbooks/purge-cluster.yml
+  for vars_file in mons mgrs rgws osds all; do
+    wget https://raw.githubusercontent.com/ceph/ceph-ansible/$LATEST_TAG/group_vars/$vars_file.yml.sample -O ${PWD}/playbooks/group_vars/$vars_file/$vars_file.yml.sample
+  done
 
-## Download the site.yml.sample and group_vars.yml.sample files
-wget https://raw.githubusercontent.com/ceph/ceph-ansible/$LATEST_TAG/site.yml.sample -O ${PWD}/playbooks/deploy-ceph.yml
-wget https://raw.githubusercontent.com/ceph/ceph-ansible/$LATEST_TAG/infrastructure-playbooks/rolling_update.yml -O ${PWD}/playbooks/rolling_update.yml
-wget https://raw.githubusercontent.com/ceph/ceph-ansible/$LATEST_TAG/infrastructure-playbooks/osd-configure.yml -O ${PWD}/playbooks/osd-configure.yml
-wget https://raw.githubusercontent.com/ceph/ceph-ansible/$LATEST_TAG/infrastructure-playbooks/purge-cluster.yml -O ${PWD}/playbooks/purge-cluster.yml
-for vars_file in mons mgrs rgws osds all; do
-  wget https://raw.githubusercontent.com/ceph/ceph-ansible/$LATEST_TAG/group_vars/$vars_file.yml.sample -O ${PWD}/playbooks/group_vars/$vars_file/$vars_file.yml.sample
-done
+  ## Update the role requirements file
+  ./scripts/ansible-role-requirements-editor.py -f ansible-role-requirements.yml -n "ceph-ansible" -v "${LATEST_TAG}"
 
-## Update the role requirements file
-./scripts/ansible-role-requirements-editor.py -f ansible-role-requirements.yml -n "ceph-ansible" -v "${LATEST_TAG}"
+  ## Update the supported ceph-ansible version in the README.md
+  current_version=$(grep "ceph-ansible version:" ${PWD}/README.md | cut -d " " -f4)
+  ## On a Mac we need to work around the terrible Mac sed
+  if $(uname | grep -iq darwin); then
+    sed -i " " "s/$current_version/$LATEST_TAG/" ${PWD}/README.md
+  else
+    sed -i "s/$current_version/$LATEST_TAG/" ${PWD}/README.md
+  fi
+}
 
-## Update the supported ceph-ansible version in the README.md
-current_version=$(grep "ceph-ansible version:" ${PWD}/README.md | cut -d " " -f4)
-## On a Mac we need to work around the terrible Mac sed
-if $(uname | grep -iq darwin); then
-  sed -i " " "s/$current_version/$LATEST_TAG/" ${PWD}/README.md
-else
-  sed -i "s/$current_version/$LATEST_TAG/" ${PWD}/README.md
-fi
+function update_upstream_osa_roles {
+  ## Update both the roles and test-roles
+  for role_reqs_file in ansible-role-requirements.yml tests/ansible-role-test-requirements.yml; do
+    ## For each of the openstack-ansible repos - exclude openstack-ansible-tests which has no branches
+    for repo in $(sed -n -e 's/^.*src: //p' ${role_reqs_file} | grep openstack-ansible | grep -v openstack-ansible-tests); do
+      ## Get the latest tag and save that
+      LATEST_TAG=$(git ls-remote --tags $repo | grep "${OSA_MAJOR_VERSION}" | grep -v '{}' | cut -d/ -f 3 | sort --version-sort | tail -n 1)
+      ## Update repos
+      ./scripts/ansible-role-requirements-editor.py -f "${role_reqs_file}" -s "${repo}" -v "${LATEST_TAG}"
+    done
+  done
+}
+
+function update_upstream_roles {
+  ## Update both the roles and test-roles
+  for role_reqs_file in ansible-role-requirements.yml tests/ansible-role-test-requirements.yml; do
+    ## For each of the non openstack-ansible/ceph-ansible repos
+    for repo in $(sed -n -e 's/^.*src: //p' ${role_reqs_file} | grep -v openstack-ansible | grep -v ceph-ansible); do
+      ## Get the latest tag and save that
+      LATEST_TAG=$(git ls-remote --tags $repo | grep -v '{}' | cut -d/ -f 3 | sort --version-sort | tail -n 1)
+      ## Update repos
+      ./scripts/ansible-role-requirements-editor.py -f "${role_reqs_file}" -s "${repo}" -v "${LATEST_TAG}"
+    done
+  done
+
+}
+
+update_ceph_ansible
+update_upstream_osa_roles
+update_upstream_roles

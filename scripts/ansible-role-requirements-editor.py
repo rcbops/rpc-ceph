@@ -60,8 +60,8 @@ def main():
     parser.add_argument(
         '-n',
         '--name',
-        help='<Required> The name of the Ansible role to edit',
-        required=True
+        help='<Optional> The name of the Ansible role to edit',
+        required=False
     )
 
     parser.add_argument(
@@ -74,7 +74,7 @@ def main():
     parser.add_argument(
         '-s',
         '--src',
-        help='<Optional> The source URL to set for the Ansible role',
+        help='<Optional> The source URL to identify the, or set for the Ansible role',
         required=False
     )
 
@@ -87,11 +87,16 @@ def main():
 
     # Loop through the list to find the applicable role
     for role_data in reqs:
-        if role_data['name'] == args.name:
-            # Change the specified role data
-            role_data['version'] = args.version
-            if args.src:
-                role_data['src'] = args.src
+        if args.name:
+            if role_data['name'] == args.name:
+                # Change the specified role data
+                role_data['version'] = args.version
+                if args.src:
+                    role_data['src'] = args.src
+        elif args.src:
+           if role_data['src'] == args.src:
+                # Change the specified role data
+                role_data['version'] = args.version
 
     # Write out the resulting file
     with open(args.file, "w") as role_req_file:
