@@ -1,0 +1,8 @@
+---
+features:
+  - The cpuidle states can now be disabled or enabled using
+    ``disable_cpuidle_states`` and ``enable_cpuidle_states``
+    variables. These are a list of the states to disable and
+    or enable.
+    ``disable_cpuidle_states`` defaults to ``[ 2, 3, 4 ]``
+    and ``enable_cpuidle_states`` defaults to ``[]``.
