@@ -17,11 +17,11 @@
 - name: prometheus_server
   scm: git
   src: https://github.com/idealista/prometheus_server-role
-  version: 1.3.1
+  version: 1.4.0
 - name: prometheus_node_exporter
   scm: git
   src: https://github.com/idealista/prometheus_node_exporter-role
-  version: 1.2.6
+  version: 2.0.0
 - name: grafana
   scm: git
   src: https://github.com/ansiblebit/grafana
@@ -29,7 +29,7 @@
 - name: alertmanager
   scm: git
   src: https://github.com/cloudalchemy/ansible-alertmanager
-  version: 0.11.6
+  version: 0.13.1
 - name: ../ceph_plugins
   scm: git
   src: https://git.openstack.org/openstack/openstack-ansible-plugins
