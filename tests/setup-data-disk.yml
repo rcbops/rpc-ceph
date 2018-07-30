@@ -73,5 +73,6 @@
     with_items:
       - { mount_point: /openstack, device: "/dev/{{ bootstrap_host_data_disk_device | regex_replace('!(.*)$','/\\1p') }}1"}
       - { mount_point: /var/lib/lxc, device: "/dev/{{ bootstrap_host_data_disk_device | regex_replace('!(.*)$','/\\1p') }}2"}
+    when: data_disk_partitions.rc == 1 or ((bootstrap_host_data_disk_device_force | default(false)) | bool)
     tags:
       - mount-data-partitions

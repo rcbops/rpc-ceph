@@ -78,6 +78,9 @@ function _configure_rpco {
   if [ "${RE_JOB_SCENARIO}" = "rpco_newton" ]; then
     export OSA_DIR="${RPCO_DIR}/openstack-ansible"
     export SECRETS_FILE="/etc/openstack_deploy/user_osa_secrets.yml"
+  elif [ "${RE_JOB_SCENARIO}" != "rpco_pike" ]; then
+    ## For Queens onwards (e.g. not Pike or Newton) the inventory dir has moved
+    export CINDER_ENVD="../inventory/env.d/cinder.yml"
   fi
   if [[ ! -d /opt/rpc-openstack ]]; then
     git clone https://github.com/rcbops/rpc-openstack -b ${RPCO_VERSION} --recursive ${RPCO_DIR}
