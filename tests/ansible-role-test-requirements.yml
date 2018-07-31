@@ -1,48 +1,48 @@
 - name: lxc_hosts
+  scm: git
   src: https://git.openstack.org/openstack/openstack-ansible-lxc_hosts
-  scm: git
-  version: stable/queens
+  version: 17.0.4
 - name: lxc_container_create
+  scm: git
   src: https://git.openstack.org/openstack/openstack-ansible-lxc_container_create
-  scm: git
-  version: stable/queens
+  version: 17.0.4
 - name: apt_package_pinning
+  scm: git
   src: https://git.openstack.org/openstack/openstack-ansible-apt_package_pinning
-  scm: git
-  version: stable/queens
+  version: 17.0.4
 - name: pip_install
+  scm: git
   src: https://git.openstack.org/openstack/openstack-ansible-pip_install
-  scm: git
-  version: stable/queens
+  version: 17.0.4
 - name: os_keystone
+  scm: git
   src: https://git.openstack.org/openstack/openstack-ansible-os_keystone
-  scm: git
-  version: stable/queens
+  version: 17.0.4
 - name: rpc-maas/tests/common
-  src: https://git.openstack.org/openstack/openstack-ansible-tests
   scm: git
+  src: https://git.openstack.org/openstack/openstack-ansible-tests
   version: master
 - name: galera_client
+  scm: git
   src: https://git.openstack.org/openstack/openstack-ansible-galera_client
-  scm: git
-  version: stable/queens
+  version: 17.0.4
 - name: galera_server
+  scm: git
   src: https://git.openstack.org/openstack/openstack-ansible-galera_server
-  scm: git
-  version: stable/queens
+  version: 17.0.4
 - name: rabbitmq_server
+  scm: git
   src: https://git.openstack.org/openstack/openstack-ansible-rabbitmq_server
-  scm: git
-  version: stable/queens
+  version: 17.0.4
 - name: openstack_openrc
+  scm: git
   src: https://git.openstack.org/openstack/openstack-ansible-openstack_openrc
-  scm: git
-  version: stable/queens
+  version: 17.0.4
 - name: openstack_hosts
+  scm: git
   src: https://git.openstack.org/openstack/openstack-ansible-openstack_hosts
-  scm: git
-  version: stable/queens
+  version: 17.0.4
 - name: memcached_server
-  src: https://git.openstack.org/openstack/openstack-ansible-memcached_server
   scm: git
-  version: stable/queens
+  src: https://git.openstack.org/openstack/openstack-ansible-memcached_server
+  version: 17.0.4
