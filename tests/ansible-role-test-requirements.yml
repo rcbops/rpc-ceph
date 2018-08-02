@@ -21,7 +21,7 @@
 - name: rpc-maas/tests/common
   scm: git
   src: https://git.openstack.org/openstack/openstack-ansible-tests
-  version: master
+  version: b146d649e675d748a58af238c7b37138b8194f1f
 - name: galera_client
   scm: git
   src: https://git.openstack.org/openstack/openstack-ansible-galera_client
