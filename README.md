@@ -138,9 +138,9 @@ To run an AIO scenario for Ceph you can run the following export on a general1-8
 or perf2-15 flavor instance, unless otherwise noted:
 #export RE_JOB_SCENARIO="name of scenario from below"
 
-**build_docs**
-This will build the project documentation using sphinx and place it in
-the directory `rpc-ceph/_build/html/index.html`  
+**build_releasenotes**
+This will build the project releae notes  using sphinx and place it in
+the directory `rpc-ceph/release/build/`  
 
 **functional**:
 This is a base AIO for Ceph, includes MaaS testing, this runs on each
@@ -178,13 +178,13 @@ a long time to build.
 
 NB: This requires a perf2-15 instance.
 
-**rpco_master**
-This is the same as the rpco_newton job but built against the master-rc branch
-of RPC-O.
-
 **rpco_pike**
 This is the same as the rpco_newton job but built against the pike-rc branch
 of RPC-O.
+
+**rpco_queens**
+This is the same as the rpco_newton and rpco-pike jobs but built against the 
+queens-rc branch of RPC-O.
 
 **keystone_rgw**:
 A basic keystone integration test, that will run on each commit.
