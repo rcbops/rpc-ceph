@@ -1,6 +1,7 @@
 ---
 deprecations:
-  - ``ceph-ansible_increment_release.sh`` has been moved to
+  - Changes made to the way ceph-ansible increment releases
+    ``ceph-ansible_increment_release.sh`` has been moved to
     ``gating/update_dependencies/run`` which is an automated
     Release Engineering job that will run and automatically
     create a PR on a regular cadence.
