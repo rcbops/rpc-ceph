@@ -4,7 +4,7 @@ set -x
 ## For use when updating the versions of upstream projects inside rpc-ceph.
 ## NB This will NOT upgrade a deployed environment, and should not be used in
 ## production
-CEPH_MAJOR_VERSION="v3\.0"
+CEPH_MAJOR_VERSION="v3\.1"
 OSA_MAJOR_VERSION="17\."
 
 function update_ceph_ansible {
@@ -37,7 +37,8 @@ function update_upstream_osa_roles {
   ## Update both the roles and test-roles
   for role_reqs_file in ansible-role-requirements.yml tests/ansible-role-test-requirements.yml; do
     ## For each of the openstack-ansible repos - exclude openstack-ansible-tests which has no branches
-    for repo in $(sed -n -e 's/^.*src: //p' ${role_reqs_file} | grep openstack-ansible | grep -v openstack-ansible-tests); do
+    ## Additionally exclude openstack-ansible-plugins and openstack-ansible-hosts due to no support for Ansible 2.5 on a stable branch (until Rocky)
+    for repo in $(sed -n -e 's/^.*src: //p' ${role_reqs_file} | grep openstack-ansible | grep -v openstack-ansible-tests | grep -v openstack-ansible-plugins | grep -v openstack_hosts); do
       ## Get the latest tag and save that
       LATEST_TAG=$(git ls-remote --tags $repo | grep "${OSA_MAJOR_VERSION}" | grep -v '{}' | cut -d/ -f 3 | sort --version-sort | tail -n 1)
       ## Update repos
