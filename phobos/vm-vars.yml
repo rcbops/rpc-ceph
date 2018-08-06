@@ -4,6 +4,8 @@ phobos_disk_size: 5
 log_flavor: vm-osa-aio
 log_image: a4a9bc69-de27-4cec-903a-cf57be693738
 
+ceph_repo_version: 12.2.4
+
 stor_flavor: vm-osa-aio
 stor_image: a4a9bc69-de27-4cec-903a-cf57be693738
 
@@ -47,6 +49,11 @@ install_ssacli: true
 
 bench_rgw_user_password: rgwbenchsecret
 
+ceph_repo_version: 12.2.4-1
+ceph_origin: 'repository' # or 'distro' or 'local'
+ceph_stable: false
+ceph_repository: custom
+ceph_custom_repo: 'http://{{ hostvars[groups["mons"][0]]["ansible_"+monitor_interface].ipv4.address }}/ceph'
 journal_size: 1024
 monitor_interface: ens3
 public_network: 172.20.40.0/22
