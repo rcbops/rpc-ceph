@@ -184,6 +184,13 @@ bash scripts/bootstrap-ansible.sh
 
 _download_dependent_components
 
+
+if [ "${RE_JOB_SCENARIO}" = "build_releasenotes" ]; then
+  pip install sphinx reno oslosphinx
+  sphinx-build -a -E -W -d releasenotes/build/doctrees \
+    -b html releasenotes/source releasenotes/build/html
+  exit
+fi
 if [ "${RE_JOB_SCENARIO}" != "rpco_newton" ]; then
   _get_data_disk
 fi
