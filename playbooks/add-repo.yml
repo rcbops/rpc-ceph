@@ -1,0 +1,116 @@
+---
+- name: Create Ceph Repo
+  hosts: mons[0]
+  vars:
+    target: "{{ dest | default('/opt/ceph-repo') }}"
+  tasks:
+    - name: Check for required variables
+      assert:
+        that: ceph_repo_version is defined
+      loop_control:
+        label: "Assert ceph_repo_version is defined"
+
+    - name: Install dependencies
+      package:
+        name: "{{ item }}"
+        state: installed
+      with_items:
+        - dpkg-dev
+        - dpkg-sig
+        - apache2
+        - rng-tools
+
+    - name: Ensure target dir
+      file:
+        path: "{{ item }}"
+        state: directory
+      with_items:
+        - "{{ target }}"
+        - "/var/www/html/ceph/dists/{{ ansible_distribution_release }}/main"
+
+    - name: Get Ceph Packages
+      command: "rsync -v download.ceph.com::ceph/debian-{{ ceph_stable_release }}/pool/main/c/ceph/ --recursive --times --links --hard-links --include='*{{ ceph_repo_version }}{{ ansible_distribution_release }}*amd64.deb' --include='*/' --exclude='*' {{ target }}"
+      args:
+        creates: "{{ target }}/ceph_{{ ceph_repo_version }}{{ ansible_distribution_release }}_amd64.deb"
+      notify:
+        - gen entropy
+        - gen gpg key
+        - Sign packages
+        - Export key
+        - Scan packages
+        - Write Release file
+        - Sign release file
+
+    - name: Force version refresh
+      command: "rsync -v download.ceph.com::ceph/debian-{{ ceph_stable_release }}/pool/main/c/ceph/ --recursive --times --links --hard-links --include='*{{ ceph_repo_version }}{{ ansible_distribution_release }}*amd64.deb' --include='*/' --exclude='*' {{ target }}"
+      when: force | default(false)
+      notify:
+        - gen entropy
+        - gen gpg key
+        - Sign packages
+        - Export key
+        - Scan packages
+        - Write Release file
+        - Sign release file
+
+    - name: Link target to apache directory
+      file:
+        state: link
+        src: "{{ target }}"
+        path: "/var/www/html/ceph/dists/{{ ansible_distribution_release }}/main/binary-amd64"
+
+  handlers:
+    - name: GPG Creation Script
+      template:
+        src: gpg-key-script.j2
+        dest: /tmp/gpg-key-script
+
+    - name: gen entropy
+      command: rngd -r /dev/urandom
+
+    - name: gen gpg key
+      command: gpg --batch --gen-key /tmp/gpg-key-script
+      args:
+        creates: "{{ lookup('env', 'HOME') }}/.gnupg/pubring.gpg"
+
+    - name: Sign packages
+      command: dpkg-sig --sign builder *.deb
+      args:
+        chdir: "{{ target }}"
+
+    - name: Export key
+      shell: gpg -a --export > release.asc
+      args:
+        chdir: "{{ target }}"
+
+    - name: Scan packages
+      shell: dpkg-scanpackages . /dev/null | tee Packages | gzip > Packages.gz
+      args:
+        chdir: "{{ target }}"
+
+    - name: Write Release file
+      shell: apt-ftparchive release . > Release
+      args:
+        chdir: "{{ target }}"
+
+    - name: Sign release file
+      command: gpg --yes --armor --output Release.gpg --detach-sig Release
+      args:
+        chdir: "{{ target }}"
+
+- hosts:
+    - mons
+    - osds
+    - rgws
+    - mdss
+    - mgrs
+  tasks:
+    - name: Add repo key
+      apt_key:
+        url: 'http://{{ hostvars[groups["mons"][0]]["ansible_"+monitor_interface].ipv4.address }}/ceph/dists/{{ ansible_distribution_release }}/main/binary-amd64/release.asc'
+        state: present
+
+    #- name: Add repo
+      #apt_repository:
+        #repo: 'deb http://{{ hostvars[groups["mons"][0]]["ansible_"+monitor_interface].ipv4.address }}/ceph/dists/{{ ansible_distribution_release }}/main/binary-amd64 /'
+        #state: present
