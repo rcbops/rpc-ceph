@@ -1,7 +1,7 @@
 - name: ceph-ansible
   scm: git
   src: https://github.com/ceph/ceph-ansible
-  version: v3.0.40
+  version: v3.0.42
 - name: rsyslog_client
   scm: git
   src: https://git.openstack.org/openstack/openstack-ansible-rsyslog_client
@@ -29,7 +29,7 @@
 - name: alertmanager
   scm: git
   src: https://github.com/cloudalchemy/ansible-alertmanager
-  version: 0.13.1
+  version: 0.13.2
 - name: ../ceph_plugins
   scm: git
   src: https://git.openstack.org/openstack/openstack-ansible-plugins
