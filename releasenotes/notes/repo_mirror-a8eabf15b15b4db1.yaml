@@ -1,0 +1,4 @@
+---
+features:
+  - Add new playbook to mirror a specific version of ceph and create local
+    repo servers to pin ceph deployments to a specific version.

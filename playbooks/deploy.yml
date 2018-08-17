@@ -3,6 +3,10 @@
   import_playbook: tune-cpufreq.yml
   when: "{{ cpu_performance | default(true) }}"
 
+- name: Setup custom ceph repo
+  import_playbook: add-repo.yml
+  when: ceph_repo_version is defined
+
 - name: Deploy Ceph
   import_playbook: deploy-ceph.yml
 

@@ -1,0 +1,152 @@
+---
+- name: Create Ceph Apt Repo
+  become: true
+  hosts: repo_servers
+  vars:
+    target: "{{ dest | default('/opt/ceph-repo') }}"
+    ssh_opts: -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
+  tasks:
+    - name: Check for required variables
+      assert:
+        that: item
+      loop_control:
+        label: "Assert {{ item }} is defined"
+      with_items:
+        - ceph_repo_version
+        - repo_server_addr
+
+    - name: Install Webserver
+      apt:
+        name: apache2
+        state: installed
+        update_cache: true
+
+    - name: Configure Primary Repo Server
+      block:
+        - name: Install dependencies
+          apt:
+            name: "{{ item }}"
+            state: installed
+          with_items:
+            - dpkg-dev
+            - dpkg-sig
+            - rng-tools
+
+        - name: Ensure target dir
+          file:
+            path: "{{ item }}"
+            state: directory
+          with_items:
+            - "{{ target }}/dists/{{ ansible_distribution_release }}/main/binary-amd64"
+            - "{{ target }}/pool/main/c/ceph"
+
+        - name: Get Ceph Packages
+          command: >
+            rsync -v download.ceph.com::ceph/debian-{{ ceph_stable_release }}/pool/main/c/ceph/
+              --recursive --times --links --hard-links
+              --include='*{{ ceph_repo_version }}{{ ansible_distribution_release }}*amd64.deb'
+              --include='*/' --exclude='*'
+              {{ target }}/pool/main/c/ceph
+          args:
+            creates: "{{ target }}/pool/main/c/ceph/ceph_{{ ceph_repo_version }}{{ ansible_distribution_release }}_amd64.deb"
+
+        - name: Force version refresh
+          command: >
+            rsync -v download.ceph.com::ceph/debian-{{ ceph_stable_release }}/pool/main/c/ceph/
+              --recursive --times --links --hard-links
+              --include='*{{ ceph_repo_version }}{{ ansible_distribution_release }}*amd64.deb'
+              --include='*/' --exclude='*'
+              {{ target }}/pool/main/c/ceph
+          when: force | default(false)
+
+        - name: GPG Creation Script
+          template:
+            src: gpg-key-script.j2
+            dest: /tmp/gpg-key-script
+
+        - name: gen entropy
+          command: rngd -r /dev/urandom
+
+        - name: gen gpg key
+          command: gpg --batch --gen-key /tmp/gpg-key-script
+          args:
+            creates: "{{ lookup('env', 'HOME') }}/.gnupg/pubring.gpg"
+
+        - name: Sign packages
+          command: dpkg-sig --sign builder *.deb
+          args:
+            chdir: "{{ target }}/pool/main/c/ceph"
+
+        - name: Export key
+          shell: gpg -a --export > release.asc
+          args:
+            chdir: "{{ target }}"
+
+        - name: Scan packages
+          shell:
+            dpkg-scanpackages -m . /dev/null 
+              | tee {{ target }}/dists/{{ ansible_distribution_release }}/main/binary-amd64/Packages 
+              | gzip > {{ target }}/dists/{{ ansible_distribution_release }}/main/binary-amd64/Packages.gz
+          args:
+            chdir: "{{ target }}"
+
+        - name: Write Release file
+          shell: "apt-ftparchive release . > {{ target }}/dists/{{ ansible_distribution_release }}/Release"
+          args:
+            chdir: "{{ target }}/dists/{{ ansible_distribution_release }}"
+
+        - name: Sign release file
+          command: gpg --yes --armor --output Release.gpg --detach-sig Release
+          args:
+            chdir: "{{ target }}/dists/{{ ansible_distribution_release }}"
+
+        - name: Install rsync
+          apt:
+            name: rsync
+
+        - name: Enable rsync
+          copy:
+            src: rsync.defaults
+            dest: /etc/default/rsync
+
+        - name: Configure rsync
+          template:
+            src: rsyncd.conf.j2
+            dest: /etc/rsyncd.conf
+
+        - name: Start rsyncd
+          service:
+            name: rsync
+            state: running
+
+      when: inventory_hostname == groups["repo_servers"][0]
+
+    - name: Link target to apache directory
+      file:
+        state: link
+        src: "{{ target }}"
+        path: "/var/www/html/debian-{{ ceph_stable_release }}"
+        force: yes
+
+    - name: Mirror Ceph Packages
+      command: >
+        rsync -v {{ repo_server_addr }}::debian-{{ ceph_stable_release }}/
+          --recursive --times --links --hard-links
+          {{ target }}/
+      args:
+        creates: "{{ target }}/pool/main/c/ceph/ceph_{{ ceph_repo_version }}{{ ansible_distribution_release }}_amd64.deb"
+      when: inventory_hostname != groups["repo_servers"][0]
+
+- hosts:
+    - mons
+    - osds
+    - rgws
+    - mdss
+    - mgrs
+    - repo_server
+  become: true
+  tasks:
+    - name: Add repo key
+      apt_key:
+        url: 'http://{{ repo_server_addr }}/debian-{{ ceph_stable_release }}/release.asc'
+        state: present
