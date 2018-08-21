@@ -1,0 +1,11 @@
+---
+upgrade:
+  - Update dependencies 
+    ceph-ansible version from ``v3.0.42`` to ``v3.0.43``
+    ansible-alertmanager version from ``0.13.2`` to ``0.13.3``
+    Task changes in playbook ``playbooks/purge-cluster.yml``
+    - remove data
+      get osd data and lockbox mount points
+    Task changes in playbook ``playbooks/rolling_update.yml``
+    - get osd numbers - non container
+      restart containerized ceph osd
