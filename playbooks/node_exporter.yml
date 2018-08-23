@@ -4,6 +4,7 @@
     - osds
     - mgrs
     - rgws
+    - mdss
 
   become: true
 

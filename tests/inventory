@@ -6,6 +6,7 @@ osd1
 osd2
 allsvc
 rgw1
+mds1
 rsyslog1
 
 [lxc_hosts]
@@ -21,6 +22,7 @@ osd1
 osd2
 rgw1
 allsvc
+mds1
 rsyslog1
 
 [rgws]
@@ -40,6 +42,10 @@ allsvc
 [mgrs]
 mon1
 mon2
+allsvc
+
+[mdss]
+mds1
 allsvc
 
 [rsyslog_all]
