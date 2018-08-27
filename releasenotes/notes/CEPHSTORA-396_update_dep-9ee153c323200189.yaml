@@ -1,0 +1,3 @@
+---
+upgrade:
+  - Update current ceph-ansible version from ``v3.0.43`` to ``v3.0.45``
