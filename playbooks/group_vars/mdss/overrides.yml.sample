@@ -1,0 +1,26 @@
+---
+## Overrides file for hosts in the mdss group.
+## NB These settings apply to mdss hosts only.
+## If the setting should be changed for ALL host groups, instead edit
+## playbooks/group_vars/all/overrides.yml.
+dummy:
+## To override rpc-ceph or ceph-ansible variables specify them in overrides.yml
+## Regular vars can be specified as needed.
+## Look in group_vars/mdss/mdss.yml.sample to see ceph-ansible defaults,
+## and group_vars/mdss/00-defaults.yml to see rpc-ceph specified mdss settings.
+## For example to change copy_admin_key from 'false' to 'true'
+# copy_admin_key: false
+
+## To change settings in ceph_conf_overrides that are specific to mdss hosts
+## only, utilise "ceph_conf_overrides_mdss_extra"
+## Using the "omit" keyword will remove this from ceph_conf_overrides and the
+## setting will not appear in the ceph.conf.
+## For example to add a new setting 'global/my_mds_setting' to only mds hosts,
+## change client/client_cache_size from 16384 to use 32768 but keep all other 
+## RPC-ceph defaults,
+## set the following:
+# ceph_conf_overrides_mdss_extra:
+#   global:
+#     my_mds_setting: my_mds_value
+#   client:
+#     client_cache_size: 500000

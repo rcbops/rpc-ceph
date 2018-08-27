@@ -1,5 +1,5 @@
 # Setup rsyslog logging
-- hosts: mons:osds:rgws:mgrs
+- hosts: mons:osds:rgws:mgrs:mdss
   become: True
   pre_tasks:
     - name: Pause to allow services to restart

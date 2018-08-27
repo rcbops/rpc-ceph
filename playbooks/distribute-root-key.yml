@@ -47,6 +47,7 @@
     - mgrs
     - osds
     - rgws
+    - mdss
 
   become: true
 
