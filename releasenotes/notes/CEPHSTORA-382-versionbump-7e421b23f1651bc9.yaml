@@ -1,5 +1,4 @@
 ---
 upgrade:
-  - |
-    Increment version of ceph-ansible version from ``v3.0.40`` to ``v3.0.42``
+  - Increment version of ceph-ansible version from ``v3.0.40`` to ``v3.0.42``
     Increment version of ansible-alertmanager from ``0.13.1`` to ``0.13.2``
