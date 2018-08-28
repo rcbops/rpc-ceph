@@ -2,9 +2,5 @@
 upgrade:
   - Verion of ceph-ansible was incremented to ``v3.0.40`` from ``v3.0.39`` 
     group name was changed from ``iscsi-gws`` to ``iscsigws``
-    Changes to playbooks/rolling_update.yml
-      ``jewel_minor_update: False``
-      New tasks added: 
-        ``get osd versions``
-        ``set_fact ceph_versions_osd``
-        ``osd set sortbitwise``
+    Change playbooks/rolling_update.yml value ``jewel_minor_update`` to ``False``
+    Add new tasks in playbooks/rolling_update.yml ``get osd versions``, ``set_fact ceph_versions_osd`` and ``osd set sortbitwise``
