@@ -185,8 +185,6 @@ bash scripts/bootstrap-ansible.sh
 _download_dependent_components
 
 if [ "${RE_JOB_SCENARIO}" = "ansible_lint" ]; then
-   echo "hello ${RE_JOB_SCENARIO}"
-#   find . -type f -regex '.*\.y[a]?ml' -print0 | xargs -0 ansible-lint -x $SKIPLIST --exclude=/etc|| lint_error=1
    find ./playbooks -type f -regex '.*\.y[a]?ml' -print0 | xargs -0 ansible-lint --exclude=/etc
    exit
 fi
