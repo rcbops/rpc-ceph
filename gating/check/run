@@ -184,7 +184,10 @@ bash scripts/bootstrap-ansible.sh
 
 _download_dependent_components
 
-
+if [ "${RE_JOB_SCENARIO}" = "ansible_lint" ]; then
+   find ./playbooks -type f -regex '.*\.y[a]?ml' -print0 | xargs -0 ansible-lint --exclude=/etc
+   exit
+fi
 if [ "${RE_JOB_SCENARIO}" = "build_releasenotes" ]; then
   pip install sphinx reno oslosphinx
   sphinx-build -a -E -W -d releasenotes/build/doctrees \
