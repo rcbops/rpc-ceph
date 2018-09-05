@@ -71,7 +71,7 @@ function _set_rpco_vars {
 }
 
 function _configure_rpco {
-  export RPCO_VERSION="${RE_JOB_SCENARIO#rpco_}-rc"
+  export RPCO_VERSION="${RE_JOB_SCENARIO#rpco_}"
   export CINDER_ENVD="inventory/env.d/cinder.yml"
   export SECRETS_FILE="/etc/openstack_deploy/user_secrets.yml"
   export OSA_DIR="/opt/openstack-ansible"

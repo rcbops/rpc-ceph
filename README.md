@@ -160,11 +160,11 @@ This is the same as the functional job but runs using bluestore, and
 3 collocated OSD devices per osd host.
 
 **rpco_newton**:
-An RPC-O newton-rc integration test, that will deploy an RPC-O AIO, and
+An RPC-O newton integration test, that will deploy an RPC-O AIO, and
 integrate it with Ceph, followed by Tempest tests. This runs daily, as it takes
 a long time to build.
 
-* RPC-O AIO @ newton-rc
+* RPC-O AIO @ newton
   * Keystone
   * Glance
   * Cinder
@@ -179,12 +179,12 @@ a long time to build.
 NB: This requires a perf2-15 instance.
 
 **rpco_pike**
-This is the same as the rpco_newton job but built against the pike-rc branch
+This is the same as the rpco_newton job but built against the pike branch
 of RPC-O.
 
 **rpco_queens**
 This is the same as the rpco_newton and rpco-pike jobs but built against the 
-queens-rc branch of RPC-O.
+queens branch of RPC-O.
 
 **keystone_rgw**:
 A basic keystone integration test, that will run on each commit.
