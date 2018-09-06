@@ -10,3 +10,4 @@ Commit Guidelines
   - Refer to https://docs.openstack.org/reno/latest/user/usage.html for more information on using reno.
 - Where sensible, squashing commits such that one commit fixes one issue is recommended.
   - Refer to https://github.com/todotxt/todo.txt-android/wiki/Squash-All-Commits-Related-to-a-Single-Issue-into-a-Single-Commit for more information
+- Make sure ansible-lint job is successful.
