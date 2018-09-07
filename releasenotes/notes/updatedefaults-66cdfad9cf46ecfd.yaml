@@ -1,0 +1,7 @@
+---
+upgrade:
+  - Update defaults based off of current ceph-ansible deployments
+    - Set ``vm.min_free_kbytes`` to 2GB per RH for systems with 128GB RAM
+    - Reduce ``rbd_cache_size`` from 128MB to 64MB
+    - Reduce ``rbd_cache_max_dirty_age`` from 15s to 2s
+    - Increase ``osd_heartbeat_min_size`` to 9000 to match MTU
