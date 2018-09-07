@@ -73,11 +73,12 @@ ceph_conf_overrides_all:
      osd_pool_default_pgp_num: 32
      mon_osd_down_out_interval: 900
    client:
-     rbd_cache_size: 134217728
+     rbd_cache_size: 67108864
      rbd_cache_max_dirty: 50331648
-     rbd_cache_max_dirty_age: 15
+     rbd_cache_max_dirty_age: 2
      rbd_cache_target_dirty: 33554432
    osd:
+     osd_heartbeat_min_size: 9000
      osd_snap_trim_priority: 1
      osd_snap_trim_sleep: 0.1
      osd_pg_max_concurrent_snap_trims: 1
@@ -105,6 +106,7 @@ os_tuning_params:
   - { name: vm.vfs_cache_pressure, value: 20 }
   - { name: vm.dirty_background_ratio, value: 3}
   - { name: vm.dirty_ratio, value: 10 }
+  - { name: vm.min_free_kbytes, value: 2097152 }
   - { name: vm.swappiness, value: 0 }
   - { name: net.ipv4.tcp_slow_start_after_idle, value: 0 }
   - { name: net.ipv4.tcp_max_syn_backlog, value: 4096 }
