@@ -29,7 +29,7 @@
 - name: alertmanager
   scm: git
   src: https://github.com/cloudalchemy/ansible-alertmanager
-  version: 0.13.3
+  version: 0.13.4
 - name: ../ceph_plugins
   scm: git
   src: https://git.openstack.org/openstack/openstack-ansible-plugins

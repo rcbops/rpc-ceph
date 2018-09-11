@@ -1,0 +1,5 @@
+---
+upgrade:
+  - |
+    Update the version of ``ansible-alertmanager`` from ``0.13.3`` to ``0.13.4``
+    Update the version of ``rpc-maas`` from ``1.7.5`` to ``1.7.6``
