@@ -25,7 +25,7 @@
 
     - name: "Set CPU Govenor to {{ governor }}"
       lineinfile:
-        path: /etc/default/cpufrequtils 
+        path: /etc/default/cpufrequtils
         regexp: '^GOVERNOR'
         line: 'GOVERNOR="{{ governor }}"'
         state: present

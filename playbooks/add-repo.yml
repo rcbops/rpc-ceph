@@ -84,8 +84,8 @@
 
         - name: Scan packages
           shell:
-            dpkg-scanpackages -m . /dev/null 
-              | tee {{ target }}/dists/{{ ansible_distribution_release }}/main/binary-amd64/Packages 
+            dpkg-scanpackages -m . /dev/null
+              | tee {{ target }}/dists/{{ ansible_distribution_release }}/main/binary-amd64/Packages
               | gzip > {{ target }}/dists/{{ ansible_distribution_release }}/main/binary-amd64/Packages.gz
           args:
             chdir: "{{ target }}"
