@@ -126,7 +126,7 @@ fio_bench_list_default:
     blocksize: "4k"
     ioengine: rbd
     rw: randread
-    iodepth: 16 
+    iodepth: 16
     numjobs: 1
     run_bench: "{{ osa_rbd_bench }}"
   - src: "fio_direct_test.cfg.j2"

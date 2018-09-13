@@ -30,7 +30,7 @@ export CEPH_BOOTSTRAP_OPTS=${CEPH_BOOTSTRAP_OPTS:-""}
 export DATA_DISK_MIN_SIZE_GB=${DATA_DISK_MIN_SIZE_GB:-50}
 
 LINT_COMMAND="/opt/rpc-ceph_ansible-runtime/bin/ansible-lint"
-
+LINT_SKIPLIST="ANSIBLE0006,ANSIBLE0013"
 # Install python2 for Ubuntu 16.04 and CentOS 7
 if which apt-get; then
     sudo apt-get update && sudo apt-get install -y python
@@ -187,8 +187,8 @@ bash scripts/bootstrap-ansible.sh
 _download_dependent_components
 
 if [ "${RE_JOB_SCENARIO}" = "ansible_lint" ]; then
+   find ./playbooks -type f -regex '.*\.y[a]?ml' -print0 | xargs -0 ${LINT_COMMAND} -x $LINT_SKIPLIST --exclude=/etc
    exit 0
-   find ./playbooks -type f -regex '.*\.y[a]?ml' -print0 | xargs -0 ${LINT_COMMAND} --exclude=/etc
 fi
 if [ "${RE_JOB_SCENARIO}" = "build_releasenotes" ]; then
   pip install sphinx reno oslosphinx

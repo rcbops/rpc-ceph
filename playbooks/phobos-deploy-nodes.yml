@@ -227,7 +227,7 @@
     - name: Add osds and rgws host group
       add_host:
         name: "{{ item.server.name }}"
-        groups: 
+        groups:
           - osds
           - rgws
         ansible_host: "{{ item.server.addresses.get(external_network)[0].addr }}"
@@ -255,7 +255,7 @@
     - name: Add mgrs and mons host group
       add_host:
         name: "{{ item.server.name }}"
-        groups: 
+        groups:
           - mgrs
           - mons
         ansible_host: "{{ item.server.addresses.get(external_network)[0].addr }}"
