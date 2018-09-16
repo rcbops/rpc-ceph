@@ -21,7 +21,7 @@
 - name: prometheus_node_exporter
   scm: git
   src: https://github.com/idealista/prometheus_node_exporter-role
-  version: 2.0.0
+  version: 2.1.0
 - name: grafana
   scm: git
   src: https://github.com/ansiblebit/grafana
