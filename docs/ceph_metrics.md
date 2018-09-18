@@ -1,12 +1,12 @@
 # Ceph Metrics Installation Guide
 
-Take the following steps to active the metrics inside Ceph for Node_Exporter, install Prometheus and Grafana and setup the collection and presentation.
+Take the following steps to activate the metrics inside Ceph for Node_Exporter, install Prometheus and Grafana and setup the collection and reporting.
 
 
 ## Setup Prometheus and Grafana metrics for Red Hat Ceph
 
 
-* Cluster mush be running luminous
+* Cluster must be running the Ceph version luminous or newer
 * For this test we will assume that Prometheus and Grafana will run on the "rsyslog" server
 * Change the Grafana user and password if you choose to
 
