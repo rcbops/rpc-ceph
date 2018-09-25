@@ -110,5 +110,3 @@
   tasks:
     - name: Remount /sys rw
       command: "mount -o remount rw /sys"
-    - name: Remount /proc/sys rw
-      command: "mount -o remount rw /proc/sys"
