@@ -186,6 +186,10 @@ of RPC-O.
 This is the same as the rpco_newton and rpco-pike jobs but built against the 
 queens branch of RPC-O.
 
+**rpco_rocky**
+This is the same as the rpco_newton and rpco-pike jobs but built against the 
+rocky branch of RPC-O.
+
 **keystone_rgw**:
 A basic keystone integration test, that will run on each commit.
 Utilizing the swift client to ensure Keystone integration is working.

@@ -23,12 +23,18 @@ env
 echo "+-------------------- START ENV VARS --------------------+"
 
 export RE_JOB_SCENARIO=${RE_JOB_SCENARIO:-"functional"}
+export RPCO_VERSION="${RE_JOB_SCENARIO#rpco_}"
 export RPCO_DIR=${RPCO_DIR:-/opt/rpc-openstack}
 export RPC_MAAS_DIR=${RPC_MAAS_DIR:-/etc/ansible/ceph_roles/rpc-maas}
 export TEST_RPC_MAAS=${TEST_RPC_MAAS:-False}
 export CEPH_BOOTSTRAP_OPTS=${CEPH_BOOTSTRAP_OPTS:-""}
 export DATA_DISK_MIN_SIZE_GB=${DATA_DISK_MIN_SIZE_GB:-50}
 
+if [[ "${RE_JOB_SCENARIO}" =~ ^rpco_[q-z] ]]; then
+  export OSA_TEST_VERSION=$RPCO_VERSION
+else
+  export OSA_TEST_VERSION="queens"
+fi
 LINT_COMMAND="/opt/rpc-ceph_ansible-runtime/bin/ansible-lint"
 LINT_SKIPLIST="ANSIBLE0006,ANSIBLE0007,ANSIBLE0011,ANSIBLE0012,ANSIBLE0013"
 # Install python2 for Ubuntu 16.04 and CentOS 7
@@ -73,7 +79,6 @@ function _set_rpco_vars {
 }
 
 function _configure_rpco {
-  export RPCO_VERSION="${RE_JOB_SCENARIO#rpco_}"
   export CINDER_ENVD="inventory/env.d/cinder.yml"
   export SECRETS_FILE="/etc/openstack_deploy/user_secrets.yml"
   export OSA_DIR="/opt/openstack-ansible"
@@ -218,7 +223,7 @@ if [ "${RE_JOB_SCENARIO}" = "bluestore" ]; then
 	export CEPH_BOOTSTRAP_OPTS="-e @tests/test-vars-bluestore.yml ${CEPH_BOOTSTRAP_OPTS}"
 fi
 if [[ ! -d tests/common ]]; then
-  git clone https://github.com/openstack/openstack-ansible-tests -b stable/queens tests/common
+  git clone https://github.com/openstack/openstack-ansible-tests -b stable/${OSA_TEST_VERSION} tests/common
 fi
 if [ "${RE_JOB_SCENARIO}" = "build_docs" ]; then
   DEBIAN_FRONTEND=noninteractive sudo apt -y install docker.io make
