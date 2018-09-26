@@ -26,7 +26,7 @@ export RE_JOB_SCENARIO=${RE_JOB_SCENARIO:-"functional"}
 export RPCO_VERSION="${RE_JOB_SCENARIO#rpco_}"
 export RPCO_DIR=${RPCO_DIR:-/opt/rpc-openstack}
 export RPC_MAAS_DIR=${RPC_MAAS_DIR:-/etc/ansible/ceph_roles/rpc-maas}
-export TEST_RPC_MAAS=${TEST_RPC_MAAS:-False}
+export TEST_RPC_MAAS=${TEST_RPC_MAAS:-True}
 export CEPH_BOOTSTRAP_OPTS=${CEPH_BOOTSTRAP_OPTS:-""}
 export DATA_DISK_MIN_SIZE_GB=${DATA_DISK_MIN_SIZE_GB:-50}
 
