@@ -40,6 +40,10 @@ LINT_WHITELIST='deploy-ceph.yml|rolling_update.yml|osd-configure.yml|purge-clust
 # Install python2 for Ubuntu 16.04 and CentOS 7
 if which apt-get; then
     sudo apt-get update && sudo apt-get install -y python
+
+    # Workaround for this until it gets released upstream:
+    # https://github.com/openstack/openstack-ansible-lxc_hosts/commit/f63abfa921b2c69e202b068fe631b48adbb9ad64
+    apt-get upgrade -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --force-yes
 fi
 
 if which yum; then
@@ -245,17 +249,24 @@ if [[ "${RE_JOB_SCENARIO}" =~ ^rpco_ ]]; then
   _deploy_rpco
 fi
 # Use the rpc-maas deploy to test MaaS
-if [ "${TEST_RPC_MAAS}" != "False" ] && [ "${RE_JOB_SCENARIO}" == "functional" ]; then
-  pushd ${RPC_MAAS_DIR}
-    export RE_JOB_SCENARIO="ceph"
-    ## This is needed for the maas job to be able to update the apt cache
-    ## When the influxdb repo is present.
-    apt-get install -y apt-transport-https
-    bash tests/test-ansible-functional.sh
-  popd
-  ## Test purge-cluster
-  ${ANSIBLE_BINARY} playbooks/purge-cluster.yml \
-                   -i ${ANSIBLE_INVENTORY} \
-                   -e @tests/test-vars.yml ${CEPH_BOOTSTRAP_OPTS} \
-                   -e ireallymeanit=yes
+if [ "${TEST_RPC_MAAS}" != "False" ]; then
+
+  if [[ "${RE_JOB_SCENARIO}" =~ ^rpco_ ]]; then
+    bash maas-ceph-rpco.sh
+  fi
+
+  if [ "${RE_JOB_SCENARIO}" == "functional" ]; then
+    pushd ${RPC_MAAS_DIR}
+      export RE_JOB_SCENARIO="ceph"
+      ## This is needed for the maas job to be able to update the apt cache
+      ## When the influxdb repo is present.
+      apt-get install -y apt-transport-https
+      bash tests/test-ansible-functional.sh
+    popd
+    ## Test purge-cluster
+    ${ANSIBLE_BINARY} playbooks/purge-cluster.yml \
+                     -i ${ANSIBLE_INVENTORY} \
+                     -e @tests/test-vars.yml ${CEPH_BOOTSTRAP_OPTS} \
+                     -e ireallymeanit=yes
+  fi
 fi
