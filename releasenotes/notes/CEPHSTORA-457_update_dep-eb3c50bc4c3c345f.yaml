@@ -1,0 +1,3 @@
+---
+upgrade:
+  - Update the version of rpc-maas from 1.7.7 to 1.7.8
