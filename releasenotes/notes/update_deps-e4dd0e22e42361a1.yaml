@@ -1,0 +1,6 @@
+---
+upgrade:
+  - Bump ceph-ansible version from v3.0.45 to v3.0.46
+  - Bump grafana version from 2.14.2 to 2.24.4
+  - Bump alertmanager version from 0.13.4 to 0.13.5
+  - Bump rpc-maas version from 1.7.7 to 1.7.9
