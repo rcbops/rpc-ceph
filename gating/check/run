@@ -36,7 +36,6 @@ else
   export OSA_TEST_VERSION="queens"
 fi
 LINT_COMMAND="/opt/rpc-ceph_ansible-runtime/bin/ansible-lint"
-LINT_SKIPLIST="ANSIBLE0006,ANSIBLE0007,ANSIBLE0011,ANSIBLE0012,ANSIBLE0013"
 LINT_WHITELIST='deploy-ceph.yml|rolling_update.yml|osd-configure.yml|purge-cluster.yml|deploy.yml'
 # Install python2 for Ubuntu 16.04 and CentOS 7
 if which apt-get; then
@@ -198,7 +197,7 @@ if [ "${RE_JOB_SCENARIO}" = "ansible_lint" ]; then
   for playbook in $(find ./playbooks -type f -regex '.*\.y[a]?ml' -print \
                       | egrep -v "/(${LINT_WHITELIST})$"); do
 
-    ${LINT_COMMAND} -x $LINT_SKIPLIST --exclude=/etc $playbook
+    ${LINT_COMMAND} --exclude=/etc $playbook
     retv=$(($retv + $?))
   done
   exit $retv

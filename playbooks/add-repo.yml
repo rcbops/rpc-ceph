@@ -49,6 +49,8 @@
               {{ target }}/pool/main/c/ceph
           args:
             creates: "{{ target }}/pool/main/c/ceph/ceph_{{ ceph_repo_version }}{{ ansible_distribution_release }}_amd64.deb"
+          tags:
+            - skip_ansible_lint
 
         - name: Force version refresh
           command: >
@@ -58,6 +60,8 @@
               --include='*/' --exclude='*'
               {{ target }}/pool/main/c/ceph
           when: force | default(false)
+          tags:
+            - skip_ansible_lint
 
         - name: GPG Creation Script
           template:
@@ -136,6 +140,8 @@
       args:
         creates: "{{ target }}/pool/main/c/ceph/ceph_{{ ceph_repo_version }}{{ ansible_distribution_release }}_amd64.deb"
       when: inventory_hostname != groups["repo_servers"][0]
+      tags:
+        - skip_ansible_lint
 
 - hosts:
     - mons
