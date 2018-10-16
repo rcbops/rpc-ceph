@@ -26,3 +26,5 @@ tempest_service_available_swift: True
 glance_glance_api_conf_overrides:
   DEFAULT:
     verbose: true
+nova_libvirt_images_rbd_pool: vms
+
