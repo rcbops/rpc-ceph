@@ -37,6 +37,7 @@ else
 fi
 LINT_COMMAND="/opt/rpc-ceph_ansible-runtime/bin/ansible-lint"
 LINT_SKIPLIST="ANSIBLE0006,ANSIBLE0007,ANSIBLE0011,ANSIBLE0012,ANSIBLE0013"
+LINT_WHITELIST='deploy-ceph.yml|rolling_update.yml|osd-configure.yml|purge-cluster.yml|deploy.yml'
 # Install python2 for Ubuntu 16.04 and CentOS 7
 if which apt-get; then
     sudo apt-get update && sudo apt-get install -y python
@@ -192,8 +193,15 @@ bash scripts/bootstrap-ansible.sh
 _download_dependent_components
 
 if [ "${RE_JOB_SCENARIO}" = "ansible_lint" ]; then
-   find ./playbooks -type f -regex '.*\.y[a]?ml' -print0 | xargs -0 ${LINT_COMMAND} -x $LINT_SKIPLIST --exclude=/etc
-   exit $?
+  set +e
+  retv=0
+  for playbook in $(find ./playbooks -type f -regex '.*\.y[a]?ml' -print \
+                      | egrep -v "/(${LINT_WHITELIST})$"); do
+
+    ${LINT_COMMAND} -x $LINT_SKIPLIST --exclude=/etc $playbook
+    retv=$(($retv + $?))
+  done
+  exit $retv
 fi
 if [ "${RE_JOB_SCENARIO}" = "build_releasenotes" ]; then
   pip install sphinx reno oslosphinx
