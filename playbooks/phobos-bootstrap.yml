@@ -64,6 +64,8 @@
       args:
         chdir: /opt/rpc-ceph/
         executable: /bin/bash
+      tags:
+        - skip_ansible_lint
 
 - name: Add Ceph Networks
   import_playbook: add-ceph-interfaces.yml
