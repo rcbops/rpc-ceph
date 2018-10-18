@@ -1,14 +1,34 @@
 #!/usr/bin/env bash
 
-set -x
+set -ex
 ## For use when updating the versions of upstream projects inside rpc-ceph.
 ## NB This will NOT upgrade a deployed environment, and should not be used in
 ## production
 CEPH_MAJOR_VERSION="v3\.0"
 OSA_MAJOR_VERSION="17\."
+export REL_NOTE_FILE="IHaventCreatedOneYet"
+
+function write_release_note {
+
+  local repo=$1
+  local prev_ver=$2
+  local new_ver=$3
+ 
+  if [[ "${REL_NOTE_FILE}" == "IHaventCreatedOneYet" ]]; then 
+    REL_NOTE_FILE=$(reno new update_deps 2>/dev/null | awk '/^Created/{print $NF}')
+    cat <<EOF > $REL_NOTE_FILE
+---
+upgrade:
+EOF
+  fi
+
+  echo "  - Bump $repo version from $prev_ver to $new_ver" >> $REL_NOTE_FILE
+
+}
 
 function update_ceph_ansible {
   ## Get the latest tag and save that
+  CURRENT_TAG=$(./scripts/get_role_version.py -f ansible-role-requirements.yml -n "ceph-ansible")
   LATEST_TAG=$(git ls-remote --tags https://github.com/ceph/ceph-ansible | grep "${CEPH_MAJOR_VERSION}" | grep -v '{}' | cut -d/ -f 3 | sort --version-sort | tail -n 1)
 
   ## Download the site.yml.sample and group_vars.yml.sample files
@@ -31,6 +51,9 @@ function update_ceph_ansible {
   else
     sed -i "s/$current_version/$LATEST_TAG/" ${PWD}/README.md
   fi
+  if [[ "${CURRENT_TAG}" != "${LATEST_TAG}" ]]; then
+    write_release_note ceph-ansible $CURRENT_TAG $LATEST_TAG
+  fi
 }
 
 function update_upstream_osa_roles {
@@ -39,9 +62,13 @@ function update_upstream_osa_roles {
     ## For each of the openstack-ansible repos - exclude openstack-ansible-tests which has no branches
     for repo in $(sed -n -e 's/^.*src: //p' ${role_reqs_file} | grep openstack-ansible | grep -v openstack-ansible-tests); do
       ## Get the latest tag and save that
+      CURRENT_TAG=$(./scripts/get_role_version.py -f "${role_reqs_file}" -s "${repo}")
       LATEST_TAG=$(git ls-remote --tags $repo | grep "${OSA_MAJOR_VERSION}" | grep -v '{}' | cut -d/ -f 3 | sort --version-sort | tail -n 1)
       ## Update repos
       ./scripts/ansible-role-requirements-editor.py -f "${role_reqs_file}" -s "${repo}" -v "${LATEST_TAG}"
+      if [[ "${CURRENT_TAG}" != "${LATEST_TAG}" ]]; then
+        write_release_note ${repo##*/} $CURRENT_TAG $LATEST_TAG
+      fi
     done
   done
 }
@@ -52,9 +79,13 @@ function update_upstream_roles {
     ## For each of the non openstack-ansible/ceph-ansible repos
     for repo in $(sed -n -e 's/^.*src: //p' ${role_reqs_file} | grep -v openstack-ansible | grep -v ceph-ansible); do
       ## Get the latest tag and save that
+      CURRENT_TAG=$(./scripts/get_role_version.py -f "${role_reqs_file}" -s "${repo}")
       LATEST_TAG=$(git ls-remote --tags $repo | grep -v '{}' | cut -d/ -f 3 | sort --version-sort | tail -n 1)
       ## Update repos
       ./scripts/ansible-role-requirements-editor.py -f "${role_reqs_file}" -s "${repo}" -v "${LATEST_TAG}"
+      if [[ "${CURRENT_TAG}" != "${LATEST_TAG}" ]]; then
+        write_release_note ${repo##*/} $CURRENT_TAG $LATEST_TAG
+      fi
     done
   done
 
