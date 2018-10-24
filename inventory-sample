@@ -14,4 +14,3 @@
 
 [all:vars]
 ansible_ssh_extra_args=-o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
-ansible_python_interpreter=/usr/bin/python3

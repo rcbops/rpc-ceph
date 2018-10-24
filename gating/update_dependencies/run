@@ -4,7 +4,7 @@ set -ex
 ## For use when updating the versions of upstream projects inside rpc-ceph.
 ## NB This will NOT upgrade a deployed environment, and should not be used in
 ## production
-CEPH_MAJOR_VERSION="v3\.0"
+CEPH_MAJOR_VERSION="v3\.1"
 OSA_MAJOR_VERSION="17\."
 export REL_NOTE_FILE="IHaventCreatedOneYet"
 
