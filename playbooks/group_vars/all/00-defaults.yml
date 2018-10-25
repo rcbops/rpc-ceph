@@ -23,6 +23,7 @@ ceph_release_num:
   luminous: 12
   mimic: 13
 
+ceph_repository: community
 ceph_origin: 'repository' # or 'distro' or 'local'
 ceph_stable: true # use ceph stable branch
 ceph_stable_release: luminous
