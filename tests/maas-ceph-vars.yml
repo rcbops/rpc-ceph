@@ -1,0 +1,5 @@
+---
+cinder_backends:
+  limit_container_types: cinder_volume
+  rbd:
+    volume_driver: cinder.volume.drivers.rbd.RBDDriver
