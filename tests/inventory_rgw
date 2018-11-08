@@ -16,7 +16,7 @@ localhost
 localhost
 
 [repo_servers]
-allsvc
+localhost
 
 [all_containers]
 keystone1

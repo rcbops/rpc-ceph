@@ -27,7 +27,7 @@ ceph_repository: custom
 ceph_origin: 'repository' # or 'distro' or 'local'
 ceph_stable: false # disabled for custom repo pinning
 ceph_stable_release: luminous
-repo_server_addr: "{{ hostvars[groups['repo_servers'][0]]['ansible_' + repo_server_interface]['ipv4']['address'] }}"
+repo_server_addr: "{{ hostvars[groups['repo_servers'][0]]['ansible_' + repo_server_interface|replace('-', '_')]['ipv4']['address'] }}"
 ceph_custom_repo: 'http://{{ repo_server_addr }}/debian-{{ ceph_stable_release }}'
 
 # Journal size should be 2 * (expected throughput * filestore max sync interval)
@@ -183,3 +183,5 @@ node_exporter_options:
   - "-web.telemetry-path '/{{ node_exporter_path }}'"
 
 prometheus_version: 2.2.1
+
+ceph_repokey_passphrase: jonny_phrase

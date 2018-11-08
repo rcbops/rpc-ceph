@@ -46,9 +46,11 @@ LINT_WHITELIST='deploy-ceph.yml|rolling_update.yml|osd-configure.yml|purge-clust
 if which apt-get; then
     sudo apt-get update && sudo apt-get install -y python
 
-    # Workaround for this until it gets released upstream:
-    # https://github.com/openstack/openstack-ansible-lxc_hosts/commit/f63abfa921b2c69e202b068fe631b48adbb9ad64
-    apt-get upgrade -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --force-yes
+    if [[ "$(lsb_release -cs)" == "xenial" ]]; then
+      # Workaround for this until it gets released upstream:
+      # https://github.com/openstack/openstack-ansible-lxc_hosts/commit/f63abfa921b2c69e202b068fe631b48adbb9ad64
+      apt-get upgrade -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --force-yes
+    fi
 fi
 
 if which yum; then
@@ -59,6 +61,13 @@ fi
 if ! which pip; then
   curl --silent --show-error --retry 5 \
     https://bootstrap.pypa.io/get-pip.py | sudo python2.7
+fi
+
+# Add syslog user if one doesn't exist. The haproxy_server role assumes
+# on Ubuntu that a syslog user exists and fails if there is not one.
+# Our RE Ubuntu images do not have a syslog user.
+if ! id -u syslog ; then
+  apt-get install -y rsyslog
 fi
 
 # Install bindep and tox with pip.
@@ -248,9 +257,13 @@ if [[ "${RE_JOB_SCENARIO}" =~ ^rpco_ ]]; then
   _configure_rpco
   _set_rpco_vars
 else
+  ROLE_FILE="../tests/ansible-role-test-requirements.yml"
+  if [[ $(lsb_release -cs || true) = "bionic" ]]; then
+    ROLE_FILE="../tests/ansible-role-test-requirements-bionic.yml"
+  fi
   ${ANSIBLE_BINARY} playbooks/git-clone-repos.yml \
                    -i ${ANSIBLE_INVENTORY} \
-                   -e role_file=../tests/ansible-role-test-requirements.yml
+                   -e role_file=${ROLE_FILE}
 fi
 
 ## Set the inventory and include the additional overrides vars file
@@ -293,7 +306,7 @@ if [ "${TEST_RPC_MAAS}" != "False" ]; then
     bash maas-ceph-rpco.sh
   fi
 
-  if [ "${RE_JOB_SCENARIO}" == "functional" ]; then
+  if [ "${RE_JOB_SCENARIO}" =~ ^functional ]; then
     pushd ${RPC_MAAS_DIR}
       export RE_JOB_SCENARIO="ceph"
       ## This is needed for the maas job to be able to update the apt cache

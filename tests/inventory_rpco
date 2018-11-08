@@ -11,7 +11,7 @@ rgw1
 localhost
 
 [repo_servers]
-allsvc
+localhost
 
 [all_containers]
 mon1

@@ -11,6 +11,17 @@
 - name: Playbook for configuring fake storage on Ceph hosts
   hosts: osds
   become: true
+  pre_tasks:
+  - name: Gather variables for each operating system
+    include_vars: "{{ item }}"
+    with_first_found:
+      - "test-vars-{{ ansible_distribution | lower }}-{{ ansible_distribution_version | lower }}.yml"
+      - "test-vars-{{ ansible_distribution | lower }}-{{ ansible_distribution_major_version | lower }}.yml"
+      - "test-vars-{{ ansible_os_family | lower }}-{{ ansible_distribution_major_version | lower }}.yml"
+      - "test-vars-{{ ansible_distribution | lower }}.yml"
+      - "test-vars-{{ ansible_os_family | lower }}-{{ ansible_distribution_version.split('.')[0] }}.yml"
+      - "test-vars-{{ ansible_os_family | lower }}.yml"
+      - "test-vars-linux.yml"
   tasks:
   - include: cleanup-ceph-storage.yml
   - name: Ensure xfsprogs and parted are installed on localhost
@@ -80,7 +91,7 @@
     lxc_container:
       name: "{{ container_name }}"
       container_config:
-        - "lxc.aa_profile = unconfined"
+        - "{{ lxc_apparmor }}"
         - "lxc.cgroup.devices.allow = b *:* rwm"
     delegate_to: "{{ physical_host }}"
   - name: Wait for container connectivity

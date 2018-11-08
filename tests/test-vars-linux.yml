@@ -1,0 +1,4 @@
+---
+lxc_apparmor: "lxc.aa_profile = unconfined"
+iptables_interface: eth0
+
