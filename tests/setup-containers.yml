@@ -154,7 +154,7 @@
       command: "{{ _iptables_path.stdout }} -A POSTROUTING -t mangle -p tcp -j CHECKSUM --checksum-fill"
 
     - name: Add iptables rule to provide internet connectivity to instances
-      command: "{{ _iptables_path.stdout }} -t nat -A POSTROUTING -o eth0 -j MASQUERADE"
+      command: "{{ _iptables_path.stdout }} -t nat -A POSTROUTING -o ens3 -j MASQUERADE"
 
     - name: Add iptables rules for lxc natting
       command: /usr/local/bin/lxc-system-manage iptables-create

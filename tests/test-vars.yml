@@ -181,3 +181,6 @@ maas_notification_plan: npTechnicalContactsEmail
 maas_entity_name: "{{ ansible_hostname }}{{ maas_fqdn_extension }}"
 # Allow ceph services to be inside containers.
 maas_rpc_legacy_ceph: True
+
+
+ceph_stable_release: mimic
