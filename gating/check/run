@@ -221,9 +221,13 @@ if [[ "${RE_JOB_SCENARIO}" =~ ^rpco_ ]]; then
   _configure_rpco
   _set_rpco_vars
 else
+  ROLE_FILE="../tests/ansible-role-test-requirements.yml"
+  if [[ $(asdflsb_release -cs || true) = "bionic" ]]; then
+    ROLE_FILE="../tests/ansible-role-test-requirements-bionic.yml"
+  fi
   ${ANSIBLE_BINARY} playbooks/git-clone-repos.yml \
                    -i ${ANSIBLE_INVENTORY} \
-                   -e role_file=../tests/ansible-role-test-requirements.yml
+                   -e role_file=${ROLE_FILE}
 fi
 ## Set the inventory and include the additional overrides vars file
 if [ "${RE_JOB_SCENARIO}" = "keystone_rgw" ]; then
