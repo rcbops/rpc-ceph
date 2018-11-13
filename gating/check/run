@@ -222,7 +222,7 @@ if [[ "${RE_JOB_SCENARIO}" =~ ^rpco_ ]]; then
   _set_rpco_vars
 else
   ROLE_FILE="../tests/ansible-role-test-requirements.yml"
-  if [[ $(asdflsb_release -cs || true) = "bionic" ]]; then
+  if [[ $(lsb_release -cs || true) = "bionic" ]]; then
     ROLE_FILE="../tests/ansible-role-test-requirements-bionic.yml"
   fi
   ${ANSIBLE_BINARY} playbooks/git-clone-repos.yml \
