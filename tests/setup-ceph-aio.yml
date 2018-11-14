@@ -23,6 +23,8 @@
     - "groups['keystone_all'] | length > 0"
 
 ## Ceph setup
+- include: ../playbooks/add-repo.yml
+  when: ceph_repo_version is defined
 - include: ../playbooks/deploy-ceph.yml
 - include: ../playbooks/ceph-keystone-rgw.yml
   when: radosgw_keystone | bool

@@ -12,6 +12,9 @@ rsyslog1
 [lxc_hosts]
 localhost
 
+[repo_servers]
+allsvc
+
 [hosts]
 localhost
 

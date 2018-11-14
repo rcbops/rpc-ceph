@@ -10,6 +10,9 @@ rgw1
 [hosts]
 localhost
 
+[repo_servers]
+allsvc
+
 [all_containers]
 mon1
 mon2
