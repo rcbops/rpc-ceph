@@ -15,6 +15,9 @@ localhost
 [hosts]
 localhost
 
+[repo_servers]
+allsvc
+
 [all_containers]
 keystone1
 mon1

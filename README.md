@@ -46,6 +46,7 @@ The inventory should consist of the following:
  * 1-3+ mgrs hosts (perferably 3 or more) - Ideally on the mon hosts
    (Since the Luminous release this is required).
  * 3+ osds hosts with storage drives.
+ * 1+ repo_servers hosts to serve as apt repo servers for ceph version pinning.
  * OPTIONAL: 1-3+ rgws hosts - these will be load balanced.
  * ``rsyslog_all`` host, pointing to an existing or new rsyslog logging server.
  * OPTIONAL:``benchmark_hosts`` - the host on which to run benchmarking
@@ -64,6 +65,7 @@ The inventory should consist of the following:
    * ``public_network``
    * ``cluster_network``
    * ``osd_scenario``
+   * ``repo_server_interface``
    * Any other ``ceph-ansible`` settings you want to configure.
 
 3. Set any override vars in playbooks/group_vars/host_group/overrides.yml, this allows:
@@ -100,6 +102,7 @@ The inventory should consist of the following:
 7. Run the ``ceph-ansible`` playbook from the playbooks directory:
 
    ```bash
+   ceph-ansible-playbook -i <link to your inventory file> playbooks/add-repo.yml -e @<link to your vars file>
    ceph-ansible-playbook -i <link to your inventory file> playbooks/deploy-ceph.yml -e @<link to your vars file>
    ```
 

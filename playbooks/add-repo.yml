@@ -143,13 +143,7 @@
       tags:
         - skip_ansible_lint
 
-- hosts:
-    - mons
-    - osds
-    - rgws
-    - mdss
-    - mgrs
-    - repo_server
+- hosts: all
   become: true
   tasks:
     - name: Add repo key

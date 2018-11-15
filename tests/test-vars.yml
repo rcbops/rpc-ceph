@@ -158,6 +158,7 @@ ceph_conf_overrides_extra:
 # We don't have enough space in an AIO to run 20GB journal devices
 journal_size: 1024
 monitor_interface: eth1
+repo_server_interface: eth1
 public_network: 172.29.236.0/22
 cluster_network: 172.29.244.0/22
 osd_scenario: non-collocated

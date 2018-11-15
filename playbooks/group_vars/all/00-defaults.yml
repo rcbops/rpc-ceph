@@ -23,10 +23,13 @@ ceph_release_num:
   luminous: 12
   mimic: 13
 
-ceph_repository: community
+ceph_repository: custom
 ceph_origin: 'repository' # or 'distro' or 'local'
-ceph_stable: true # use ceph stable branch
+ceph_stable: false # disabled for custom repo pinning
 ceph_stable_release: luminous
+ceph_repo_version: 12.2.8-1
+repo_server_addr: "{{ hostvars[groups['repo_servers'][0]]['ansible_' + repo_server_interface]['ipv4']['address'] }}"
+ceph_custom_repo: 'http://{{ repo_server_addr }}/debian-luminous'
 
 # Journal size should be 2 * (expected throughput * filestore max sync interval)
 # Our expected max throughput on non-SSD drives is about 140MB/s
