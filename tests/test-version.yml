@@ -1,0 +1,17 @@
+---
+- hosts: mons[0]
+  gather_facts: false
+  tasks:
+    - name: Get Ceph Versions
+      command: ceph -f json versions
+      changed_when: false
+      register: ceph_versions_out
+
+    - name: Import JSON
+      set_fact:
+        ceph_versions: "{{ ceph_versions_out.stdout | from_json }}"
+
+    - name: Check Ceph Versions
+      assert:
+        that: "item == 'ceph version 12.2.8 (ae699615bac534ea496ee965ac6192cb7e0e07c0) luminous (stable)'"
+      with_items: "{{ ceph_versions.overall }}"
