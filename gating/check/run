@@ -244,6 +244,9 @@ else
   ${ANSIBLE_BINARY} tests/setup-ceph-aio.yml \
                    -i ${ANSIBLE_INVENTORY} \
                    -e @tests/test-vars.yml ${CEPH_BOOTSTRAP_OPTS}
+  ${ANSIBLE_BINARY} tests/test-ceph-aio.yml \
+                   -i ${ANSIBLE_INVENTORY} \
+                   -e @tests/test-vars.yml ${CEPH_BOOTSTRAP_OPTS}
 fi
 if [[ "${RE_JOB_SCENARIO}" =~ ^rpco_ ]]; then
   _deploy_rpco
