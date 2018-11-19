@@ -32,6 +32,7 @@
   when: radosgw_keystone | bool
 
 ## Tests
+- include: test-version.yml
 - include: test-rgw.yml
 - include: ../benchmark/fio_benchmark.yml
   when: (test_run_bench | default(False)) | bool

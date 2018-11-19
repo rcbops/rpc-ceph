@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Enabled repository pinning by default and pinned to
+    luminous version 12.2.8.
