@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Set ``openstack_config: True`` as the default so openstack pools and auth
+    are created by default.  For standalone deployments ``openstack_config``
+    will need to be overridden to ``False`` to avoid unneccsary keys and
+    pools.

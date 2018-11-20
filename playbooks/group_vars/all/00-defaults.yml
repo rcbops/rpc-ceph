@@ -39,6 +39,8 @@ journal_size: "{{ osd_journal_size | default('20480') }}"
 
 osd_objectstore: filestore
 
+openstack_config: true
+
 radosgw_civetweb_num_threads: 8192
 ceph_conf_overrides_all:
    global:
