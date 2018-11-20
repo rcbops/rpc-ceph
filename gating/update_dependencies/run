@@ -6,7 +6,6 @@ set -ex
 ## production
 CEPH_MAJOR_VERSION="v3\.1"
 OSA_MAJOR_VERSION="17\."
-export REL_NOTE_FILE="IHaventCreatedOneYet"
 
 function write_release_note {
 
@@ -14,8 +13,8 @@ function write_release_note {
   local prev_ver=$2
   local new_ver=$3
  
-  if [[ "${REL_NOTE_FILE}" == "IHaventCreatedOneYet" ]]; then 
-    REL_NOTE_FILE=$(reno new update_deps 2>/dev/null | awk '/^Created/{print $NF}')
+  if [ -z "${REL_NOTE_FILE}" ]; then 
+    export REL_NOTE_FILE=$(reno new update_deps 2>/dev/null | awk '/^Created/{print $NF}')
     cat <<EOF > $REL_NOTE_FILE
 ---
 upgrade:
@@ -23,6 +22,7 @@ EOF
   fi
 
   echo "  - Bump $repo version from $prev_ver to $new_ver" >> $REL_NOTE_FILE
+  git add $REL_NOTE_FILE
 
 }
 
