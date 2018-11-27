@@ -5,6 +5,7 @@
   vars:
     target: "{{ dest | default('/opt/ceph-repo') }}"
     ssh_opts: -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
+    gpg_dir: "{{ lookup('env', 'HOME') }}/.rpc-ceph-gpg"
   tasks:
     - name: Check for required variables
       assert:
@@ -39,6 +40,7 @@
           with_items:
             - "{{ target }}/dists/{{ ansible_distribution_release }}/main/binary-amd64"
             - "{{ target }}/pool/main/c/ceph"
+            - "{{ gpg_dir }}"
 
         - name: Get Ceph Packages
           command: >
@@ -74,17 +76,27 @@
         - name: gen gpg key
           command: gpg --batch --gen-key /tmp/gpg-key-script
           args:
-            creates: "{{ lookup('env', 'HOME') }}/.gnupg/pubring.gpg"
+            creates: "{{ gpg_dir }}/rackspace.key"
+          register: genkey
+
+        - name: import keyring
+          command: gpg --no-default-keyring --secret-keyring {{ gpg_dir }}/rackspace.key --keyring {{ gpg_dir }}/rackspace.pub --list-secret-keys
+
+        - name: import key
+          command: gpg --import {{ gpg_dir }}/rackspace.key
+          when: genkey.changed
 
         - name: Sign packages
-          command: dpkg-sig --sign builder *.deb
+          command: dpkg-sig -k rackspace --sign builder *.deb
           args:
             chdir: "{{ target }}/pool/main/c/ceph"
 
+        - name: Get Key ID
+          shell: gpg {{ gpg_dir }}/rackspace.key | grep ^sec | cut -c12-20
+          register: keyid
+
         - name: Export key
-          shell: gpg -a --export > release.asc
-          args:
-            chdir: "{{ target }}"
+          shell: gpg -a --export {{ keyid.stdout }} > {{ target }}/release.asc
 
         - name: Scan packages
           shell:
