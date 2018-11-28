@@ -24,6 +24,8 @@
 from __future__ import print_function
 
 import argparse
+import os
+import sys
 import yaml
 
 
@@ -81,8 +83,14 @@ def main():
     # Parse arguments
     args = parser.parse_args()
 
+    cwd = os.getcwd()
+    f = os.path.realpath(args.file)
+    if os.path.commonprefix((f, cwd)) != cwd:
+        print "bad file: %s" % f
+        sys.exit(1)
+
     # Read the ansible-role-requirements.yml file into memory
-    with open(args.file, "r") as role_req_file:
+    with open(f, "r") as role_req_file:
         reqs = yaml.safe_load(role_req_file)
 
     # Loop through the list to find the applicable role
@@ -99,7 +107,7 @@ def main():
                 role_data['version'] = args.version
 
     # Write out the resulting file
-    with open(args.file, "w") as role_req_file:
+    with open(f, "w") as role_req_file:
         try:
             yaml.dump(reqs, role_req_file, default_flow_style=False)
         except yaml.YAMLError as exc:
