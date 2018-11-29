@@ -86,7 +86,7 @@ def main():
     cwd = os.getcwd()
     f = os.path.realpath(args.file)
     if os.path.commonprefix((f, cwd)) != cwd:
-        print "bad file: %s" % f
+        print("bad file: %s" % f)
         sys.exit(1)
 
     # Read the ansible-role-requirements.yml file into memory
