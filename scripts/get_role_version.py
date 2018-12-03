@@ -21,9 +21,11 @@
 """Read current version from ansible-role-requirements.yml content from the CLI."""
 
 
-#from __future__ import print_function
+from __future__ import print_function
 
 import argparse
+import os
+import sys
 import yaml
 
 
@@ -59,18 +61,24 @@ def main():
     # Parse arguments
     args = parser.parse_args()
 
+    cwd = os.getcwd()
+    f = os.path.realpath(args.file)
+    if os.path.commonprefix((f, cwd)) != cwd:
+        print("bad file: %s" % f)
+        sys.exit(1)
+
     # Read the ansible-role-requirements.yml file into memory
-    with open(args.file, "r") as role_req_file:
+    with open(f, "r") as role_req_file:
         reqs = yaml.safe_load(role_req_file)
 
     # Loop through the list to find the applicable role
     for role_data in reqs:
         if args.name:
             if role_data['name'] == args.name:
-                print role_data['version']
+                print(role_data['version'])
         elif args.src:
            if role_data['src'] == args.src:
-                print role_data['version']
+                print(role_data['version'])
 
 
 if __name__ == "__main__":
