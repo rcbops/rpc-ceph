@@ -1,0 +1,4 @@
+---
+upgrade:
+  - Bump ceph-ansible version from v3.1.10 to v3.1.12
+  - Bump ansible-alertmanager version from 0.13.6 to 0.13.7
