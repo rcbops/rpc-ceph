@@ -39,6 +39,7 @@
             state: directory
           with_items:
             - "{{ target }}/dists/{{ ansible_distribution_release }}/main/binary-amd64"
+            - "{{ target }}/dists/{{ ansible_distribution_release }}/main/binary-i386"
             - "{{ target }}/pool/main/c/ceph"
             - "{{ gpg_dir }}"
 
@@ -103,6 +104,14 @@
             dpkg-scanpackages -m . /dev/null
               | tee {{ target }}/dists/{{ ansible_distribution_release }}/main/binary-amd64/Packages
               | gzip > {{ target }}/dists/{{ ansible_distribution_release }}/main/binary-amd64/Packages.gz
+          args:
+            chdir: "{{ target }}"
+
+        - name: Scan packages
+          shell:
+            dpkg-scanpackages -m . /dev/null
+              | tee {{ target }}/dists/{{ ansible_distribution_release }}/main/binary-i386/Packages
+              | gzip > {{ target }}/dists/{{ ansible_distribution_release }}/main/binary-i386/Packages.gz
           args:
             chdir: "{{ target }}"
 
