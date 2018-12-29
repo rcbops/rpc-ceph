@@ -1,0 +1,4 @@
+---
+upgrade:
+  - Bump ansible-alertmanager version from 0.13.7 to 0.13.8
+  - Bump rpc-maas version from 1.7.10 to 1.8.0
