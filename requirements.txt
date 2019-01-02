@@ -10,4 +10,4 @@ python-memcached>=1.56 # PSF
 PyYAML>=3.12 # MIT
 virtualenv>=14.0.6 # MIT
 shade>=1.26.0
-ansible-lint>=3.4.23 # MIT
+ansible-lint<4.0.0,>=3.4.23 # MIT
