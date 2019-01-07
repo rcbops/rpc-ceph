@@ -180,7 +180,6 @@
         ansible_user: ubuntu
         ansible_become: true
         ansible_ssh_extra_args: -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
-        ansible_python_interpreter: /usr/bin/python3
         host_id: "{{ log_nodes.server.id }}"
       with_items: "{{ log_nodes.results }}"
       when: log_count|int > 0
@@ -196,7 +195,6 @@
         ansible_user: ubuntu
         ansible_become: true
         ansible_ssh_extra_args: -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
-        ansible_python_interpreter: /usr/bin/python3
         host_id: "{{ storage_nodes.results[0].server.id }}"
       when: log_count|int == 0
 
@@ -208,7 +206,6 @@
         ansible_user: ubuntu
         ansible_become: true
         ansible_ssh_extra_args: -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
-        ansible_python_interpreter: /usr/bin/python3
         host_id: "{{ item.server.id }}"
       with_items: "{{ client_nodes.results }}"
       when: client_count|int > 0
@@ -221,7 +218,6 @@
         ansible_user: ubuntu
         ansible_become: true
         ansible_ssh_extra_args: -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
-        ansible_python_interpreter: /usr/bin/python3
         host_id: "{{ haproxy_nodes.server.id }}"
       with_items: "{{ haproxy_nodes.results }}"
       when: haproxy_count|int > 0
@@ -236,7 +232,6 @@
         ansible_user: ubuntu
         ansible_become: true
         ansible_ssh_extra_args: -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
-        ansible_python_interpreter: /usr/bin/python3
         host_id: "{{ item.server.id }}"
       with_items: "{{ storage_nodes.results }}"
 
@@ -264,7 +259,6 @@
         ansible_user: ubuntu
         ansible_become: true
         ansible_ssh_extra_args: -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
-        ansible_python_interpreter: /usr/bin/python3
         host_id: "{{ item.server.id }}"
       with_items: "{{ mon_nodes }}"
 
