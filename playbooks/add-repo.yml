@@ -6,6 +6,10 @@
     target: "{{ dest | default('/opt/ceph-repo') }}"
     ssh_opts: -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
     gpg_dir: "{{ lookup('env', 'HOME') }}/.rpc-ceph-gpg"
+
+  vars_files:
+    - "../vars/{{ ceph_stable_release }}.yml"
+
   tasks:
     - name: Check for required variables
       assert:
@@ -47,11 +51,11 @@
           command: >
             rsync -v download.ceph.com::ceph/debian-{{ ceph_stable_release }}/pool/main/c/ceph/
               --recursive --times --links --hard-links
-              --include='*{{ ceph_repo_version }}{{ ansible_distribution_release }}*amd64.deb'
+              --include='*{{ ceph_repo_version }}-1{{ ansible_distribution_release }}*amd64.deb'
               --include='*/' --exclude='*'
               {{ target }}/pool/main/c/ceph
           args:
-            creates: "{{ target }}/pool/main/c/ceph/ceph_{{ ceph_repo_version }}{{ ansible_distribution_release }}_amd64.deb"
+            creates: "{{ target }}/pool/main/c/ceph/ceph_{{ ceph_repo_version }}-1{{ ansible_distribution_release }}_amd64.deb"
           tags:
             - skip_ansible_lint
 
@@ -59,7 +63,7 @@
           command: >
             rsync -v download.ceph.com::ceph/debian-{{ ceph_stable_release }}/pool/main/c/ceph/
               --recursive --times --links --hard-links
-              --include='*{{ ceph_repo_version }}{{ ansible_distribution_release }}*amd64.deb'
+              --include='*{{ ceph_repo_version }}-1{{ ansible_distribution_release }}*amd64.deb'
               --include='*/' --exclude='*'
               {{ target }}/pool/main/c/ceph
           when: force | default(false)
@@ -159,15 +163,10 @@
           --recursive --times --links --hard-links
           {{ target }}/
       args:
-        creates: "{{ target }}/pool/main/c/ceph/ceph_{{ ceph_repo_version }}{{ ansible_distribution_release }}_amd64.deb"
+        creates: "{{ target }}/pool/main/c/ceph/ceph_{{ ceph_repo_version }}-1{{ ansible_distribution_release }}_amd64.deb"
       when: inventory_hostname != groups["repo_servers"][0]
       tags:
         - skip_ansible_lint
 
-- hosts: all
-  become: true
-  tasks:
-    - name: Add repo key
-      apt_key:
-        url: 'http://{{ repo_server_addr }}/debian-{{ ceph_stable_release }}/release.asc'
-        state: present
+- name: Add Repo Key
+  import_playbook: add-repo-key.yml

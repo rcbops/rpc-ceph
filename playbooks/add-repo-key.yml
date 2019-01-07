@@ -1,0 +1,11 @@
+---
+- name: Add Repo Key
+  hosts: all
+  become: true
+  vars_files:
+    - "../vars/{{ ceph_stable_release }}.yml"
+  tasks:
+    - name: Add repo key
+      apt_key:
+        url: 'http://{{ repo_server_addr }}/debian-{{ ceph_stable_release }}/release.asc'
+        state: present

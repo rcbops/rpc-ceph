@@ -1,6 +1,8 @@
 ---
 - hosts: mons[0]
   gather_facts: false
+  vars_files:
+    - "../vars/{{ ceph_stable_release }}.yml"
   tasks:
     - name: Get Ceph Versions
       command: ceph -f json versions
@@ -15,3 +17,10 @@
       assert:
         that: "item == 'ceph version 12.2.8 (ae699615bac534ea496ee965ac6192cb7e0e07c0) luminous (stable)'"
       with_items: "{{ ceph_versions.overall }}"
+      when: ceph_stable_release == 'luminous'
+
+    - name: Check Ceph Versions
+      assert:
+        that: "item == 'ceph version 13.2.4 (b10be4d44915a4d78a8e06aa31919e74927b142e) mimic (stable)'"
+      with_items: "{{ ceph_versions.overall }}"
+      when: ceph_stable_release == 'mimic'
