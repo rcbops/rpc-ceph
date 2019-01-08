@@ -12,6 +12,12 @@
       with_items:
         - python-swiftclient
         - shade
+
+    - name: Wait for RGW Port
+      wait_for:
+        host: "{{ internal_lb_vip_address }}"
+        port: 8080
+
     - name: Upload a file to swift
       os_object:
         cloud: "default"
@@ -20,6 +26,9 @@
         name: etc_hosts
         filename: /etc/hosts
         container: test_cont
+      register: swift_upload
+      until: swift_upload | success
+      retries: 5
 
 - hosts: mons[0]
   tasks:
