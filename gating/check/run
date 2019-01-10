@@ -23,20 +23,25 @@ env
 echo "+-------------------- START ENV VARS --------------------+"
 
 export RE_JOB_SCENARIO=${RE_JOB_SCENARIO:-"functional"}
-export RPCO_VERSION="${RE_JOB_SCENARIO#rpco_}"
+export RPCO_VERSION="${RE_JOB_SCENARIO%_mimic}"
+export RPCO_VERSION="${RPCO_VERSION#rpco_}"
 export RPCO_DIR=${RPCO_DIR:-/opt/rpc-openstack}
 export RPC_MAAS_DIR=${RPC_MAAS_DIR:-/etc/ansible/ceph_roles/rpc-maas}
 export TEST_RPC_MAAS=${TEST_RPC_MAAS:-False}
 export CEPH_BOOTSTRAP_OPTS=${CEPH_BOOTSTRAP_OPTS:-""}
 export DATA_DISK_MIN_SIZE_GB=${DATA_DISK_MIN_SIZE_GB:-50}
 
+# For Queens and older use the queens branch of openstack-ansible-tests
 if [[ "${RE_JOB_SCENARIO}" =~ ^rpco_[q-z] ]]; then
   export OSA_TEST_VERSION=$RPCO_VERSION
 else
   export OSA_TEST_VERSION="queens"
 fi
 LINT_COMMAND="/opt/rpc-ceph_ansible-runtime/bin/ansible-lint"
+
+# Do not lint these playbooks because they come directly from upstream ceph-ansible
 LINT_WHITELIST='deploy-ceph.yml|rolling_update.yml|osd-configure.yml|purge-cluster.yml|deploy.yml'
+
 # Install python2 for Ubuntu 16.04 and CentOS 7
 if which apt-get; then
     sudo apt-get update && sudo apt-get install -y python
@@ -186,6 +191,32 @@ function _download_dependent_components {
   )
 }
 
+function _test_ansible_lint {
+  set +e
+  retv=0
+  for playbook in $(find ./playbooks -type f -regex '.*\.y[a]?ml' -print \
+                      | egrep -v "/(${LINT_WHITELIST})$"); do
+
+    ${LINT_COMMAND} --exclude=/etc $playbook
+    retv=$(($retv + $?))
+  done
+  exit $retv
+}
+
+function _test_build_releasenotes {
+  pip install sphinx reno oslosphinx
+  sphinx-build -a -E -W -d releasenotes/build/doctrees \
+    -b html releasenotes/source releasenotes/build/html
+  exit
+}
+
+function _test_build_docs {
+  DEBIAN_FRONTEND=noninteractive sudo apt -y install docker.io make
+  cd ${CLONE_DIR}/docs
+  make docs
+  exit
+}
+
 export CLONE_DIR="$(pwd)"
 export ANSIBLE_INVENTORY="${CLONE_DIR}/tests/inventory"
 export ANSIBLE_PARAMETERS="-e @${CLONE_DIR}/tests/test-vars.yml -e @${RPC_MAAS_DIR}/tests/user_rpcm_secrets.yml"
@@ -196,25 +227,21 @@ bash scripts/bootstrap-ansible.sh
 _download_dependent_components
 
 if [ "${RE_JOB_SCENARIO}" = "ansible_lint" ]; then
-  set +e
-  retv=0
-  for playbook in $(find ./playbooks -type f -regex '.*\.y[a]?ml' -print \
-                      | egrep -v "/(${LINT_WHITELIST})$"); do
+  _test_ansible_lint
+fi
 
-    ${LINT_COMMAND} --exclude=/etc $playbook
-    retv=$(($retv + $?))
-  done
-  exit $retv
-fi
 if [ "${RE_JOB_SCENARIO}" = "build_releasenotes" ]; then
-  pip install sphinx reno oslosphinx
-  sphinx-build -a -E -W -d releasenotes/build/doctrees \
-    -b html releasenotes/source releasenotes/build/html
-  exit
+  _test_build_releasenotes
 fi
+
+if [ "${RE_JOB_SCENARIO}" = "build_docs" ]; then
+  _test_build_docs
+fi
+
 if [ "${RE_JOB_SCENARIO}" != "rpco_newton" ]; then
   _get_data_disk
 fi
+
 # Clone the test repos when not integrating with RPC-O
 # RPC-O has existing lxc roles that will conflict
 if [[ "${RE_JOB_SCENARIO}" =~ ^rpco_ ]]; then
@@ -225,32 +252,40 @@ else
                    -i ${ANSIBLE_INVENTORY} \
                    -e role_file=../tests/ansible-role-test-requirements.yml
 fi
+
 ## Set the inventory and include the additional overrides vars file
-if [ "${RE_JOB_SCENARIO}" = "keystone_rgw" ]; then
+if [[ "${RE_JOB_SCENARIO}" =~ ^keystone_rgw ]]; then
   export ANSIBLE_INVENTORY="${CLONE_DIR}/tests/inventory_rgw"
   export CEPH_BOOTSTRAP_OPTS="-e @tests/test-vars-rgw.yml ${CEPH_BOOTSTRAP_OPTS}"
 fi
-if [ "${RE_JOB_SCENARIO}" = "bluestore" ]; then
+
+if [[ "${RE_JOB_SCENARIO}" =~ ^bluestore ]]; then
 	export CEPH_BOOTSTRAP_OPTS="-e @tests/test-vars-bluestore.yml ${CEPH_BOOTSTRAP_OPTS}"
 fi
+
 if [[ ! -d tests/common ]]; then
   git clone https://github.com/openstack/openstack-ansible-tests -b stable/${OSA_TEST_VERSION} tests/common
 fi
-if [ "${RE_JOB_SCENARIO}" = "build_docs" ]; then
-  DEBIAN_FRONTEND=noninteractive sudo apt -y install docker.io make
-  cd ${CLONE_DIR}/docs
-  make docs
-else 
-  ${ANSIBLE_BINARY} tests/setup-ceph-aio.yml \
-                   -i ${ANSIBLE_INVENTORY} \
-                   -e @tests/test-vars.yml ${CEPH_BOOTSTRAP_OPTS}
-  ${ANSIBLE_BINARY} tests/test-ceph-aio.yml \
-                   -i ${ANSIBLE_INVENTORY} \
-                   -e @tests/test-vars.yml ${CEPH_BOOTSTRAP_OPTS}
+
+# Set variavles needed to deploy ceph mimic for _mimic$ scenarios
+if [[ "${RE_JOB_SCENARIO}" =~ _mimic$ ]]; then
+  export CEPH_BOOTSTRAP_OPTS="-e @tests/test-vars-mimic.yml ${CEPH_BOOTSTRAP_OPTS}"
 fi
+
+# Install Ceph AIO across LXC containers
+${ANSIBLE_BINARY} tests/setup-ceph-aio.yml \
+                 -i ${ANSIBLE_INVENTORY} \
+                 -e @tests/test-vars.yml ${CEPH_BOOTSTRAP_OPTS}
+
+# Validate Ceph AIO install
+${ANSIBLE_BINARY} tests/test-ceph-aio.yml \
+                 -i ${ANSIBLE_INVENTORY} \
+                 -e @tests/test-vars.yml ${CEPH_BOOTSTRAP_OPTS}
+
 if [[ "${RE_JOB_SCENARIO}" =~ ^rpco_ ]]; then
   _deploy_rpco
 fi
+
 # Use the rpc-maas deploy to test MaaS
 if [ "${TEST_RPC_MAAS}" != "False" ]; then
 
