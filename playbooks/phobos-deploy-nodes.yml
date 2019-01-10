@@ -8,6 +8,7 @@
     log_count: 0
     haproxy_count: 0
     ironic: false
+    image_default: "Ubuntu 16.04"
 
   tasks:
     - name: Check for required variables
@@ -26,7 +27,7 @@
       os_server:
         state: present
         name: "ceph-{{ cluster_deploy_version }}-stor-{{ item }}"
-        image: "{{ stor_image }}"
+        image: "{{ stor_image | default(image_default) }}"
         flavor: "{{ stor_flavor }}"
         key_name: "{{ ssh_keyname }}"
         nics:
@@ -35,6 +36,11 @@
         timeout: 720
         validate_certs: false
         cloud: phobos
+        userdata: |
+          {%- raw -%}#!/bin/bash
+          apt-get update
+          apt-get install -y python
+          {% endraw %}
       with_sequence: count={{ stor_count }}
       register: storage_nodes
 
@@ -42,7 +48,7 @@
       os_server:
         state: present
         name: "ceph-{{ cluster_deploy_version }}-log"
-        image: "{{ log_image }}"
+        image: "{{ log_image | default(image_default) }}"
         flavor: "{{ log_flavor }}"
         key_name: "{{ ssh_keyname }}"
         nics: "{{ networks }}"
@@ -55,6 +61,8 @@
           echo "auto ens4" >> /etc/network/interfaces.d/ens4.cfg
           echo "iface ens4 inet dhcp" >> /etc/network/interfaces.d/ens4.cfg
           ifdown ens4 && ifup ens4
+          apt-get update
+          apt-get install -y python
           {% endraw %}
       register: log_nodes
       when: log_count|int > 0
@@ -63,7 +71,7 @@
       os_server:
         state: present
         name: "ceph-{{ cluster_deploy_version }}-haproxy"
-        image: "{{ log_image }}"
+        image: "{{ log_image | default(image_default) }}"
         flavor: "{{ log_flavor }}"
         key_name: "{{ ssh_keyname }}"
         nics: "{{ networks }}"
@@ -76,6 +84,8 @@
           echo "auto ens4" >> /etc/network/interfaces.d/ens4.cfg
           echo "iface ens4 inet dhcp" >> /etc/network/interfaces.d/ens4.cfg
           ifdown ens4 && ifup ens4
+          apt-get update
+          apt-get install -y python
           {% endraw %}
       register: haproxy_nodes
       when: haproxy_count|int > 0
@@ -94,7 +104,7 @@
       os_server:
         state: present
         name: "ceph-{{ cluster_deploy_version }}-client-{{ item }}"
-        image: "{{ log_image }}"
+        image: "{{ log_image | default(image_default) }}"
         flavor: "{{ log_flavor }}"
         key_name: "{{ ssh_keyname }}"
         nics: "{{ networks }}"
@@ -108,6 +118,8 @@
           echo "auto ens4" >> /etc/network/interfaces.d/ens4.cfg
           echo "iface ens4 inet dhcp" >> /etc/network/interfaces.d/ens4.cfg
           ifdown ens4 && ifup ens4
+          apt-get update
+          apt-get install -y python
           {% endraw %}
       with_sequence: count={{ client_count }}
       register: client_nodes
@@ -118,7 +130,7 @@
         -o StrictHostKeyChecking=no
         -o UserKnownHostsFile=/dev/null
         -o ConnectTimeout=30
-        ubuntu@{{ item.server.addresses.get(external_network)[0].addr }} true
+        ubuntu@{{ item.server.addresses.get(external_network)[0].addr }} which python
       register: log_ssh_result
       until: log_ssh_result|success
       retries: 300
@@ -132,7 +144,7 @@
         -o StrictHostKeyChecking=no
         -o UserKnownHostsFile=/dev/null
         -o ConnectTimeout=30
-        ubuntu@{{ item.server.addresses.get(external_network)[0].addr }} true
+        ubuntu@{{ item.server.addresses.get(external_network)[0].addr }} which python
       register: client_ssh_result
       until: client_ssh_result|success
       retries: 300
@@ -146,7 +158,7 @@
         -o StrictHostKeyChecking=no
         -o UserKnownHostsFile=/dev/null
         -o ConnectTimeout=30
-        ubuntu@{{ item.server.addresses.get(external_network)[0].addr }} true
+        ubuntu@{{ item.server.addresses.get(external_network)[0].addr }} which python
       register: haproxy_ssh_result
       until: haproxy_ssh_result|success
       retries: 300
@@ -160,7 +172,7 @@
         -o StrictHostKeyChecking=no
         -o UserKnownHostsFile=/dev/null
         -o ConnectTimeout=30
-        ubuntu@{{ item.server.addresses.get(external_network)[0].addr }} true
+        ubuntu@{{ item.server.addresses.get(external_network)[0].addr }} which python
       register: stor_ssh_result
       until: stor_ssh_result|success
       retries: 300
