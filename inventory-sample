@@ -6,6 +6,10 @@
 
 [rgws]
 
+[repo_servers]
+
+[haproxy_all]
+
 [clients]
 
 [prometheus]
