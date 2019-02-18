@@ -15,8 +15,8 @@ localhost
 [repo_servers]
 allsvc
 
-[hosts]
-localhost
+[hosts:children]
+all_containers
 
 [all_containers]
 mon1
