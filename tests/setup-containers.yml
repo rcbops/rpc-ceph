@@ -7,6 +7,17 @@
       lxc_net_address: 10.100.100.1
       lxc_net_dhcp_range: 10.100.100.8,10.100.100.253
       lxc_net_bridge: lxcbr0
+  pre_tasks:
+  - name: Gather variables for each operating system
+    include_vars: "{{ item }}"
+    with_first_found:
+      - "test-vars-{{ ansible_distribution | lower }}-{{ ansible_distribution_version | lower }}.yml"
+      - "test-vars-{{ ansible_distribution | lower }}-{{ ansible_distribution_major_version | lower }}.yml"
+      - "test-vars-{{ ansible_os_family | lower }}-{{ ansible_distribution_major_version | lower }}.yml"
+      - "test-vars-{{ ansible_distribution | lower }}.yml"
+      - "test-vars-{{ ansible_os_family | lower }}-{{ ansible_distribution_version.split('.')[0] }}.yml"
+      - "test-vars-{{ ansible_os_family | lower }}.yml"
+      - "test-vars-linux.yml"
   post_tasks:
     - name: Ensure that /etc/network/interfaces.d/ exists (Debian)
       file:
@@ -154,7 +165,7 @@
       command: "{{ _iptables_path.stdout }} -A POSTROUTING -t mangle -p tcp -j CHECKSUM --checksum-fill"
 
     - name: Add iptables rule to provide internet connectivity to instances
-      command: "{{ _iptables_path.stdout }} -t nat -A POSTROUTING -o eth0 -j MASQUERADE"
+      command: "{{ _iptables_path.stdout }} -t nat -A POSTROUTING -o {{ iptables_interface | default('eth0') }} -j MASQUERADE"
 
     - name: Add iptables rules for lxc natting
       command: /usr/local/bin/lxc-system-manage iptables-create

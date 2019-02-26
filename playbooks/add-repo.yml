@@ -35,6 +35,7 @@
           with_items:
             - dpkg-dev
             - dpkg-sig
+            - apt-utils
             - rng-tools
 
         - name: Ensure target dir
@@ -45,7 +46,17 @@
             - "{{ target }}/dists/{{ ansible_distribution_release }}/main/binary-amd64"
             - "{{ target }}/dists/{{ ansible_distribution_release }}/main/binary-i386"
             - "{{ target }}/pool/main/c/ceph"
+
+        - name: Ensure target dir
+          file:
+            path: "{{ item }}"
+            state: directory
+            owner: root
+            group: root
+            mode: 0700
+          with_items:
             - "{{ gpg_dir }}"
+            - "{{ lookup('env', 'HOME') }}/.gnupg"
 
         - name: Get Ceph Packages
           command: >
@@ -78,30 +89,30 @@
         - name: gen entropy
           command: rngd -r /dev/urandom
 
+        - name: check for key
+          shell: gpg --list-keys | grep -wo 'rackspace_ceph_repo (RPC-Ceph Repo Pinning)'
+          register: gpg_key_check
+          ignore_errors: true
+
         - name: gen gpg key
           command: gpg --batch --gen-key /tmp/gpg-key-script
-          args:
-            creates: "{{ gpg_dir }}/rackspace.key"
           register: genkey
+          when: gpg_key_check.rc == 1
 
-        - name: import keyring
-          command: gpg --no-default-keyring --secret-keyring {{ gpg_dir }}/rackspace.key --keyring {{ gpg_dir }}/rackspace.pub --list-secret-keys
-
-        - name: import key
-          command: gpg --import {{ gpg_dir }}/rackspace.key
-          when: genkey.changed
+        - name: Set gpg pinentry-mode loopback
+          lineinfile:
+            path: /root/.gnupg/gpg.conf
+            line: 'pinentry-mode loopback'
+            create: yes
+          when: ansible_distribution_release == 'bionic'
 
         - name: Sign packages
-          command: dpkg-sig -k rackspace --sign builder *.deb
+          command: dpkg-sig -k rackspace_ceph_repo --sign builder -g "--no-tty --passphrase '{{ ceph_repokey_passphrase }}'" *.deb
           args:
             chdir: "{{ target }}/pool/main/c/ceph"
 
-        - name: Get Key ID
-          shell: gpg {{ gpg_dir }}/rackspace.key | grep ^sec | cut -c12-20
-          register: keyid
-
         - name: Export key
-          shell: gpg -a --export {{ keyid.stdout }} > {{ target }}/release.asc
+          shell: gpg -a --export rackspace_ceph_repo > {{ target }}/release.asc
 
         - name: Scan packages
           shell:
@@ -125,7 +136,7 @@
             chdir: "{{ target }}/dists/{{ ansible_distribution_release }}"
 
         - name: Sign release file
-          command: gpg --yes --armor --output Release.gpg --detach-sig Release
+          command: gpg --yes --armor --no-tty --passphrase '{{ ceph_repokey_passphrase }}' --output Release.gpg --detach-sig Release
           args:
             chdir: "{{ target }}/dists/{{ ansible_distribution_release }}"
 

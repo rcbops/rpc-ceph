@@ -3,11 +3,10 @@ Key-Type: DSA
 Key-Length: 2048
 Subkey-Type: ELG-E
 Subkey-Length: 2048
-Name-Real: rackspace
-Name-Comment: Ceph {{ ceph_stable_release }} Repo
+Name-Real: rackspace_ceph_repo
+Name-Comment: RPC-Ceph Repo Pinning
 Name-email: donotreply@rackspace.com
 Expire-Date: 0
-%pubring {{ gpg_dir }}/rackspace.pub
-%secring {{ gpg_dir }}/rackspace.key
+Passphrase: {{ ceph_repokey_passphrase }}
 %commit
 %echo done

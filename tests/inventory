@@ -13,7 +13,7 @@ rsyslog1
 localhost
 
 [repo_servers]
-allsvc
+localhost
 
 [hosts:children]
 all_containers

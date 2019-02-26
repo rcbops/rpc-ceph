@@ -1,0 +1,6 @@
+---
+features:
+  - Add support for deploying rpc-ceph on Ubuntu Bionic 18.04.
+  - Add Bionic and Mimic gating for all new PRs.
+fixes:
+  - Update gpg key creation for custom repo to include a passphrase.

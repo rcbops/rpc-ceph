@@ -1,0 +1,3 @@
+---
+lxc_apparmor: "lxc.apparmor.profile = unconfined"
+iptables_interface: ens3
