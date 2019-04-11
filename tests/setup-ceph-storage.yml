@@ -10,6 +10,7 @@
 
 - name: Playbook for configuring fake storage on Ceph hosts
   hosts: osds
+  serial: 1
   become: true
   pre_tasks:
   - name: Gather variables for each operating system
