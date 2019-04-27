@@ -1,0 +1,6 @@
+---
+upgrade:
+  - Bump ceph-ansible version from v3.1.12 to v3.1.13
+  - Bump prometheus_server-role version from 1.4.0 to 1.4.1
+  - Bump prometheus_node_exporter-role version from 2.1.0 to 3.0.0
+  - Bump ansible-alertmanager version from 0.13.8 to 0.13.11
