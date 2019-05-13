@@ -643,6 +643,9 @@
       - "{{ systemd_files.files }}"
     when: ansible_service_mgr == 'systemd'
 
+  - name: reset failed systemd units
+    shell: "systemctl reset-failed"
+    when: ansible_service_mgr == 'systemd'
 
 - name: purge fetch directory
 
