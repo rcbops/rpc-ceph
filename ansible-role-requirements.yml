@@ -1,7 +1,7 @@
 - name: ceph-ansible
   scm: git
   src: https://github.com/ceph/ceph-ansible
-  version: v3.1.12
+  version: v3.1.13
 - name: rsyslog_client
   scm: git
   src: https://git.openstack.org/openstack/openstack-ansible-rsyslog_client
@@ -17,11 +17,11 @@
 - name: prometheus_server
   scm: git
   src: https://github.com/idealista/prometheus_server-role
-  version: 1.4.0
+  version: 1.4.1
 - name: prometheus_node_exporter
   scm: git
   src: https://github.com/idealista/prometheus_node_exporter-role
-  version: 2.1.0
+  version: 3.0.0
 - name: grafana
   scm: git
   src: https://github.com/ansiblebit/grafana
@@ -29,7 +29,7 @@
 - name: alertmanager
   scm: git
   src: https://github.com/cloudalchemy/ansible-alertmanager
-  version: 0.13.8
+  version: 0.13.12
 - name: ../ceph_plugins
   scm: git
   src: https://git.openstack.org/openstack/openstack-ansible-plugins
