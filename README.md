@@ -1,3 +1,8 @@
+# Decom Note:
+
+rpc-ceph is no longer being developed or tested.  Please use the
+upstream ceph-ansible playbooks for any future deployments. 
+
 # rpc-ceph and ceph-ansible
 
 ``rpc-ceph`` deploys Ceph as an RPC stand-alone platform in a uniform,
